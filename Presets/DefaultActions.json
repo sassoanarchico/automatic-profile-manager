@@ -1,0 +1,57 @@
+[
+  {
+    "Id": "00000000-0000-0000-0000-000000000001",
+    "Name": "Apri Discord",
+    "ActionType": 0,
+    "Path": "C:\\Users\\%USERNAME%\\AppData\\Local\\Discord\\app-*\\Discord.exe",
+    "Arguments": "",
+    "ExecutionPhase": 0,
+    "IsMirrorAction": false,
+    "Priority": 0,
+    "WaitSeconds": 0
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000002",
+    "Name": "Chiudi Chrome",
+    "ActionType": 1,
+    "Path": "chrome",
+    "Arguments": "",
+    "ExecutionPhase": 0,
+    "IsMirrorAction": true,
+    "Priority": 0,
+    "WaitSeconds": 0
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000003",
+    "Name": "Avvia OBS",
+    "ActionType": 0,
+    "Path": "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe",
+    "Arguments": "--startstreaming",
+    "ExecutionPhase": 0,
+    "IsMirrorAction": false,
+    "Priority": 0,
+    "WaitSeconds": 0
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000004",
+    "Name": "Silenzia Volume Sistema",
+    "ActionType": 3,
+    "Path": "nircmd.exe mutesysvolume 1",
+    "Arguments": "",
+    "ExecutionPhase": 0,
+    "IsMirrorAction": true,
+    "Priority": 0,
+    "WaitSeconds": 0
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000005",
+    "Name": "Attendi 2 secondi",
+    "ActionType": 4,
+    "Path": "",
+    "Arguments": "",
+    "ExecutionPhase": 0,
+    "IsMirrorAction": false,
+    "Priority": 0,
+    "WaitSeconds": 2
+  }
+]

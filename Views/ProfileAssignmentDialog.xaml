@@ -1,0 +1,39 @@
+<Window x:Class="AutomationProfileManager.Views.ProfileAssignmentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Assegna Profilo di Automazione" Height="400" Width="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FF1E1E1E">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/DarkTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="Seleziona un profilo per:" FontSize="12" Foreground="#FFB0B0B0" Margin="0,0,0,5"/>
+            <TextBlock x:Name="GameNameTextBlock" FontSize="16" FontWeight="Bold" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <ListBox x:Name="ProfilesListBox" Grid.Row="1" 
+                 DisplayMemberPath="Name"
+                 Margin="0,0,0,15"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right">
+            <Button Content="Assegna" Click="OK_Click" Width="90" Margin="0,0,10,0" IsDefault="True"/>
+            <Button Content="Rimuovi" Click="RemoveProfile_Click" Width="90" Margin="0,0,10,0"/>
+            <Button Content="Annulla" Click="Cancel_Click" Width="90" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

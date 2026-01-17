@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWpf>true</UseWpf>
+    <PlayniteSDKPath Condition="'$(PlayniteSDKPath)' == ''">$(MSBuildProjectDirectory)\lib\Playnite.SDK.dll</PlayniteSDKPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Playnite.SDK">
+      <HintPath>$(MSBuildProjectDirectory)\lib\Playnite.SDK.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="extension.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+
+  <Target Name="AddPlayniteReferenceToTemporaryProject" BeforeTargets="MarkupCompilePass1">
+    <ItemGroup>
+      <_MarkupCompilePass1References Include="Playnite.SDK">
+        <HintPath>$(PlayniteSDKPath)</HintPath>
+        <Private>False</Private>
+        <SpecificVersion>False</SpecificVersion>
+      </_MarkupCompilePass1References>
+      <_ReferencePath Include="$(PlayniteSDKPath)">
+        <Private>False</Private>
+      </_ReferencePath>
+    </ItemGroup>
+    <PropertyGroup>
+      <_MarkupCompilePass1ReferencePaths>$(PlayniteSDKPath);@(_ReferencePath->'%(FullPath)', ';')</_MarkupCompilePass1ReferencePaths>
+    </PropertyGroup>
+  </Target>
+  
+  <!-- Aggiunge il riferimento al progetto temporaneo dopo la generazione -->
+  <Target Name="AddPlayniteSDKToTemporaryProject" AfterTargets="GenerateTemporaryTargetAssembly" BeforeTargets="_CompileTemporaryAssembly">
+    <ItemGroup>
+      <_ReferenceFromItem Include="Playnite.SDK">
+        <HintPath>$(PlayniteSDKPath)</HintPath>
+        <Private>False</Private>
+        <SpecificVersion>False</SpecificVersion>
+      </_ReferenceFromItem>
+      <_ReferencePath Include="$(PlayniteSDKPath)">
+        <Private>False</Private>
+      </_ReferencePath>
+    </ItemGroup>
+  </Target>
+
+  <Import Project="AutomationProfileManager.targets" />
+
+</Project>

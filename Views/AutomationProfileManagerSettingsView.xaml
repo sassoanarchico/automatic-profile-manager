@@ -1,0 +1,181 @@
+<UserControl x:Class="AutomationProfileManager.Views.AutomationProfileManagerSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:models="clr-namespace:AutomationProfileManager.Models"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900">
+    <Grid>
+        <TabControl>
+            <!-- Action Library Tab -->
+            <TabItem Header="Libreria Azioni">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                        <Button Content="+ Aggiungi Azione" Click="AddAction_Click" Margin="0,0,5,0" Padding="10,5"/>
+                        <Button Content="Modifica" Click="EditAction_Click" Margin="0,0,5,0" Padding="10,5" x:Name="EditActionButton" IsEnabled="False"/>
+                        <Button Content="Rimuovi" Click="RemoveAction_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveActionButton" IsEnabled="False"/>
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
+                        <Button Content="Importa Azioni Predefinite" Click="ImportDefaultActions_Click" Margin="0,0,5,0" Padding="10,5"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Text="Crea azioni riutilizzabili da assegnare ai profili. Le azioni Mirror ripristinano lo stato precedente alla chiusura del gioco." 
+                               TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
+                    
+                    <DataGrid x:Name="ActionsDataGrid" Grid.Row="2" 
+                              AutoGenerateColumns="False" 
+                              SelectionMode="Single"
+                              CanUserAddRows="False"
+                              SelectionChanged="ActionsDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Tipo" Binding="{Binding ActionType}" Width="120"/>
+                            <DataGridTextColumn Header="Percorso/Comando" Binding="{Binding Path}" Width="*"/>
+                            <DataGridCheckBoxColumn Header="Mirror" Binding="{Binding IsMirrorAction}" Width="60"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Profile Management Tab -->
+            <TabItem Header="Gestione Profili">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left Panel: Profiles List -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                            <Button Content="+ Nuovo Profilo" Click="AddProfile_Click" Margin="0,0,5,0" Padding="10,5"/>
+                            <Button Content="Elimina" Click="RemoveProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveProfileButton" IsEnabled="False"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1" Text="Profili disponibili:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        
+                        <ListBox x:Name="ProfilesListBox" Grid.Row="2" 
+                                 SelectionChanged="ProfilesListBox_SelectionChanged"
+                                 DisplayMemberPath="Name"/>
+                    </Grid>
+                    
+                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="#FF3F3F46"/>
+                    
+                    <!-- Right Panel: Profile Actions -->
+                    <Grid Grid.Column="2" Margin="10,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock x:Name="ProfileNameTextBlock" Grid.Row="0" 
+                                   FontSize="16" FontWeight="Bold" 
+                                   Margin="0,0,0,5" Text="Seleziona un profilo"/>
+
+                        <TextBlock Grid.Row="1" Text="Doppio click o trascina le azioni dalla lista a sinistra. Usa i pulsanti per riordinare o rimuovere." 
+                                   TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
+                        
+                        <Grid Grid.Row="2" Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Azioni Disponibili" FontWeight="SemiBold" Grid.Column="0"/>
+                            <TextBlock Text="-->" HorizontalAlignment="Center" Grid.Column="1" Foreground="#FF808080"/>
+                            <TextBlock Text="Azioni nel Profilo" FontWeight="SemiBold" Grid.Column="2"/>
+                        </Grid>
+                        
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Available Actions -->
+                            <ListBox x:Name="AvailableActionsListBox" 
+                                     Grid.Column="0"
+                                     DisplayMemberPath="Name"
+                                     PreviewMouseLeftButtonDown="AvailableActionsListBox_PreviewMouseLeftButtonDown"
+                                     PreviewMouseMove="AvailableActionsListBox_PreviewMouseMove"
+                                     PreviewMouseLeftButtonUp="AvailableActionsListBox_PreviewMouseLeftButtonUp"
+                                     MouseDoubleClick="AvailableActionsListBox_MouseDoubleClick"/>
+
+                            <TextBlock Grid.Column="1" Text=">>>" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                       FontSize="14" Foreground="#FF808080"/>
+                            
+                            <!-- Profile Actions - NO drag events, use buttons instead -->
+                            <ListBox x:Name="ProfileActionsListBox" 
+                                     Grid.Column="2"
+                                     AllowDrop="True"
+                                     Drop="ProfileActionsListBox_Drop"
+                                     DragOver="ProfileActionsListBox_DragOver">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- Move Up/Down buttons -->
+                                            <StackPanel Orientation="Vertical" Grid.Column="0" Margin="0,0,5,0">
+                                                <Button Content="^" Width="20" Height="16" Padding="0" Margin="0,0,0,1"
+                                                        FontSize="10" Click="MoveActionUp_Click" ToolTip="Sposta su"/>
+                                                <Button Content="v" Width="20" Height="16" Padding="0"
+                                                        FontSize="10" Click="MoveActionDown_Click" ToolTip="Sposta giu"/>
+                                            </StackPanel>
+                                            
+                                            <TextBlock Text="{Binding Name}" Grid.Column="1" VerticalAlignment="Center" 
+                                                       TextTrimming="CharacterEllipsis" Margin="0,0,5,0"/>
+                                            
+                                            <ComboBox Grid.Column="2" 
+                                                      SelectedItem="{Binding ExecutionPhase}"
+                                                      Width="120" Margin="0,0,5,0"
+                                                      SelectionChanged="ExecutionPhase_Changed"
+                                                      FontSize="11">
+                                                <ComboBox.ItemsSource>
+                                                    <x:Array Type="{x:Type models:ExecutionPhase}">
+                                                        <x:Static Member="models:ExecutionPhase.BeforeStarting"/>
+                                                        <x:Static Member="models:ExecutionPhase.AfterStarting"/>
+                                                        <x:Static Member="models:ExecutionPhase.AfterClosing"/>
+                                                    </x:Array>
+                                                </ComboBox.ItemsSource>
+                                            </ComboBox>
+                                            
+                                            <Button Content="X" Grid.Column="3" 
+                                                    Width="24" Height="24"
+                                                    Padding="0"
+                                                    FontSize="12"
+                                                    Click="RemoveActionFromProfile_Click"
+                                                    ToolTip="Rimuovi dal profilo"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

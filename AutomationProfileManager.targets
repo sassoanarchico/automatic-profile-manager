@@ -1,0 +1,42 @@
+<Project>
+  <PropertyGroup>
+    <PlayniteSDKPath Condition="'$(PlayniteSDKPath)' == ''">C:\Users\paffe\AppData\Local\Playnite\Playnite.SDK.dll</PlayniteSDKPath>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Reference Include="Playnite.SDK">
+      <HintPath>$(PlayniteSDKPath)</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  
+  <!-- Forza l'inclusione del riferimento nei file temporanei XAML -->
+  <Target Name="IncludePlayniteSDKInTemporaryProject" BeforeTargets="MarkupCompilePass1">
+    <ItemGroup>
+      <_MarkupCompilePass1References Include="Playnite.SDK">
+        <HintPath>$(PlayniteSDKPath)</HintPath>
+        <Private>False</Private>
+        <SpecificVersion>False</SpecificVersion>
+      </_MarkupCompilePass1References>
+      <_ReferencePath Include="$(PlayniteSDKPath)">
+        <Private>False</Private>
+      </_ReferencePath>
+    </ItemGroup>
+    <PropertyGroup>
+      <_MarkupCompilePass1ReferencePaths>$(PlayniteSDKPath);@(_ReferencePath->'%(FullPath)', ';')</_MarkupCompilePass1ReferencePaths>
+    </PropertyGroup>
+  </Target>
+  
+  <!-- Aggiunge il riferimento Playnite.SDK al progetto temporaneo usando PowerShell -->
+  <Target Name="AddPlayniteSDKToTemporaryProject" AfterTargets="GenerateTemporaryTargetAssembly" BeforeTargets="_CompileTemporaryAssembly">
+    <PropertyGroup>
+      <_TmpProjFile>$(_TemporaryTargetAssemblyProjectFile)</_TmpProjFile>
+    </PropertyGroup>
+    <Message Text="Temporary project file: $(_TmpProjFile)" Importance="normal" />
+    <Message Text="PlayniteSDKPath: $(PlayniteSDKPath)" Importance="normal" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$projFile = '$(_TmpProjFile)'; $sdkPath = '$(PlayniteSDKPath)'; Write-Host &quot;Processing: $projFile&quot;; if (Test-Path $projFile) { $content = [System.IO.File]::ReadAllText($projFile); if ($content -notmatch 'Playnite\.SDK') { $refXml = &quot;    &lt;Reference Include=`&quot;Playnite.SDK`&quot;&gt;`r`n      &lt;HintPath&gt;$sdkPath&lt;/HintPath&gt;`r`n      &lt;Private&gt;False&lt;/Private&gt;`r`n      &lt;SpecificVersion&gt;False&lt;/SpecificVersion&gt;`r`n    &lt;/Reference&gt;&quot;; if ($content -match '(&lt;ItemGroup&gt;.*?&lt;Reference Include=&quot;Newtonsoft\.Json&quot;.*?&lt;/ItemGroup&gt;)') { $content = $content -replace $matches[0], &quot;$($matches[0])`r`n  &lt;ItemGroup&gt;`r`n$refXml`r`n  &lt;/ItemGroup&gt;&quot;; } else { $content = $content -replace '(&lt;/Project&gt;)', &quot;  &lt;ItemGroup&gt;`r`n$refXml`r`n  &lt;/ItemGroup&gt;`r`n`$1&quot;; } [System.IO.File]::WriteAllText($projFile, $content, [System.Text.Encoding]::UTF8); Write-Host 'SUCCESS: Added Playnite.SDK reference to temporary project' } else { Write-Host 'Playnite.SDK reference already exists' } } else { Write-Host 'ERROR: Temporary project file not found' }&quot;" 
+          Condition="Exists('$(_TmpProjFile)')" 
+          ContinueOnError="false" />
+  </Target>
+</Project>
