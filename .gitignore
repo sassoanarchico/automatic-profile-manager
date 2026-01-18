@@ -41,3 +41,10 @@ _ReSharper*/
 # Playnite specific
 bin/
 obj/
+
+# Packaging artifacts
+pext-output/
+*.pext
+*.zip
+*.log
+*.txt

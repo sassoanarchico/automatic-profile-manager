@@ -339,7 +339,7 @@ namespace AutomationProfileManager.Services
                     Id = Guid.NewGuid(),
                     Name = "[Script] Modalita Gioco ON",
                     ActionType = ActionType.PowerShellScript,
-                    Path = "Set-ItemProperty -Path \"HKCU:\\\\Software\\\\Microsoft\\\\GameBar\" -Name \"AutoGameModeEnabled\" -Value 1",
+                    Path = "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\GameBar\" -Name \"AutoGameModeEnabled\" -Value 1",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
                     Priority = 0
@@ -349,7 +349,7 @@ namespace AutomationProfileManager.Services
                     Id = Guid.NewGuid(),
                     Name = "[Script] Modalita Gioco OFF",
                     ActionType = ActionType.PowerShellScript,
-                    Path = "Set-ItemProperty -Path \"HKCU:\\\\Software\\\\Microsoft\\\\GameBar\" -Name \"AutoGameModeEnabled\" -Value 0",
+                    Path = "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\GameBar\" -Name \"AutoGameModeEnabled\" -Value 0",
                     ExecutionPhase = ExecutionPhase.AfterClosing,
                     IsMirrorAction = true,
                     Priority = 0
