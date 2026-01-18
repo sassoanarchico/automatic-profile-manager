@@ -21,12 +21,18 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Download Playnite SDK (latest release)
+      - name: Ensure Playnite SDK
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
+
+          $sdkPath = Join-Path $PWD "lib/Playnite.SDK.dll"
+          if (Test-Path $sdkPath) {
+            Write-Host "Playnite.SDK.dll already present at $sdkPath. Skipping download."
+            return
+          }
 
           $repo = "JosefNemec/Playnite"
           $tmp = $env:RUNNER_TEMP
@@ -35,7 +41,6 @@ jobs:
           $assetNames = gh api "repos/$repo/releases/latest" --jq ".assets[].name"
           if (-not $assetNames) { throw "No assets returned from releases/latest." }
 
-          # Prefer SDK/Portable; fallback to any archive containing Playnite.SDK.dll
           $assetToDownload = $assetNames | Where-Object { $_ -like "PlayniteSDK*" -and ($_ -like "*.zip" -or $_ -like "*.7z") } | Select-Object -First 1
           if (-not $assetToDownload) {
             $assetToDownload = $assetNames | Where-Object { $_ -like "PlaynitePortable*" -and ($_ -like "*.zip" -or $_ -like "*.7z") } | Select-Object -First 1
@@ -43,7 +48,10 @@ jobs:
           if (-not $assetToDownload) {
             $assetToDownload = $assetNames | Where-Object { $_ -match '\\.(zip|7z)$' } | Select-Object -First 1
           }
-          if (-not $assetToDownload) { throw "No suitable asset (zip/7z) found in latest release." }
+
+          if (-not $assetToDownload) {
+            throw "No suitable asset (zip/7z) found in latest release, and no local lib/Playnite.SDK.dll present."
+          }
 
           Write-Host "Downloading asset: $assetToDownload"
           gh release download --repo $repo --pattern $assetToDownload --dir $tmp --clobber
