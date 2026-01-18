@@ -230,7 +230,7 @@ namespace AutomationProfileManager.Views
             Point currentPoint = e.GetPosition(null);
             Vector diff = dragStartPoint.Value - currentPoint;
 
-            // Inizia il drag solo se il mouse si è mosso abbastanza
+            // Inizia il drag solo se il mouse si ï¿½ mosso abbastanza
             if (Math.Abs(diff.X) > DragThreshold || Math.Abs(diff.Y) > DragThreshold)
             {
                 if (!isDragging && selectedProfile != null && AvailableActionsListBox.SelectedItem != null)

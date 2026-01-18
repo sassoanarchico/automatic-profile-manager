@@ -1,0 +1,123 @@
+name: Build and Release .pext
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Download Playnite SDK (latest release)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $repo = "JosefNemec/Playnite"
+          $tmp = $env:RUNNER_TEMP
+
+          Write-Host "Querying latest Playnite release assets from $repo ..."
+          $assetNames = gh api "repos/$repo/releases/latest" --jq ".assets[].name"
+          if (-not $assetNames) { throw "No assets returned from releases/latest." }
+
+          # Prefer SDK/Portable; fallback to any archive containing Playnite.SDK.dll
+          $assetToDownload = $assetNames | Where-Object { $_ -like "PlayniteSDK*" -and ($_ -like "*.zip" -or $_ -like "*.7z") } | Select-Object -First 1
+          if (-not $assetToDownload) {
+            $assetToDownload = $assetNames | Where-Object { $_ -like "PlaynitePortable*" -and ($_ -like "*.zip" -or $_ -like "*.7z") } | Select-Object -First 1
+          }
+          if (-not $assetToDownload) {
+            $assetToDownload = $assetNames | Where-Object { $_ -match '\\.(zip|7z)$' } | Select-Object -First 1
+          }
+          if (-not $assetToDownload) { throw "No suitable asset (zip/7z) found in latest release." }
+
+          Write-Host "Downloading asset: $assetToDownload"
+          gh release download --repo $repo --pattern $assetToDownload --dir $tmp --clobber
+
+          $archivePath = Join-Path $tmp $assetToDownload
+          if (-not (Test-Path $archivePath)) { throw "Downloaded archive not found: $archivePath" }
+
+          $extractDir = Join-Path $env:RUNNER_TEMP "playnite"
+          if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+
+          if ($archivePath.ToLowerInvariant().EndsWith(".zip")) {
+            Expand-Archive -Path $archivePath -DestinationPath $extractDir -Force
+          } elseif ($archivePath.ToLowerInvariant().EndsWith(".7z")) {
+            $sevenZip = Get-Command "7z" -ErrorAction SilentlyContinue
+            if (-not $sevenZip) { throw "7z not found on runner; cannot extract .7z asset." }
+            & 7z x $archivePath ("-o$extractDir") -y | Out-Null
+          } else {
+            throw "Unsupported archive type: $archivePath"
+          }
+
+          $sdk = Get-ChildItem -Path $extractDir -Recurse -Filter "Playnite.SDK.dll" | Select-Object -First 1
+          if (-not $sdk) { throw "Playnite.SDK.dll not found in extracted archive." }
+
+          $destDir = Join-Path $PWD "lib"
+          New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+          Copy-Item -Force -Path $sdk.FullName -Destination (Join-Path $destDir "Playnite.SDK.dll")
+
+      - name: Read version from extension.yaml
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $line = Select-String -Path "extension.yaml" -Pattern "^\s*Version\s*:" | Select-Object -First 1
+          if (-not $line) { throw "Version not found in extension.yaml" }
+          $version = ($line.Line -split ":", 2)[1].Trim()
+          if (-not $version) { throw "Parsed version is empty" }
+
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TAG=v$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build (Release)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          msbuild "AutomationProfileManager.csproj" /t:Rebuild /p:Configuration=Release /v:minimal
+
+      - name: Create .pext package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          powershell -ExecutionPolicy Bypass -File "build-pext.ps1" -Configuration Release
+
+          $pext = Join-Path $PWD "AutomationProfileManager.pext"
+          if (-not (Test-Path $pext)) { throw ".pext not created: $pext" }
+
+          $targetName = "AutomationProfileManager_v$($env:VERSION).pext"
+          if ($targetName -ne "AutomationProfileManager.pext") {
+            if (Test-Path $targetName) { Remove-Item $targetName -Force }
+            Copy-Item $pext $targetName
+          }
+
+      - name: Create/Update GitHub Release and upload asset
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $tag = $env:TAG
+          $file = "AutomationProfileManager_v$($env:VERSION).pext"
+          if (-not (Test-Path $file)) { $file = "AutomationProfileManager.pext" }
+
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --title "AutomationProfileManager $tag" --generate-notes
+          }
+
+          gh release upload $tag $file --clobber
