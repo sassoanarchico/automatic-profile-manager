@@ -91,6 +91,12 @@ jobs:
           "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "TAG=v$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
+      - name: Restore packages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          dotnet restore "AutomationProfileManager.csproj"
+
       - name: Build (Release)
         shell: pwsh
         run: |
