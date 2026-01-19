@@ -92,15 +92,41 @@ namespace AutomationProfileManager
         {
             extensionData = dataService.LoadData();
             
-            // Initialize log service with existing logs
+            // Ensure all properties are initialized
+            if (extensionData == null)
+            {
+                extensionData = new ExtensionData();
+            }
+            
+            if (extensionData.ActionLibrary == null)
+            {
+                extensionData.ActionLibrary = new List<GameAction>();
+            }
+            
+            if (extensionData.Profiles == null)
+            {
+                extensionData.Profiles = new List<AutomationProfile>();
+            }
+            
+            if (extensionData.Mappings == null)
+            {
+                extensionData.Mappings = new ProfileMapping();
+            }
+            
+            if (extensionData.Settings == null)
+            {
+                extensionData.Settings = new ExtensionSettings();
+            }
+            
             if (extensionData.ActionLog == null)
             {
                 extensionData.ActionLog = new List<ActionLogEntry>();
             }
             
+            // Initialize log service with existing logs
             actionLogService = new ActionLogService(
                 extensionData.ActionLog, 
-                extensionData.Settings?.MaxLogEntries ?? 100
+                extensionData.Settings.MaxLogEntries
             );
             actionExecutor.SetLogService(actionLogService);
         }
@@ -112,7 +138,7 @@ namespace AutomationProfileManager
 
         private async void ExecuteProfileActions(Game game, ExecutionPhase phase)
         {
-            if (extensionData?.Mappings?.GameToProfile == null)
+            if (extensionData == null || extensionData.Mappings == null || extensionData.Mappings.GameToProfile == null)
                 return;
 
             if (!extensionData.Mappings.GameToProfile.TryGetValue(game.Id, out var profileId))
@@ -173,6 +199,10 @@ namespace AutomationProfileManager
                 return;
 
             var game = games[0];
+            if (extensionData?.Profiles == null)
+            {
+                extensionData = GetExtensionData();
+            }
             var dialog = new ProfileAssignmentDialog(extensionData.Profiles, game.Name);
             
             if (dialog.ShowDialog() == true)
@@ -231,10 +261,48 @@ namespace AutomationProfileManager
             }
         }
 
-        public ExtensionData GetExtensionData() => extensionData;
+        public ExtensionData GetExtensionData()
+        {
+            if (extensionData == null)
+            {
+                LoadData();
+            }
+            return extensionData ?? new ExtensionData();
+        }
         
         public void UpdateExtensionData(ExtensionData data)
         {
+            if (data == null)
+            {
+                data = new ExtensionData();
+            }
+            
+            // Ensure all properties are initialized
+            if (data.ActionLibrary == null)
+            {
+                data.ActionLibrary = new List<GameAction>();
+            }
+            
+            if (data.Profiles == null)
+            {
+                data.Profiles = new List<AutomationProfile>();
+            }
+            
+            if (data.Mappings == null)
+            {
+                data.Mappings = new ProfileMapping();
+            }
+            
+            if (data.Settings == null)
+            {
+                data.Settings = new ExtensionSettings();
+            }
+            
+            if (data.ActionLog == null)
+            {
+                data.ActionLog = new List<ActionLogEntry>();
+            }
+            
             extensionData = data;
             SaveData();
         }

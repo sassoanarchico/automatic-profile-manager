@@ -35,7 +35,9 @@ namespace AutomationProfileManager.Services
             try
             {
                 var json = File.ReadAllText(filePath);
-                return JsonConvert.DeserializeObject<ExtensionData>(json) ?? new ExtensionData();
+                var data = JsonConvert.DeserializeObject<ExtensionData>(json) ?? new ExtensionData();
+                NormalizeData(data);
+                return data;
             }
             catch (Exception ex)
             {
@@ -45,6 +47,41 @@ namespace AutomationProfileManager.Services
                     NotificationType.Error
                 ));
                 return new ExtensionData();
+            }
+        }
+
+        private void NormalizeData(ExtensionData data)
+        {
+            if (data == null) return;
+            
+            if (data.ActionLibrary == null)
+            {
+                data.ActionLibrary = new List<GameAction>();
+            }
+            
+            if (data.Profiles == null)
+            {
+                data.Profiles = new List<AutomationProfile>();
+            }
+            
+            if (data.Mappings == null)
+            {
+                data.Mappings = new ProfileMapping();
+            }
+            
+            if (data.Mappings.GameToProfile == null)
+            {
+                data.Mappings.GameToProfile = new Dictionary<Guid, Guid>();
+            }
+            
+            if (data.Settings == null)
+            {
+                data.Settings = new ExtensionSettings();
+            }
+            
+            if (data.ActionLog == null)
+            {
+                data.ActionLog = new List<ActionLogEntry>();
             }
         }
 

@@ -33,7 +33,38 @@ namespace AutomationProfileManager.Views
 
         private void LoadData()
         {
-            extensionData = plugin.GetExtensionData() ?? new ExtensionData();
+            extensionData = plugin.GetExtensionData();
+            
+            // Ensure all properties are initialized
+            if (extensionData == null)
+            {
+                extensionData = new ExtensionData();
+            }
+            
+            if (extensionData.ActionLibrary == null)
+            {
+                extensionData.ActionLibrary = new List<GameAction>();
+            }
+            
+            if (extensionData.Profiles == null)
+            {
+                extensionData.Profiles = new List<AutomationProfile>();
+            }
+            
+            if (extensionData.Mappings == null)
+            {
+                extensionData.Mappings = new ProfileMapping();
+            }
+            
+            if (extensionData.Settings == null)
+            {
+                extensionData.Settings = new ExtensionSettings();
+            }
+            
+            if (extensionData.ActionLog == null)
+            {
+                extensionData.ActionLog = new List<ActionLogEntry>();
+            }
         }
 
         private void InitializeUI()
@@ -48,13 +79,10 @@ namespace AutomationProfileManager.Views
             // Initialize log viewer
             RefreshLog();
             
-            // Initialize settings
-            if (extensionData.Settings != null)
-            {
-                ShowNotificationsCheckBox.IsChecked = extensionData.Settings.ShowNotifications;
-                EnableDryRunCheckBox.IsChecked = extensionData.Settings.EnableDryRun;
-                MaxLogEntriesTextBox.Text = extensionData.Settings.MaxLogEntries.ToString();
-            }
+            // Initialize settings (always initialized in LoadData)
+            ShowNotificationsCheckBox.IsChecked = extensionData.Settings.ShowNotifications;
+            EnableDryRunCheckBox.IsChecked = extensionData.Settings.EnableDryRun;
+            MaxLogEntriesTextBox.Text = extensionData.Settings.MaxLogEntries.ToString();
         }
 
         private void ActionsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
