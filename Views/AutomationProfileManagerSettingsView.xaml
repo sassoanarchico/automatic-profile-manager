@@ -8,9 +8,9 @@
              xmlns:local="clr-namespace:AutomationProfileManager.Views"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
-    <Grid.Resources>
+    <UserControl.Resources>
         <local:BoolToStatusConverter x:Key="BoolToStatusConverter"/>
-    </Grid.Resources>
+    </UserControl.Resources>
     <Grid>
         <TabControl>
             <!-- Action Library Tab -->
