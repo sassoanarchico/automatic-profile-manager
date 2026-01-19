@@ -6,6 +6,7 @@ namespace AutomationProfileManager.Models
         CloseApp,
         PowerShellScript,
         SystemCommand,
-        Wait
+        Wait,
+        ChangeResolution
     }
 }

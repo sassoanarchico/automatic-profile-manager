@@ -1,4 +1,4 @@
-# Automation Profile Manager (Playnite)
+﻿# Automation Profile Manager (Playnite)
 
 Estensione Playnite per eseguire profili di automazione quando avvii o chiudi un gioco:
 - Chiudi/avvia app comuni (browser, Discord, Spotify, client di gioco).
@@ -7,12 +7,12 @@ Estensione Playnite per eseguire profili di automazione quando avvii o chiudi un
 
 ## Installazione
 1. Scarica `AutomationProfileManager.pext` dalla sezione Releases.
-2. In Playnite: Menu ? Add-ons... ? Install from file ? seleziona il `.pext`.
+2. In Playnite: Menu → Add-ons... → Install from file → seleziona il `.pext`.
 
 ## Uso rapido
 - Imposta le azioni nella libreria (chiudi app, avvia app, comandi di sistema, script PS, attese).
-- Crea un profilo e trascina le azioni nell�ordine desiderato.
-- Assegna il profilo a uno o pi� giochi dal menu contestuale di Playnite.
+- Crea un profilo e trascina le azioni nell’ordine desiderato.
+- Assegna il profilo a uno o più giochi dal menu contestuale di Playnite.
 
 ## Build e pacchetto
 - `dotnet build -c Release`
@@ -20,5 +20,3 @@ Estensione Playnite per eseguire profili di automazione quando avvii o chiudi un
 
 ## Licenza
 MIT License - vedi il file `LICENSE`.
-
-Autore: sassoanarchico

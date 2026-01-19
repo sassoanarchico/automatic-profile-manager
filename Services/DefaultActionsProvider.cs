@@ -19,7 +19,8 @@ namespace AutomationProfileManager.Services
                     Path = "chrome",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Browser"
                 },
                 new GameAction
                 {
@@ -29,7 +30,8 @@ namespace AutomationProfileManager.Services
                     Path = "firefox",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Browser"
                 },
                 new GameAction
                 {
@@ -39,7 +41,8 @@ namespace AutomationProfileManager.Services
                     Path = "msedge",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Browser"
                 },
                 new GameAction
                 {
@@ -49,7 +52,8 @@ namespace AutomationProfileManager.Services
                     Path = "Discord",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Comunicazione"
                 },
                 new GameAction
                 {
@@ -59,7 +63,8 @@ namespace AutomationProfileManager.Services
                     Path = "Telegram",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Comunicazione"
                 },
                 new GameAction
                 {
@@ -69,7 +74,8 @@ namespace AutomationProfileManager.Services
                     Path = "ms-teams",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Comunicazione"
                 },
                 new GameAction
                 {
@@ -79,7 +85,8 @@ namespace AutomationProfileManager.Services
                     Path = "slack",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Comunicazione"
                 },
                 new GameAction
                 {
@@ -89,7 +96,8 @@ namespace AutomationProfileManager.Services
                     Path = "Spotify",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Multimedia"
                 },
                 new GameAction
                 {

@@ -7,16 +7,125 @@ using Playnite.SDK;
 
 namespace AutomationProfileManager.Services
 {
+    public class ActionExecutionResult
+    {
+        public bool Success { get; set; }
+        public int ExitCode { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
+
     public class ActionExecutor
     {
         private static readonly ILogger logger = LogManager.GetLogger();
+        private readonly ResolutionService resolutionService;
+        private ActionLogService? logService;
 
         public ActionExecutor(IPlayniteAPI api)
         {
-            // API stored for potential future use
+            resolutionService = new ResolutionService();
         }
 
-        public async Task<bool> ExecuteActionAsync(GameAction action)
+        public void SetLogService(ActionLogService service)
+        {
+            logService = service;
+        }
+
+        public async Task<ActionExecutionResult> ExecuteActionAsync(GameAction action, bool dryRun = false)
+        {
+            var result = new ActionExecutionResult();
+
+            try
+            {
+                string dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
+                logger.Info($"{dryRunPrefix}Executing action: {action.Name} (Type: {action.ActionType}, Phase: {action.ExecutionPhase})");
+
+                if (dryRun)
+                {
+                    result.Success = true;
+                    result.Message = $"Would execute: {action.ActionType} - {action.Path} {action.Arguments}";
+                    logService?.Log(action, true, 0, result.Message, true);
+                    return result;
+                }
+
+                switch (action.ActionType)
+                {
+                    case ActionType.StartApp:
+                        result = ExecuteStartApp(action);
+                        break;
+                    
+                    case ActionType.CloseApp:
+                        result = ExecuteCloseApp(action);
+                        break;
+                    
+                    case ActionType.PowerShellScript:
+                        result = await ExecutePowerShellScriptAsync(action);
+                        break;
+                    
+                    case ActionType.SystemCommand:
+                        result = ExecuteSystemCommand(action);
+                        break;
+                    
+                    case ActionType.Wait:
+                        await ExecuteWaitAsync(action);
+                        result.Success = true;
+                        result.Message = $"Waited {action.WaitSeconds} seconds";
+                        break;
+
+                    case ActionType.ChangeResolution:
+                        result = ExecuteChangeResolution(action);
+                        break;
+                    
+                    default:
+                        logger.Warn($"Unknown action type: {action.ActionType}");
+                        result.Success = false;
+                        result.Message = $"Unknown action type: {action.ActionType}";
+                        break;
+                }
+
+                logService?.Log(action, result.Success, result.ExitCode, result.Message, false);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Failed to execute action: {action.Name}");
+                result.Success = false;
+                result.Message = ex.Message;
+                logService?.Log(action, false, -1, ex.Message, dryRun);
+            }
+
+            return result;
+        }
+
+        public void SaveCurrentResolution()
+        {
+            resolutionService.SaveCurrentSettings();
+        }
+
+        public bool RestoreResolution()
+        {
+            return resolutionService.RestoreOriginalSettings();
+        }
+
+        private ActionExecutionResult ExecuteChangeResolution(GameAction action)
+        {
+            var result = new ActionExecutionResult();
+            try
+            {
+                var (width, height, refreshRate) = ResolutionService.ParseResolutionString(action.Path);
+                bool success = resolutionService.ChangeResolution(width, height, refreshRate);
+                result.Success = success;
+                result.Message = success 
+                    ? $"Changed resolution to {width}x{height}@{refreshRate}Hz"
+                    : $"Failed to change resolution to {width}x{height}@{refreshRate}Hz";
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
+
+        private ActionExecutionResult ExecuteStartApp(GameAction action)
         {
             try
             {
@@ -52,30 +161,36 @@ namespace AutomationProfileManager.Services
             }
         }
 
-        private bool ExecuteStartApp(GameAction action)
+        private ActionExecutionResult ExecuteStartApp(GameAction action)
         {
+            var result = new ActionExecutionResult();
             try
             {
+                var expandedPath = Environment.ExpandEnvironmentVariables(action.Path);
                 var processStartInfo = new ProcessStartInfo
                 {
-                    FileName = action.Path,
+                    FileName = expandedPath,
                     Arguments = action.Arguments,
                     UseShellExecute = true
                 };
 
                 Process.Start(processStartInfo);
                 logger.Info($"Started application: {action.Path}");
-                return true;
+                result.Success = true;
+                result.Message = $"Started: {action.Path}";
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"Failed to start app: {action.Path}");
-                return false;
+                result.Success = false;
+                result.Message = ex.Message;
             }
+            return result;
         }
 
-        private bool ExecuteCloseApp(GameAction action)
+        private ActionExecutionResult ExecuteCloseApp(GameAction action)
         {
+            var result = new ActionExecutionResult();
             try
             {
                 var processName = Path.GetFileNameWithoutExtension(action.Path);
@@ -84,14 +199,18 @@ namespace AutomationProfileManager.Services
                 if (processes.Length == 0)
                 {
                     logger.Info($"Process not running: {processName}");
-                    return true;
+                    result.Success = true;
+                    result.Message = $"Process not running: {processName}";
+                    return result;
                 }
 
+                int closed = 0;
                 foreach (var process in processes)
                 {
                     try
                     {
                         process.Kill();
+                        closed++;
                         logger.Info($"Closed process: {processName} (PID: {process.Id})");
                     }
                     catch (Exception ex)
@@ -100,21 +219,24 @@ namespace AutomationProfileManager.Services
                     }
                 }
 
-                return true;
+                result.Success = true;
+                result.Message = $"Closed {closed} instance(s) of {processName}";
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"Failed to close app: {action.Path}");
-                return false;
+                result.Success = false;
+                result.Message = ex.Message;
             }
+            return result;
         }
 
-        private Task<bool> ExecutePowerShellScriptAsync(GameAction action)
+        private Task<ActionExecutionResult> ExecutePowerShellScriptAsync(GameAction action)
         {
             return Task.Run(() => ExecutePowerShellViaProcess(action));
         }
 
-        private bool ExecutePowerShellViaProcess(GameAction action)
+        private ActionExecutionResult ExecutePowerShellViaProcess(GameAction action)
         {
             try
             {
@@ -153,27 +275,30 @@ namespace AutomationProfileManager.Services
                     RedirectStandardError = true
                 };
 
+                var result = new ActionExecutionResult();
                 using (var process = Process.Start(processStartInfo))
                 {
                     if (process != null)
                     {
                         process.WaitForExit();
+                        result.ExitCode = process.ExitCode;
+                        result.Success = process.ExitCode == 0;
+                        result.Message = $"PowerShell {(isScriptFile ? "script" : "command")} completed with exit code {process.ExitCode}";
                         logger.Info($"Executed PowerShell {(isScriptFile ? "script" : "command")}: {action.Path}");
-                        return process.ExitCode == 0;
                     }
                 }
-
-                return false;
+                return result;
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"Failed to execute PowerShell script via process: {action.Path}");
-                return false;
+                return new ActionExecutionResult { Success = false, Message = ex.Message };
             }
         }
 
-        private bool ExecuteSystemCommand(GameAction action)
+        private ActionExecutionResult ExecuteSystemCommand(GameAction action)
         {
+            var result = new ActionExecutionResult();
             try
             {
                 var processStartInfo = new ProcessStartInfo
@@ -191,18 +316,20 @@ namespace AutomationProfileManager.Services
                     if (process != null)
                     {
                         process.WaitForExit();
+                        result.ExitCode = process.ExitCode;
+                        result.Success = process.ExitCode == 0;
+                        result.Message = $"Command completed with exit code {process.ExitCode}";
                         logger.Info($"Executed system command: {action.Path}");
-                        return process.ExitCode == 0;
                     }
                 }
-
-                return false;
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"Failed to execute system command: {action.Path}");
-                return false;
+                result.Success = false;
+                result.Message = ex.Message;
             }
+            return result;
         }
 
         private Task ExecuteWaitAsync(GameAction action)

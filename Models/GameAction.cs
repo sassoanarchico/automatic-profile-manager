@@ -12,6 +12,7 @@ namespace AutomationProfileManager.Models
         public ExecutionPhase ExecutionPhase { get; set; }
         public bool IsMirrorAction { get; set; }
         public int Priority { get; set; }
-        public int WaitSeconds { get; set; } // For Wait action type
+        public int WaitSeconds { get; set; }
+        public string Category { get; set; } = "Generale";
     }
 }
