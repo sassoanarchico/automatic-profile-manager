@@ -9,5 +9,7 @@ namespace AutomationProfileManager.Models
         public ProfileMapping Mappings { get; set; } = new ProfileMapping();
         public ExtensionSettings Settings { get; set; } = new ExtensionSettings();
         public List<ActionLogEntry> ActionLog { get; set; } = new List<ActionLogEntry>();
+        public List<ActionStatistics> Statistics { get; set; } = new List<ActionStatistics>();
+        public List<ProfileStatistics> ProfileStats { get; set; } = new List<ProfileStatistics>();
     }
 }

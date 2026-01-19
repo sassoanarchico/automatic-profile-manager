@@ -80,6 +80,16 @@ namespace AutomationProfileManager.Views
             {
                 extensionData.ActionLog = new List<ActionLogEntry>();
             }
+
+            if (extensionData.Statistics == null)
+            {
+                extensionData.Statistics = new List<ActionStatistics>();
+            }
+
+            if (extensionData.ProfileStats == null)
+            {
+                extensionData.ProfileStats = new List<ProfileStatistics>();
+            }
         }
 
         private void InitializeUI()
@@ -100,6 +110,9 @@ namespace AutomationProfileManager.Views
                 
                 // Initialize log viewer
                 RefreshLog();
+
+                // Initialize statistics
+                RefreshStatistics();
                 
                 // Initialize settings (always initialized in LoadData)
                 if (extensionData.Settings != null)
@@ -107,6 +120,8 @@ namespace AutomationProfileManager.Views
                     ShowNotificationsCheckBox.IsChecked = extensionData.Settings.ShowNotifications;
                     EnableDryRunCheckBox.IsChecked = extensionData.Settings.EnableDryRun;
                     MaxLogEntriesTextBox.Text = extensionData.Settings.MaxLogEntries.ToString();
+                    AutoBackupCheckBox.IsChecked = extensionData.Settings.AutoBackupEnabled;
+                    BackupIntervalTextBox.Text = extensionData.Settings.BackupIntervalDays.ToString();
                 }
                 else
                 {
@@ -114,6 +129,8 @@ namespace AutomationProfileManager.Views
                     ShowNotificationsCheckBox.IsChecked = true;
                     EnableDryRunCheckBox.IsChecked = false;
                     MaxLogEntriesTextBox.Text = "100";
+                    AutoBackupCheckBox.IsChecked = true;
+                    BackupIntervalTextBox.Text = "7";
                 }
             }
             catch (Exception ex)
@@ -811,6 +828,109 @@ namespace AutomationProfileManager.Views
             dialog.ShowDialog();
         }
 
+        private void ExportProfiles_Click(object sender, RoutedEventArgs e)
+        {
+            if (extensionData == null) return;
+
+            var saveDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                DefaultExt = ".json",
+                FileName = "automation_profiles_export.json"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                var exportService = new ProfileImportExportService();
+                bool success = exportService.ExportProfiles(
+                    extensionData.Profiles, 
+                    extensionData.ActionLibrary, 
+                    saveDialog.FileName
+                );
+
+                if (success)
+                {
+                    MessageBox.Show(
+                        $"Esportati {extensionData.Profiles.Count} profili e {extensionData.ActionLibrary.Count} azioni.",
+                        "Esportazione Completata",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Errore durante l'esportazione.",
+                        "Errore",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error
+                    );
+                }
+            }
+        }
+
+        private void ImportProfiles_Click(object sender, RoutedEventArgs e)
+        {
+            if (extensionData == null) return;
+
+            var openDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                DefaultExt = ".json"
+            };
+
+            if (openDialog.ShowDialog() == true)
+            {
+                var exportService = new ProfileImportExportService();
+                var importData = exportService.ImportFromFile(openDialog.FileName);
+
+                if (importData == null)
+                {
+                    MessageBox.Show(
+                        "Errore durante l'importazione. Verifica che il file sia valido.",
+                        "Errore",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error
+                    );
+                    return;
+                }
+
+                int profilesImported = 0;
+                int actionsImported = 0;
+
+                foreach (var profile in importData.Profiles)
+                {
+                    if (!extensionData.Profiles.Any(p => p.Name == profile.Name))
+                    {
+                        extensionData.Profiles.Add(profile);
+                        profilesImported++;
+                    }
+                }
+
+                foreach (var action in importData.Actions)
+                {
+                    if (!extensionData.ActionLibrary.Any(a => a.Name == action.Name))
+                    {
+                        extensionData.ActionLibrary.Add(action);
+                        actionsImported++;
+                    }
+                }
+
+                RefreshActions();
+                RefreshProfiles();
+                RefreshCategoryFilter();
+                plugin.UpdateExtensionData(extensionData);
+
+                MessageBox.Show(
+                    $"Importati {profilesImported} profili e {actionsImported} azioni.\n" +
+                    $"({importData.Profiles.Count - profilesImported} profili e {importData.Actions.Count - actionsImported} azioni erano gia presenti)",
+                    "Importazione Completata",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+            }
+        }
+
         #endregion
 
         #region Log Viewer
@@ -936,6 +1056,161 @@ namespace AutomationProfileManager.Views
             {
                 extensionData.Settings.MaxLogEntries = maxEntries;
                 plugin.UpdateExtensionData(extensionData);
+            }
+        }
+
+        private void AutoBackupCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (extensionData == null) return;
+            UpdateBackupSettings();
+        }
+
+        private void AutoBackupCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (extensionData == null) return;
+            UpdateBackupSettings();
+        }
+
+        private void BackupIntervalTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (extensionData == null) return;
+            UpdateBackupSettings();
+        }
+
+        private void UpdateBackupSettings()
+        {
+            if (extensionData?.Settings == null) return;
+
+            extensionData.Settings.AutoBackupEnabled = AutoBackupCheckBox?.IsChecked ?? true;
+            
+            if (int.TryParse(BackupIntervalTextBox?.Text, out int interval) && interval > 0)
+            {
+                extensionData.Settings.BackupIntervalDays = interval;
+            }
+            
+            plugin.UpdateExtensionData(extensionData);
+        }
+
+        private void BackupNow_Click(object sender, RoutedEventArgs e)
+        {
+            if (extensionData == null) return;
+
+            try
+            {
+                var backupService = new BackupService(plugin.PlayniteApi);
+                var backupPath = backupService.CreateBackup(extensionData);
+                
+                if (backupPath != null)
+                {
+                    extensionData.Settings.LastBackupDate = DateTime.Now;
+                    plugin.UpdateExtensionData(extensionData);
+                    
+                    MessageBox.Show(
+                        $"Backup creato con successo:\n{backupPath}",
+                        "Backup Completato",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Errore durante il backup: {ex.Message}",
+                    "Errore",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
+        }
+
+        private void RestoreBackup_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var backupService = new BackupService(plugin.PlayniteApi);
+                var backups = backupService.GetAvailableBackups();
+
+                if (backups.Length == 0)
+                {
+                    MessageBox.Show("Nessun backup disponibile.", "Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    InitialDirectory = System.IO.Path.GetDirectoryName(backups[0]),
+                    Filter = "JSON files (*.json)|*.json"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    var restoredData = backupService.RestoreFromBackup(dialog.FileName);
+                    if (restoredData != null)
+                    {
+                        plugin.UpdateExtensionData(restoredData);
+                        extensionData = restoredData;
+                        
+                        RefreshActions();
+                        RefreshProfiles();
+                        RefreshLog();
+                        RefreshStatistics();
+                        
+                        MessageBox.Show("Backup ripristinato con successo!", "Ripristino", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Errore durante il ripristino: {ex.Message}", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RestartWizard_Click(object sender, RoutedEventArgs e)
+        {
+            if (extensionData?.Settings != null)
+            {
+                extensionData.Settings.WizardCompleted = false;
+                plugin.UpdateExtensionData(extensionData);
+                MessageBox.Show("Il wizard verrà mostrato al prossimo riavvio di Playnite.", "Wizard", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        #endregion
+
+        #region Statistics
+
+        private void RefreshStatistics_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshStatistics();
+        }
+
+        private void RefreshStatistics()
+        {
+            try
+            {
+                if (extensionData?.Statistics == null) return;
+
+                var statsService = new StatisticsService(extensionData.Statistics, extensionData.ProfileStats);
+                var summary = statsService.GetSummary();
+
+                TotalActionsText.Text = summary.TotalActionsExecuted.ToString();
+                TimeSavedText.Text = summary.FormattedTimeSaved;
+                SuccessRateText.Text = $"{summary.AverageSuccessRate:F0}%";
+                
+                if (summary.AverageSuccessRate >= 90)
+                    SuccessRateText.Foreground = System.Windows.Media.Brushes.LimeGreen;
+                else if (summary.AverageSuccessRate >= 70)
+                    SuccessRateText.Foreground = System.Windows.Media.Brushes.Yellow;
+                else
+                    SuccessRateText.Foreground = System.Windows.Media.Brushes.Red;
+
+                MostUsedActionsGrid.ItemsSource = summary.MostUsedActions;
+                FailingActionsGrid.ItemsSource = summary.MostFailingActions;
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger().Error(ex, "Failed to refresh statistics");
             }
         }
 

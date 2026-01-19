@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutomationProfileManager.Models;
 using Playnite.SDK;
@@ -12,21 +15,36 @@ namespace AutomationProfileManager.Services
         public bool Success { get; set; }
         public int ExitCode { get; set; }
         public string Message { get; set; } = string.Empty;
+        public bool SkippedByCondition { get; set; }
+        public bool TimedOut { get; set; }
+        public double ExecutionTimeMs { get; set; }
+        public Guid ActionId { get; set; }
     }
 
     public class ActionExecutor
     {
         private static readonly ILogger logger = LogManager.GetLogger();
         private ResolutionService? resolutionService;
+        private AudioService? audioService;
+        private ConditionService? conditionService;
         private ActionLogService? logService;
+        private StatisticsService? statisticsService;
+        private Dictionary<Guid, ActionExecutionResult> executionResults = new Dictionary<Guid, ActionExecutionResult>();
 
         public ActionExecutor(IPlayniteAPI api)
         {
+            conditionService = new ConditionService();
+            audioService = new AudioService();
         }
 
         public void SetLogService(ActionLogService service)
         {
             logService = service;
+        }
+
+        public void SetStatisticsService(StatisticsService service)
+        {
+            statisticsService = service;
         }
 
         private ResolutionService GetResolutionService()
@@ -43,12 +61,124 @@ namespace AutomationProfileManager.Services
             }
         }
 
+        private AudioService GetAudioService()
+        {
+            audioService ??= new AudioService();
+            return audioService;
+        }
+
+        public async Task<List<ActionExecutionResult>> ExecuteActionsAsync(List<GameAction> actions, bool dryRun = false)
+        {
+            var results = new List<ActionExecutionResult>();
+            executionResults.Clear();
+
+            var sequentialActions = actions.Where(a => !a.RunInParallel).ToList();
+            var parallelActions = actions.Where(a => a.RunInParallel).ToList();
+
+            // Execute parallel actions first
+            if (parallelActions.Any())
+            {
+                logger.Info($"Executing {parallelActions.Count} actions in parallel...");
+                var parallelTasks = parallelActions.Select(a => ExecuteActionWithTimeoutAsync(a, dryRun)).ToList();
+                
+                if (parallelActions.All(a => !a.WaitForCompletion))
+                {
+                    // Fire and forget
+                    _ = Task.WhenAll(parallelTasks);
+                }
+                else
+                {
+                    var parallelResults = await Task.WhenAll(parallelTasks);
+                    results.AddRange(parallelResults);
+                }
+            }
+
+            // Execute sequential actions
+            foreach (var action in sequentialActions)
+            {
+                // Check dependency
+                if (action.RequiresPreviousSuccess && action.DependsOnActionId.HasValue)
+                {
+                    if (executionResults.TryGetValue(action.DependsOnActionId.Value, out var depResult))
+                    {
+                        if (!depResult.Success)
+                        {
+                            var skipResult = new ActionExecutionResult
+                            {
+                                ActionId = action.Id,
+                                Success = false,
+                                Message = $"Skipped: dependency action failed",
+                                SkippedByCondition = true
+                            };
+                            results.Add(skipResult);
+                            executionResults[action.Id] = skipResult;
+                            continue;
+                        }
+                    }
+                }
+
+                var result = await ExecuteActionWithTimeoutAsync(action, dryRun);
+                results.Add(result);
+                executionResults[action.Id] = result;
+            }
+
+            return results;
+        }
+
+        private async Task<ActionExecutionResult> ExecuteActionWithTimeoutAsync(GameAction action, bool dryRun)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var timeoutSeconds = action.TimeoutSeconds > 0 ? action.TimeoutSeconds : 60;
+
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+                var result = await ExecuteActionAsync(action, dryRun);
+                
+                stopwatch.Stop();
+                result.ExecutionTimeMs = stopwatch.ElapsedMilliseconds;
+                result.ActionId = action.Id;
+
+                statisticsService?.RecordActionExecution(action, result.Success, result.ExecutionTimeMs);
+
+                return result;
+            }
+            catch (OperationCanceledException)
+            {
+                stopwatch.Stop();
+                var result = new ActionExecutionResult
+                {
+                    ActionId = action.Id,
+                    Success = false,
+                    TimedOut = true,
+                    Message = $"Action timed out after {timeoutSeconds} seconds",
+                    ExecutionTimeMs = stopwatch.ElapsedMilliseconds
+                };
+                
+                logService?.Log(action, false, -1, result.Message, dryRun);
+                statisticsService?.RecordActionExecution(action, false, result.ExecutionTimeMs);
+                
+                return result;
+            }
+        }
+
         public async Task<ActionExecutionResult> ExecuteActionAsync(GameAction action, bool dryRun = false)
         {
             var result = new ActionExecutionResult();
 
             try
             {
+                // Check conditions first
+                if (!dryRun && conditionService != null && !conditionService.EvaluateCondition(action.Condition))
+                {
+                    result.Success = true;
+                    result.SkippedByCondition = true;
+                    result.Message = $"Skipped: condition not met ({action.Condition?.Type})";
+                    logService?.Log(action, true, 0, result.Message, false);
+                    logger.Info($"Action '{action.Name}' skipped due to condition: {action.Condition?.Type}");
+                    return result;
+                }
+
                 string dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
                 logger.Info($"{dryRunPrefix}Executing action: {action.Name} (Type: {action.ActionType}, Phase: {action.ExecutionPhase})");
 
@@ -86,6 +216,18 @@ namespace AutomationProfileManager.Services
 
                     case ActionType.ChangeResolution:
                         result = ExecuteChangeResolution(action);
+                        break;
+
+                    case ActionType.SetVolume:
+                        result = ExecuteSetVolume(action);
+                        break;
+
+                    case ActionType.MuteApp:
+                        result = ExecuteMuteApp(action);
+                        break;
+
+                    case ActionType.UnmuteApp:
+                        result = ExecuteUnmuteApp(action);
                         break;
                     
                     default:
@@ -325,6 +467,84 @@ namespace AutomationProfileManager.Services
             var waitTime = action.WaitSeconds > 0 ? action.WaitSeconds : 1;
             logger.Info($"Waiting {waitTime} seconds...");
             return Task.Delay(waitTime * 1000);
+        }
+
+        private ActionExecutionResult ExecuteSetVolume(GameAction action)
+        {
+            var result = new ActionExecutionResult();
+            try
+            {
+                if (int.TryParse(action.Path, out int volumePercent))
+                {
+                    bool success = GetAudioService().SetMasterVolume(volumePercent);
+                    result.Success = success;
+                    result.Message = success 
+                        ? $"Set master volume to {volumePercent}%"
+                        : "Failed to set master volume";
+                }
+                else if (action.Path.Equals("RESTORE", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool success = GetAudioService().RestoreOriginalVolume();
+                    result.Success = success;
+                    result.Message = success 
+                        ? "Restored original volume"
+                        : "Failed to restore original volume";
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = $"Invalid volume value: {action.Path}. Use a number 0-100 or 'RESTORE'.";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
+
+        private ActionExecutionResult ExecuteMuteApp(GameAction action)
+        {
+            var result = new ActionExecutionResult();
+            try
+            {
+                bool success = GetAudioService().MuteProcess(action.Path);
+                result.Success = success;
+                result.Message = success 
+                    ? $"Muted process: {action.Path}"
+                    : $"Failed to mute process: {action.Path}";
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
+
+        private ActionExecutionResult ExecuteUnmuteApp(GameAction action)
+        {
+            var result = new ActionExecutionResult();
+            try
+            {
+                bool success = GetAudioService().UnmuteProcess(action.Path);
+                result.Success = success;
+                result.Message = success 
+                    ? $"Unmuted process: {action.Path}"
+                    : $"Failed to unmute process: {action.Path}";
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
+
+        public void SaveCurrentVolume()
+        {
+            GetAudioService().SaveCurrentVolume();
         }
     }
 }

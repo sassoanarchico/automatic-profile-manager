@@ -7,6 +7,9 @@ namespace AutomationProfileManager.Models
         PowerShellScript,
         SystemCommand,
         Wait,
-        ChangeResolution
+        ChangeResolution,
+        SetVolume,
+        MuteApp,
+        UnmuteApp
     }
 }

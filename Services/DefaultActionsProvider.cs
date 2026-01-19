@@ -360,7 +360,122 @@ namespace AutomationProfileManager.Services
                     Path = "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\GameBar\" -Name \"AutoGameModeEnabled\" -Value 0",
                     ExecutionPhase = ExecutionPhase.AfterClosing,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
+                },
+
+                // === AUDIO ===
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Volume 50%",
+                    ActionType = ActionType.SetVolume,
+                    Path = "50",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Volume 75%",
+                    ActionType = ActionType.SetVolume,
+                    Path = "75",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Volume 100%",
+                    ActionType = ActionType.SetVolume,
+                    Path = "100",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Ripristina Volume",
+                    ActionType = ActionType.SetVolume,
+                    Path = "RESTORE",
+                    ExecutionPhase = ExecutionPhase.AfterClosing,
+                    IsMirrorAction = false,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Mute Discord",
+                    ActionType = ActionType.MuteApp,
+                    Path = "Discord",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Mute Spotify",
+                    ActionType = ActionType.MuteApp,
+                    Path = "Spotify",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Audio] Mute Chrome",
+                    ActionType = ActionType.MuteApp,
+                    Path = "chrome",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Audio"
+                },
+
+                // === RISOLUZIONE ===
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Risoluzione] 1920x1080@60Hz",
+                    ActionType = ActionType.ChangeResolution,
+                    Path = "1920x1080@60",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Display"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Risoluzione] 2560x1440@60Hz",
+                    ActionType = ActionType.ChangeResolution,
+                    Path = "2560x1440@60",
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0,
+                    Category = "Display"
+                },
+                new GameAction
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "[Risoluzione] Ripristina",
+                    ActionType = ActionType.ChangeResolution,
+                    Path = "RESTORE",
+                    ExecutionPhase = ExecutionPhase.AfterClosing,
+                    IsMirrorAction = false,
+                    Priority = 0,
+                    Category = "Display"
                 }
             };
         }

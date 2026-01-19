@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -21,6 +22,9 @@ namespace AutomationProfileManager
         private ActionExecutor? actionExecutor;
         private ActionLogService? actionLogService;
         private MirrorActionTracker? mirrorTracker;
+        private NotificationService? notificationService;
+        private BackupService? backupService;
+        private StatisticsService? statisticsService;
         private ExtensionData? extensionData;
 
         public override Guid Id { get; } = Guid.Parse("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
@@ -28,9 +32,21 @@ namespace AutomationProfileManager
         private void EnsureInitialized()
         {
             dataService ??= new DataService(PlayniteApi);
+            notificationService ??= new NotificationService(PlayniteApi);
+            backupService ??= new BackupService(PlayniteApi, notificationService);
             actionExecutor ??= new ActionExecutor(PlayniteApi);
             mirrorTracker ??= new MirrorActionTracker();
             extensionData ??= dataService.LoadData();
+
+            if (extensionData != null)
+            {
+                statisticsService ??= new StatisticsService(
+                    extensionData.Statistics ?? new List<ActionStatistics>(),
+                    extensionData.ProfileStats ?? new List<ProfileStatistics>()
+                );
+                actionExecutor?.SetStatisticsService(statisticsService);
+                notificationService?.SetShowNotifications(extensionData.Settings?.ShowNotifications ?? true);
+            }
         }
 
         public AutomationProfileManagerPlugin(IPlayniteAPI api) : base(api)
@@ -45,6 +61,39 @@ namespace AutomationProfileManager
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             EnsureInitialized();
+            
+            // Show wizard if not completed
+            if (extensionData?.Settings != null && !extensionData.Settings.WizardCompleted)
+            {
+                ShowSetupWizard();
+            }
+
+            // Check for backup
+            if (extensionData?.Settings != null && backupService != null)
+            {
+                if (backupService.ShouldBackup(extensionData.Settings))
+                {
+                    var backupPath = backupService.CreateBackup(extensionData);
+                    if (backupPath != null)
+                    {
+                        extensionData.Settings.LastBackupDate = DateTime.Now;
+                        SaveData();
+                    }
+                }
+            }
+        }
+
+        private void ShowSetupWizard()
+        {
+            try
+            {
+                var wizard = new SetupWizardDialog(this);
+                wizard.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to show setup wizard");
+            }
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
@@ -62,10 +111,11 @@ namespace AutomationProfileManager
         {
             EnsureInitialized();
             mirrorTracker?.ClearTracking();
-            // Save current resolution before any changes
+            // Save current resolution and volume before any changes
             if (actionExecutor != null)
             {
                 actionExecutor.SaveCurrentResolution();
+                actionExecutor.SaveCurrentVolume();
             }
             ExecuteProfileActions(args.Game, ExecutionPhase.BeforeStarting);
         }
@@ -161,21 +211,28 @@ namespace AutomationProfileManager
                 .OrderBy(a => a.Priority)
                 .ToList();
 
-            foreach (var action in actions)
+            if (actions.Count == 0) return;
+
+            // Show notification
+            notificationService?.ShowProfileStarted(profile.Name, game.Name, actions.Count);
+            var stopwatch = Stopwatch.StartNew();
+            int successCount = 0;
+            int failCount = 0;
+
+            // Use new batch execution with parallel support
+            if (actionExecutor != null)
             {
-                if (phase == ExecutionPhase.BeforeStarting && action.IsMirrorAction)
-                {
-                    mirrorTracker?.TrackActionBeforeExecution(action);
-                }
+                var results = await actionExecutor.ExecuteActionsAsync(actions, dryRun);
+                successCount = results.Count(r => r.Success);
+                failCount = results.Count(r => !r.Success);
+            }
 
-                if (actionExecutor != null)
+            // Handle mirror actions for AfterClosing phase
+            if (phase == ExecutionPhase.AfterClosing)
+            {
+                foreach (var action in actions.Where(a => a.IsMirrorAction))
                 {
-                    await actionExecutor.ExecuteActionAsync(action, dryRun);
-                }
-
-                if (phase == ExecutionPhase.AfterClosing && action.IsMirrorAction)
-                {
-                    if (mirrorTracker.ShouldRestoreAction(action))
+                    if (mirrorTracker != null && mirrorTracker.ShouldRestoreAction(action))
                     {
                         var reverseAction = new Models.GameAction
                         {
@@ -192,6 +249,21 @@ namespace AutomationProfileManager
                     }
                 }
             }
+            else if (phase == ExecutionPhase.BeforeStarting)
+            {
+                foreach (var action in actions.Where(a => a.IsMirrorAction))
+                {
+                    mirrorTracker?.TrackActionBeforeExecution(action);
+                }
+            }
+
+            stopwatch.Stop();
+
+            // Record statistics
+            statisticsService?.RecordProfileExecution(profile, stopwatch.Elapsed.TotalSeconds);
+
+            // Show completion notification
+            notificationService?.ShowProfileCompleted(profile.Name, successCount, failCount, stopwatch.Elapsed.TotalSeconds);
         }
 
         private void ShowProfileAssignmentMenu(List<Game> games)

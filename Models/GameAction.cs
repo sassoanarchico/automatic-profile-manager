@@ -14,5 +14,35 @@ namespace AutomationProfileManager.Models
         public int Priority { get; set; }
         public int WaitSeconds { get; set; }
         public string Category { get; set; } = "Generale";
+
+        // Condizioni per l'esecuzione
+        public ActionCondition? Condition { get; set; }
+
+        // Esecuzione parallela e timeout
+        public bool RunInParallel { get; set; } = false;
+        public bool WaitForCompletion { get; set; } = true;
+        public int TimeoutSeconds { get; set; } = 60;
+
+        // Dipendenze
+        public Guid? DependsOnActionId { get; set; }
+        public bool RequiresPreviousSuccess { get; set; } = false;
+    }
+
+    public class ActionCondition
+    {
+        public ConditionType Type { get; set; } = ConditionType.None;
+        public string Value { get; set; } = string.Empty;
+        public string TimeStart { get; set; } = string.Empty;
+        public string TimeEnd { get; set; } = string.Empty;
+    }
+
+    public enum ConditionType
+    {
+        None,
+        ProcessRunning,
+        ProcessNotRunning,
+        FileExists,
+        FileNotExists,
+        TimeRange
     }
 }
