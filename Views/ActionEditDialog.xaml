@@ -42,6 +42,7 @@
                     <x:Static Member="models:ActionType.PowerShellScript"/>
                     <x:Static Member="models:ActionType.SystemCommand"/>
                     <x:Static Member="models:ActionType.Wait"/>
+                    <x:Static Member="models:ActionType.ChangeResolution"/>
                 </x:Array>
             </ComboBox.ItemsSource>
         </ComboBox>
@@ -74,7 +75,9 @@
         <StackPanel Orientation="Horizontal" Grid.Row="8" Margin="0,0,0,10">
             <CheckBox x:Name="MirrorActionCheckBox" Content="Azione Mirror (ripristina stato alla chiusura)" Margin="0,0,20,0" VerticalAlignment="Center"/>
             <Label Content="Priorita:" VerticalAlignment="Center"/>
-            <TextBox x:Name="PriorityTextBox" Width="60" Text="0" VerticalAlignment="Center"/>
+            <TextBox x:Name="PriorityTextBox" Width="60" Text="0" VerticalAlignment="Center" Margin="0,0,20,0"/>
+            <Label Content="Categoria:" VerticalAlignment="Center"/>
+            <TextBox x:Name="CategoryTextBox" Width="120" Text="Generale" VerticalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel Grid.Row="9" Margin="0,0,0,5" x:Name="WaitSecondsPanel" Visibility="Collapsed">

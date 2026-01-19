@@ -1,4 +1,4 @@
-﻿# Automation Profile Manager (Playnite)
+# Automation Profile Manager (Playnite)
 
 Estensione Playnite per eseguire profili di automazione quando avvii o chiudi un gioco:
 - Chiudi/avvia app comuni (browser, Discord, Spotify, client di gioco).

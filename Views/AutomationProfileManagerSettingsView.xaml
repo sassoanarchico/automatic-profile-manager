@@ -5,8 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:models="clr-namespace:AutomationProfileManager.Models"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:AutomationProfileManager.Views"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
+    <Grid.Resources>
+        <local:BoolToStatusConverter x:Key="BoolToStatusConverter"/>
+    </Grid.Resources>
     <Grid>
         <TabControl>
             <!-- Action Library Tab -->
@@ -29,18 +33,33 @@
                     <TextBlock Grid.Row="1" Text="Crea azioni riutilizzabili da assegnare ai profili. Le azioni Mirror ripristinano lo stato precedente alla chiusura del gioco." 
                                TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
                     
-                    <DataGrid x:Name="ActionsDataGrid" Grid.Row="2" 
-                              AutoGenerateColumns="False" 
-                              SelectionMode="Single"
-                              CanUserAddRows="False"
-                              SelectionChanged="ActionsDataGrid_SelectionChanged">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="Tipo" Binding="{Binding ActionType}" Width="120"/>
-                            <DataGridTextColumn Header="Percorso/Comando" Binding="{Binding Path}" Width="*"/>
-                            <DataGridCheckBoxColumn Header="Mirror" Binding="{Binding IsMirrorAction}" Width="60"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,5">
+                            <Label Content="Filtra per categoria:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="CategoryFilterComboBox" Width="150" SelectionChanged="CategoryFilter_SelectionChanged" Margin="0,0,10,0">
+                                <ComboBoxItem Content="Tutte" IsSelected="True"/>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                        <DataGrid x:Name="ActionsDataGrid" Grid.Row="1" 
+                                  AutoGenerateColumns="False" 
+                                  SelectionMode="Single"
+                                  CanUserAddRows="False"
+                                  SelectionChanged="ActionsDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="Categoria" Binding="{Binding Category}" Width="100"/>
+                                <DataGridTextColumn Header="Tipo" Binding="{Binding ActionType}" Width="120"/>
+                                <DataGridTextColumn Header="Percorso/Comando" Binding="{Binding Path}" Width="*"/>
+                                <DataGridCheckBoxColumn Header="Mirror" Binding="{Binding IsMirrorAction}" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
                 </Grid>
             </TabItem>
             
@@ -63,6 +82,8 @@
                         
                         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
                             <Button Content="+ Nuovo Profilo" Click="AddProfile_Click" Margin="0,0,5,0" Padding="10,5"/>
+                            <Button Content="Duplica" Click="DuplicateProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="DuplicateProfileButton" IsEnabled="False"/>
+                            <Button Content="Da Template..." Click="CreateFromTemplate_Click" Margin="0,0,5,0" Padding="10,5"/>
                             <Button Content="Elimina" Click="RemoveProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveProfileButton" IsEnabled="False"/>
                         </StackPanel>
 
@@ -84,9 +105,19 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
-                        <TextBlock x:Name="ProfileNameTextBlock" Grid.Row="0" 
-                                   FontSize="16" FontWeight="Bold" 
-                                   Margin="0,0,0,5" Text="Seleziona un profilo"/>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock x:Name="ProfileNameTextBlock" 
+                                       FontSize="16" FontWeight="Bold" 
+                                       VerticalAlignment="Center" Text="Seleziona un profilo"/>
+                            <Button Content="Esegui Azioni di Prova" Click="DryRunProfile_Click" 
+                                    Margin="20,0,0,0" Padding="10,5" 
+                                    x:Name="DryRunButton" IsEnabled="False"
+                                    ToolTip="Esegue tutte le azioni del profilo in modalità dry-run (senza esecuzione reale)"/>
+                            <Button Content="Trova/Sostituisci Path" Click="FindReplacePath_Click" 
+                                    Margin="10,0,0,0" Padding="10,5" 
+                                    x:Name="FindReplaceButton" IsEnabled="False"
+                                    ToolTip="Trova e sostituisci percorsi nelle azioni del profilo"/>
+                        </StackPanel>
 
                         <TextBlock Grid.Row="1" Text="Doppio click o trascina le azioni dalla lista a sinistra. Usa i pulsanti per riordinare o rimuovere." 
                                    TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
@@ -174,6 +205,68 @@
                             </ListBox>
                         </Grid>
                     </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Log Viewer Tab -->
+            <TabItem Header="Log Azioni">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                        <Button Content="Aggiorna" Click="RefreshLog_Click" Margin="0,0,5,0" Padding="10,5"/>
+                        <Button Content="Pulisci Log" Click="ClearLog_Click" Margin="0,0,5,0" Padding="10,5"/>
+                        <CheckBox x:Name="ShowDryRunLogsCheckBox" Content="Mostra anche dry-run" 
+                                  VerticalAlignment="Center" Margin="20,0,0,0" IsChecked="True"
+                                  Checked="LogFilter_Changed" Unchecked="LogFilter_Changed"/>
+                    </StackPanel>
+                    
+                    <DataGrid x:Name="LogDataGrid" Grid.Row="1" 
+                              AutoGenerateColumns="False" 
+                              SelectionMode="Single"
+                              CanUserAddRows="False"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Width="150"/>
+                            <DataGridTextColumn Header="Azione" Binding="{Binding ActionName}" Width="*"/>
+                            <DataGridTextColumn Header="Esito" Width="80">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="Success">
+                                        <Binding.Converter>
+                                            <local:BoolToStatusConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Codice Ritorno" Binding="{Binding ExitCode}" Width="100"/>
+                            <DataGridTextColumn Header="Messaggio" Binding="{Binding Message}" Width="*"/>
+                            <DataGridCheckBoxColumn Header="Dry-Run" Binding="{Binding IsDryRun}" Width="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Settings Tab -->
+            <TabItem Header="Impostazioni">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <CheckBox x:Name="ShowNotificationsCheckBox" Content="Mostra notifiche" 
+                                  Margin="0,10,0,5" Checked="ShowNotificationsCheckBox_Checked" Unchecked="ShowNotificationsCheckBox_Unchecked"/>
+                        <TextBlock Text="Quando disabilitato, le notifiche dell'estensione non verranno mostrate" 
+                                   Foreground="#FF808080" FontSize="11" Margin="20,0,0,10"/>
+                        
+                        <CheckBox x:Name="EnableDryRunCheckBox" Content="Abilita dry-run globale (solo test, nessuna esecuzione)" 
+                                  Margin="0,10,0,5" Checked="EnableDryRunCheckBox_Checked" Unchecked="EnableDryRunCheckBox_Unchecked"/>
+                        <TextBlock Text="Quando abilitato, tutte le azioni vengono eseguite in modalità test senza effetti reali" 
+                                   Foreground="#FF808080" FontSize="11" Margin="20,0,0,10"/>
+                        
+                        <Label Content="Massimo voci di log:" Margin="0,10,0,5"/>
+                        <TextBox x:Name="MaxLogEntriesTextBox" Width="100" HorizontalAlignment="Left" 
+                                 TextChanged="MaxLogEntriesTextBox_TextChanged" Margin="0,0,0,10"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>

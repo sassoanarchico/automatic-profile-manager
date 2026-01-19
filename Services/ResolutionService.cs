@@ -15,6 +15,8 @@ namespace AutomationProfileManager.Services
     {
         private static readonly ILogger logger = LogManager.GetLogger();
         private DisplaySettings? originalSettings;
+        private DisplaySettings? lastAppliedSettings;
+        private bool hasRestoreAttempted = false;
 
         [DllImport("user32.dll")]
         private static extern int EnumDisplaySettings(string? deviceName, int modeNum, ref DEVMODE devMode);
@@ -105,6 +107,12 @@ namespace AutomationProfileManager.Services
         {
             try
             {
+                // Save current settings before first change
+                if (originalSettings == null)
+                {
+                    SaveCurrentSettings();
+                }
+
                 DEVMODE dm = new DEVMODE();
                 dm.dmSize = (short)Marshal.SizeOf(typeof(DEVMODE));
 
@@ -123,6 +131,21 @@ namespace AutomationProfileManager.Services
                 if (testResult != DISP_CHANGE_SUCCESSFUL)
                 {
                     logger.Warn($"Resolution change test failed: {width}x{height}@{refreshRate}Hz (code: {testResult})");
+                    
+                    // Fallback: try without refresh rate
+                    if (refreshRate != 60)
+                    {
+                        logger.Info($"Attempting fallback: trying {width}x{height}@60Hz");
+                        return ChangeResolution(width, height, 60);
+                    }
+                    
+                    // Final fallback: try common resolution
+                    if (width != 1920 || height != 1080)
+                    {
+                        logger.Info($"Attempting fallback: trying 1920x1080@60Hz");
+                        return ChangeResolution(1920, 1080, 60);
+                    }
+                    
                     return false;
                 }
 
@@ -130,15 +153,39 @@ namespace AutomationProfileManager.Services
                 if (result == DISP_CHANGE_SUCCESSFUL || result == DISP_CHANGE_RESTART)
                 {
                     logger.Info($"Changed resolution to: {width}x{height}@{refreshRate}Hz");
+                    lastAppliedSettings = new DisplaySettings { Width = width, Height = height, RefreshRate = refreshRate };
                     return true;
                 }
 
                 logger.Error($"Failed to change resolution (code: {result})");
+                
+                // Fallback on failure
+                if (refreshRate != 60)
+                {
+                    logger.Info($"Attempting fallback: trying {width}x{height}@60Hz");
+                    return ChangeResolution(width, height, 60);
+                }
+                
                 return false;
             }
             catch (Exception ex)
             {
                 logger.Error(ex, "Exception while changing resolution");
+                
+                // Fallback on exception
+                if (width != 1920 || height != 1080 || refreshRate != 60)
+                {
+                    try
+                    {
+                        logger.Info($"Attempting fallback: trying 1920x1080@60Hz");
+                        return ChangeResolution(1920, 1080, 60);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+                
                 return false;
             }
         }
@@ -148,6 +195,20 @@ namespace AutomationProfileManager.Services
             if (originalSettings == null)
             {
                 logger.Warn("No original settings saved to restore");
+                
+                // Fallback: try to restore to a common resolution
+                if (!hasRestoreAttempted)
+                {
+                    hasRestoreAttempted = true;
+                    logger.Info("Attempting fallback restore to 1920x1080@60Hz");
+                    bool fallbackSuccess = ChangeResolution(1920, 1080, 60);
+                    if (fallbackSuccess)
+                    {
+                        logger.Info("Fallback restore successful");
+                    }
+                    return fallbackSuccess;
+                }
+                
                 return false;
             }
 
@@ -155,7 +216,24 @@ namespace AutomationProfileManager.Services
             if (success)
             {
                 logger.Info("Restored original resolution");
+                hasRestoreAttempted = false;
             }
+            else
+            {
+                // Fallback if restore fails
+                logger.Warn("Restore failed, attempting fallback");
+                if (!hasRestoreAttempted)
+                {
+                    hasRestoreAttempted = true;
+                    var current = GetCurrentSettings();
+                    if (current != null && (current.Width != 1920 || current.Height != 1080))
+                    {
+                        logger.Info("Attempting fallback restore to 1920x1080@60Hz");
+                        return ChangeResolution(1920, 1080, 60);
+                    }
+                }
+            }
+            
             return success;
         }
 

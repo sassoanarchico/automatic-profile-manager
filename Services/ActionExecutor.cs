@@ -110,12 +110,23 @@ namespace AutomationProfileManager.Services
             var result = new ActionExecutionResult();
             try
             {
+                // Handle RESTORE command
+                if (action.Path.Equals("RESTORE", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool success = resolutionService.RestoreOriginalSettings();
+                    result.Success = success;
+                    result.Message = success 
+                        ? "Restored original resolution"
+                        : "Failed to restore original resolution (fallback may have been used)";
+                    return result;
+                }
+
                 var (width, height, refreshRate) = ResolutionService.ParseResolutionString(action.Path);
-                bool success = resolutionService.ChangeResolution(width, height, refreshRate);
-                result.Success = success;
-                result.Message = success 
+                bool changeSuccess = resolutionService.ChangeResolution(width, height, refreshRate);
+                result.Success = changeSuccess;
+                result.Message = changeSuccess 
                     ? $"Changed resolution to {width}x{height}@{refreshRate}Hz"
-                    : $"Failed to change resolution to {width}x{height}@{refreshRate}Hz";
+                    : $"Failed to change resolution to {width}x{height}@{refreshRate}Hz (fallback may have been used)";
             }
             catch (Exception ex)
             {
@@ -123,42 +134,6 @@ namespace AutomationProfileManager.Services
                 result.Message = ex.Message;
             }
             return result;
-        }
-
-        private ActionExecutionResult ExecuteStartApp(GameAction action)
-        {
-            try
-            {
-                logger.Info($"Executing action: {action.Name} (Type: {action.ActionType}, Phase: {action.ExecutionPhase})");
-
-                switch (action.ActionType)
-                {
-                    case ActionType.StartApp:
-                        return ExecuteStartApp(action);
-                    
-                    case ActionType.CloseApp:
-                        return ExecuteCloseApp(action);
-                    
-                    case ActionType.PowerShellScript:
-                        return await ExecutePowerShellScriptAsync(action);
-                    
-                    case ActionType.SystemCommand:
-                        return ExecuteSystemCommand(action);
-                    
-                    case ActionType.Wait:
-                        await ExecuteWaitAsync(action);
-                        return true;
-                    
-                    default:
-                        logger.Warn($"Unknown action type: {action.ActionType}");
-                        return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, $"Failed to execute action: {action.Name}");
-                return false;
-            }
         }
 
         private ActionExecutionResult ExecuteStartApp(GameAction action)

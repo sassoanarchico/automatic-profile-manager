@@ -36,6 +36,7 @@ namespace AutomationProfileManager.Views
             MirrorActionCheckBox.IsChecked = action.IsMirrorAction;
             PriorityTextBox.Text = action.Priority.ToString();
             WaitSecondsTextBox.Text = action.WaitSeconds.ToString();
+            CategoryTextBox.Text = action.Category ?? "Generale";
             UpdateUIForActionType();
         }
 
@@ -50,6 +51,7 @@ namespace AutomationProfileManager.Views
             {
                 bool isWait = selectedType == ActionType.Wait;
                 bool isAppAction = selectedType == ActionType.StartApp || selectedType == ActionType.CloseApp;
+                bool isResolution = selectedType == ActionType.ChangeResolution;
 
                 // Show/hide wait seconds panel
                 if (WaitSecondsPanel != null)
@@ -72,17 +74,25 @@ namespace AutomationProfileManager.Views
                         PathLabel.Content = "Script PowerShell:";
                     else if (selectedType == ActionType.SystemCommand)
                         PathLabel.Content = "Comando Sistema:";
+                    else if (selectedType == ActionType.ChangeResolution)
+                        PathLabel.Content = "Risoluzione (es: 1920x1080@60 o RESTORE):";
                     else if (isWait)
                         PathLabel.Content = "Attesa:";
                     else
                         PathLabel.Content = "Percorso/Comando:";
                 }
                 
-                // Enable/disable fields for Wait action
+                // Enable/disable fields for Wait and Resolution actions
                 if (PathTextBox != null)
                     PathTextBox.IsEnabled = !isWait;
                 if (ArgumentsTextBox != null)
-                    ArgumentsTextBox.IsEnabled = !isWait;
+                    ArgumentsTextBox.IsEnabled = !isWait && !isResolution;
+                    
+                // Show placeholder for resolution
+                if (isResolution && PathTextBox != null)
+                {
+                    PathTextBox.Text = PathTextBox.Text == action.Path ? action.Path : "1920x1080@60";
+                }
             }
         }
 
@@ -171,6 +181,7 @@ namespace AutomationProfileManager.Views
             action.Path = PathTextBox.Text?.Trim() ?? "";
             action.Arguments = ArgumentsTextBox.Text?.Trim() ?? "";
             action.IsMirrorAction = MirrorActionCheckBox.IsChecked ?? false;
+            action.Category = CategoryTextBox.Text?.Trim() ?? "Generale";
             
             if (int.TryParse(PriorityTextBox.Text, out int priority))
             {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using AutomationProfileManager.Models;
 using AutomationProfileManager.Services;
@@ -18,6 +19,7 @@ namespace AutomationProfileManager
         
         private DataService dataService;
         private ActionExecutor actionExecutor;
+        private ActionLogService actionLogService;
         private MirrorActionTracker mirrorTracker;
         private ExtensionData extensionData;
 
@@ -50,6 +52,8 @@ namespace AutomationProfileManager
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
             mirrorTracker?.ClearTracking();
+            // Save current resolution before any changes
+            actionExecutor?.SaveCurrentResolution();
             ExecuteProfileActions(args.Game, ExecutionPhase.BeforeStarting);
         }
 
@@ -87,6 +91,18 @@ namespace AutomationProfileManager
         private void LoadData()
         {
             extensionData = dataService.LoadData();
+            
+            // Initialize log service with existing logs
+            if (extensionData.ActionLog == null)
+            {
+                extensionData.ActionLog = new List<ActionLogEntry>();
+            }
+            
+            actionLogService = new ActionLogService(
+                extensionData.ActionLog, 
+                extensionData.Settings?.MaxLogEntries ?? 100
+            );
+            actionExecutor.SetLogService(actionLogService);
         }
 
         private void SaveData()
@@ -105,13 +121,19 @@ namespace AutomationProfileManager
             var profile = extensionData.Profiles?.FirstOrDefault(p => p.Id == profileId);
             if (profile == null)
             {
-                PlayniteApi.Notifications.Add(new NotificationMessage(
-                    "AutomationProfileManager_ProfileNotFound",
-                    $"Profile not found for game: {game.Name}",
-                    NotificationType.Error
-                ));
+                if (extensionData.Settings?.ShowNotifications ?? true)
+                {
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
+                        "AutomationProfileManager_ProfileNotFound",
+                        $"Profile not found for game: {game.Name}",
+                        NotificationType.Error
+                    ));
+                }
                 return;
             }
+            
+            // Check if dry-run is enabled
+            bool dryRun = extensionData.Settings?.EnableDryRun ?? false;
 
             var actions = profile.Actions
                 .Where(a => a.ExecutionPhase == phase)
@@ -125,7 +147,7 @@ namespace AutomationProfileManager
                     mirrorTracker.TrackActionBeforeExecution(action);
                 }
 
-                await actionExecutor.ExecuteActionAsync(action);
+                await actionExecutor.ExecuteActionAsync(action, dryRun);
 
                 if (phase == ExecutionPhase.AfterClosing && action.IsMirrorAction)
                 {
@@ -139,7 +161,7 @@ namespace AutomationProfileManager
                             Arguments = action.Arguments,
                             ExecutionPhase = ExecutionPhase.AfterClosing
                         };
-                        await actionExecutor.ExecuteActionAsync(reverseAction);
+                        await actionExecutor.ExecuteActionAsync(reverseAction, dryRun);
                     }
                 }
             }
@@ -171,11 +193,14 @@ namespace AutomationProfileManager
         {
             extensionData.Mappings.GameToProfile[game.Id] = profileId;
             SaveData();
-            PlayniteApi.Notifications.Add(new NotificationMessage(
-                "AutomationProfileManager_ProfileAssigned",
-                $"Profile assigned to {game.Name}",
-                NotificationType.Info
-            ));
+            if (extensionData.Settings?.ShowNotifications ?? true)
+            {
+                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    "AutomationProfileManager_ProfileAssigned",
+                    $"Profile assigned to {game.Name}",
+                    NotificationType.Info
+                ));
+            }
         }
 
         private void RemoveProfileAssignment(Game game)
@@ -184,11 +209,25 @@ namespace AutomationProfileManager
             {
                 extensionData.Mappings.GameToProfile.Remove(game.Id);
                 SaveData();
-                PlayniteApi.Notifications.Add(new NotificationMessage(
-                    "AutomationProfileManager_ProfileRemoved",
-                    $"Profile removed from {game.Name}",
-                    NotificationType.Info
-                ));
+                if (extensionData.Settings?.ShowNotifications ?? true)
+                {
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
+                        "AutomationProfileManager_ProfileRemoved",
+                        $"Profile removed from {game.Name}",
+                        NotificationType.Info
+                    ));
+                }
+            }
+        }
+        
+        public async Task ExecuteProfileDryRunAsync(AutomationProfile profile)
+        {
+            if (profile == null) return;
+            
+            var actions = profile.Actions.OrderBy(a => a.Priority).ToList();
+            foreach (var action in actions)
+            {
+                await actionExecutor.ExecuteActionAsync(action, dryRun: true);
             }
         }
 
