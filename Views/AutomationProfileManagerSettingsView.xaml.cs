@@ -14,9 +14,9 @@ namespace AutomationProfileManager.Views
     public partial class AutomationProfileManagerSettingsView : UserControl
     {
         private readonly AutomationProfileManagerPlugin plugin;
-        private ExtensionData extensionData;
+        private ExtensionData? extensionData;
         private AutomationProfile? selectedProfile;
-        private GameAction? selectedAction;
+        private Models.GameAction? selectedAction;
         
         // Drag & drop state
         private Point? dragStartPoint;
@@ -43,7 +43,7 @@ namespace AutomationProfileManager.Views
             
             if (extensionData.ActionLibrary == null)
             {
-                extensionData.ActionLibrary = new List<GameAction>();
+                extensionData.ActionLibrary = new List<Models.GameAction>();
             }
             
             if (extensionData.Profiles == null)
@@ -87,7 +87,7 @@ namespace AutomationProfileManager.Views
 
         private void ActionsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            selectedAction = ActionsDataGrid.SelectedItem as GameAction;
+            selectedAction = ActionsDataGrid.SelectedItem as Models.GameAction;
             EditActionButton.IsEnabled = selectedAction != null;
             RemoveActionButton.IsEnabled = selectedAction != null;
         }
@@ -283,7 +283,7 @@ namespace AutomationProfileManager.Views
                 if (!isDragging && selectedProfile != null && AvailableActionsListBox.SelectedItem != null)
                 {
                     isDragging = true;
-                    var action = AvailableActionsListBox.SelectedItem as GameAction;
+                    var action = AvailableActionsListBox.SelectedItem as Models.GameAction;
                     if (action != null)
                     {
                         var data = new DataObject("GameActionData", action);
@@ -332,11 +332,11 @@ namespace AutomationProfileManager.Views
 
             if (e.Data.GetDataPresent("GameActionData"))
             {
-                var action = e.Data.GetData("GameActionData") as GameAction;
+                var action = e.Data.GetData("GameActionData") as Models.GameAction;
                 if (action != null)
                 {
                     // Aggiunta nuova azione dalla libreria
-                    var profileAction = new GameAction
+                    var profileAction = new Models.GameAction
                     {
                         Id = Guid.NewGuid(),
                         Name = action.Name,
@@ -369,7 +369,7 @@ namespace AutomationProfileManager.Views
             if (selectedProfile == null) return;
 
             var button = sender as Button;
-            if (button?.DataContext is GameAction action)
+            if (button?.DataContext is Models.GameAction action)
             {
                 selectedProfile.Actions.Remove(action);
                 UpdateActionPriorities();
@@ -392,7 +392,7 @@ namespace AutomationProfileManager.Views
             if (selectedProfile == null) return;
 
             var button = sender as Button;
-            if (button?.DataContext is GameAction action)
+            if (button?.DataContext is Models.GameAction action)
             {
                 int index = selectedProfile.Actions.IndexOf(action);
                 if (index > 0)
@@ -412,7 +412,7 @@ namespace AutomationProfileManager.Views
             if (selectedProfile == null) return;
 
             var button = sender as Button;
-            if (button?.DataContext is GameAction action)
+            if (button?.DataContext is Models.GameAction action)
             {
                 int index = selectedProfile.Actions.IndexOf(action);
                 if (index < selectedProfile.Actions.Count - 1)
@@ -556,7 +556,7 @@ namespace AutomationProfileManager.Views
 
                     foreach (var action in selectedProfile.Actions)
                     {
-                        duplicatedProfile.Actions.Add(new GameAction
+                        duplicatedProfile.Actions.Add(new Models.GameAction
                         {
                             Id = Guid.NewGuid(),
                             Name = action.Name,
@@ -633,7 +633,6 @@ namespace AutomationProfileManager.Views
 
             templateDialog.Content = stackPanel;
 
-            bool? result = null;
             okButton.Click += (s, args) =>
             {
                 if (listBox.SelectedItem is ProfileTemplate selectedTemplate && !string.IsNullOrWhiteSpace(nameTextBox.Text))

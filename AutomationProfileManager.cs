@@ -17,11 +17,11 @@ namespace AutomationProfileManager
     {
         private static readonly ILogger logger = LogManager.GetLogger();
         
-        private DataService dataService;
-        private ActionExecutor actionExecutor;
-        private ActionLogService actionLogService;
-        private MirrorActionTracker mirrorTracker;
-        private ExtensionData extensionData;
+        private DataService? dataService;
+        private ActionExecutor? actionExecutor;
+        private ActionLogService? actionLogService;
+        private MirrorActionTracker? mirrorTracker;
+        private ExtensionData? extensionData;
 
         public override Guid Id { get; } = Guid.Parse("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
 
@@ -53,7 +53,10 @@ namespace AutomationProfileManager
         {
             mirrorTracker?.ClearTracking();
             // Save current resolution before any changes
-            actionExecutor?.SaveCurrentResolution();
+            if (actionExecutor != null)
+            {
+                actionExecutor.SaveCurrentResolution();
+            }
             ExecuteProfileActions(args.Game, ExecutionPhase.BeforeStarting);
         }
 
@@ -100,7 +103,7 @@ namespace AutomationProfileManager
             
             if (extensionData.ActionLibrary == null)
             {
-                extensionData.ActionLibrary = new List<GameAction>();
+                extensionData.ActionLibrary = new List<Models.GameAction>();
             }
             
             if (extensionData.Profiles == null)
@@ -128,12 +131,18 @@ namespace AutomationProfileManager
                 extensionData.ActionLog, 
                 extensionData.Settings.MaxLogEntries
             );
-            actionExecutor.SetLogService(actionLogService);
+            if (actionExecutor != null)
+            {
+                actionExecutor.SetLogService(actionLogService);
+            }
         }
 
         private void SaveData()
         {
-            dataService?.SaveData(extensionData);
+            if (dataService != null && extensionData != null)
+            {
+                dataService.SaveData(extensionData);
+            }
         }
 
         private async void ExecuteProfileActions(Game game, ExecutionPhase phase)
@@ -170,10 +179,13 @@ namespace AutomationProfileManager
             {
                 if (phase == ExecutionPhase.BeforeStarting && action.IsMirrorAction)
                 {
-                    mirrorTracker.TrackActionBeforeExecution(action);
+                    mirrorTracker?.TrackActionBeforeExecution(action);
                 }
 
-                await actionExecutor.ExecuteActionAsync(action, dryRun);
+                if (actionExecutor != null)
+                {
+                    await actionExecutor.ExecuteActionAsync(action, dryRun);
+                }
 
                 if (phase == ExecutionPhase.AfterClosing && action.IsMirrorAction)
                 {
@@ -187,7 +199,10 @@ namespace AutomationProfileManager
                             Arguments = action.Arguments,
                             ExecutionPhase = ExecutionPhase.AfterClosing
                         };
-                        await actionExecutor.ExecuteActionAsync(reverseAction, dryRun);
+                        if (actionExecutor != null)
+                        {
+                            await actionExecutor.ExecuteActionAsync(reverseAction, dryRun);
+                        }
                     }
                 }
             }
@@ -252,7 +267,7 @@ namespace AutomationProfileManager
         
         public async Task ExecuteProfileDryRunAsync(AutomationProfile profile)
         {
-            if (profile == null) return;
+            if (profile == null || actionExecutor == null) return;
             
             var actions = profile.Actions.OrderBy(a => a.Priority).ToList();
             foreach (var action in actions)
@@ -280,7 +295,7 @@ namespace AutomationProfileManager
             // Ensure all properties are initialized
             if (data.ActionLibrary == null)
             {
-                data.ActionLibrary = new List<GameAction>();
+                data.ActionLibrary = new List<Models.GameAction>();
             }
             
             if (data.Profiles == null)
