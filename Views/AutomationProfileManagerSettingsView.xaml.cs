@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using AutomationProfileManager.Models;
 using AutomationProfileManager.Services;
+using Playnite.SDK;
 
 namespace AutomationProfileManager.Views
 {
@@ -25,10 +26,24 @@ namespace AutomationProfileManager.Views
 
         public AutomationProfileManagerSettingsView(AutomationProfileManagerPlugin plugin)
         {
-            InitializeComponent();
-            this.plugin = plugin;
-            LoadData();
-            InitializeUI();
+            try
+            {
+                InitializeComponent();
+                this.plugin = plugin;
+                LoadData();
+                InitializeUI();
+            }
+            catch (Exception ex)
+            {
+                // Log error and show message
+                Playnite.SDK.LogManager.GetLogger().Error(ex, "Failed to initialize settings view");
+                System.Windows.MessageBox.Show(
+                    $"Errore nel caricamento delle impostazioni: {ex.Message}\n\nDettagli: {ex.StackTrace}",
+                    "Errore Impostazioni",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+            }
         }
 
         private void LoadData()
@@ -69,20 +84,48 @@ namespace AutomationProfileManager.Views
 
         private void InitializeUI()
         {
-            ActionsDataGrid.ItemsSource = extensionData.ActionLibrary;
-            ProfilesListBox.ItemsSource = extensionData.Profiles;
-            AvailableActionsListBox.ItemsSource = extensionData.ActionLibrary;
-            
-            // Initialize category filter
-            RefreshCategoryFilter();
-            
-            // Initialize log viewer
-            RefreshLog();
-            
-            // Initialize settings (always initialized in LoadData)
-            ShowNotificationsCheckBox.IsChecked = extensionData.Settings.ShowNotifications;
-            EnableDryRunCheckBox.IsChecked = extensionData.Settings.EnableDryRun;
-            MaxLogEntriesTextBox.Text = extensionData.Settings.MaxLogEntries.ToString();
+            try
+            {
+                if (extensionData == null)
+                {
+                    extensionData = new ExtensionData();
+                }
+                
+                ActionsDataGrid.ItemsSource = extensionData.ActionLibrary ?? new List<Models.GameAction>();
+                ProfilesListBox.ItemsSource = extensionData.Profiles ?? new List<AutomationProfile>();
+                AvailableActionsListBox.ItemsSource = extensionData.ActionLibrary ?? new List<Models.GameAction>();
+                
+                // Initialize category filter
+                RefreshCategoryFilter();
+                
+                // Initialize log viewer
+                RefreshLog();
+                
+                // Initialize settings (always initialized in LoadData)
+                if (extensionData.Settings != null)
+                {
+                    ShowNotificationsCheckBox.IsChecked = extensionData.Settings.ShowNotifications;
+                    EnableDryRunCheckBox.IsChecked = extensionData.Settings.EnableDryRun;
+                    MaxLogEntriesTextBox.Text = extensionData.Settings.MaxLogEntries.ToString();
+                }
+                else
+                {
+                    extensionData.Settings = new ExtensionSettings();
+                    ShowNotificationsCheckBox.IsChecked = true;
+                    EnableDryRunCheckBox.IsChecked = false;
+                    MaxLogEntriesTextBox.Text = "100";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger().Error(ex, "Failed to initialize UI");
+                System.Windows.MessageBox.Show(
+                    $"Errore nell'inizializzazione dell'interfaccia: {ex.Message}",
+                    "Errore",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error
+                );
+            }
         }
 
         private void ActionsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -500,26 +543,43 @@ namespace AutomationProfileManager.Views
 
         private void RefreshCategoryFilter()
         {
-            var categories = extensionData.ActionLibrary
-                .Select(a => a.Category ?? "Generale")
-                .Distinct()
-                .OrderBy(c => c)
-                .ToList();
-
-            CategoryFilterComboBox.Items.Clear();
-            CategoryFilterComboBox.Items.Add(new ComboBoxItem { Content = "Tutte", IsSelected = true });
-            
-            foreach (var category in categories)
+            try
             {
-                CategoryFilterComboBox.Items.Add(new ComboBoxItem { Content = category });
+                if (extensionData?.ActionLibrary == null)
+                {
+                    return;
+                }
+                
+                var categories = extensionData.ActionLibrary
+                    .Select(a => a.Category ?? "Generale")
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToList();
+
+                CategoryFilterComboBox.Items.Clear();
+                CategoryFilterComboBox.Items.Add(new ComboBoxItem { Content = "Tutte", IsSelected = true });
+                
+                foreach (var category in categories)
+                {
+                    CategoryFilterComboBox.Items.Add(new ComboBoxItem { Content = category });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger().Error(ex, "Failed to refresh category filter");
             }
         }
 
         private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (extensionData?.ActionLibrary == null)
+            {
+                return;
+            }
+
             if (CategoryFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
-                string selectedCategory = selectedItem.Content.ToString();
+                string selectedCategory = selectedItem.Content?.ToString() ?? "Tutte";
                 
                 if (selectedCategory == "Tutte")
                 {
@@ -779,25 +839,40 @@ namespace AutomationProfileManager.Views
 
         private void LogFilter_Changed(object sender, RoutedEventArgs e)
         {
+            // Guard: skip if still initializing
+            if (extensionData == null)
+            {
+                return;
+            }
             RefreshLog();
         }
 
         private void RefreshLog()
         {
-            if (extensionData.ActionLog == null)
+            try
             {
-                LogDataGrid.ItemsSource = null;
-                return;
+                if (extensionData?.ActionLog == null || LogDataGrid == null)
+                {
+                    return;
+                }
+
+                var logs = extensionData.ActionLog.AsEnumerable();
+
+                if (ShowDryRunLogsCheckBox != null && ShowDryRunLogsCheckBox.IsChecked == false)
+                {
+                    logs = logs.Where(l => !l.IsDryRun);
+                }
+
+                LogDataGrid.ItemsSource = logs.OrderByDescending(l => l.Timestamp).ToList();
             }
-
-            var logs = extensionData.ActionLog.AsEnumerable();
-
-            if (ShowDryRunLogsCheckBox?.IsChecked == false)
+            catch (Exception ex)
             {
-                logs = logs.Where(l => !l.IsDryRun);
+                LogManager.GetLogger().Error(ex, "Failed to refresh log");
+                if (LogDataGrid != null)
+                {
+                    LogDataGrid.ItemsSource = null;
+                }
             }
-
-            LogDataGrid.ItemsSource = logs.OrderByDescending(l => l.Timestamp).ToList();
         }
 
         #endregion
@@ -806,48 +881,58 @@ namespace AutomationProfileManager.Views
 
         private void ShowNotificationsCheckBox_Checked(object sender, RoutedEventArgs e)
         {
+            if (extensionData == null) return;
             UpdateNotificationSetting();
         }
 
         private void ShowNotificationsCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (extensionData == null) return;
             UpdateNotificationSetting();
         }
 
         private void UpdateNotificationSetting()
         {
+            if (extensionData == null) return;
+            
             if (extensionData.Settings == null)
                 extensionData.Settings = new ExtensionSettings();
             
-            extensionData.Settings.ShowNotifications = ShowNotificationsCheckBox.IsChecked ?? true;
+            extensionData.Settings.ShowNotifications = ShowNotificationsCheckBox?.IsChecked ?? true;
             plugin.UpdateExtensionData(extensionData);
         }
 
         private void EnableDryRunCheckBox_Checked(object sender, RoutedEventArgs e)
         {
+            if (extensionData == null) return;
             UpdateDryRunSetting();
         }
 
         private void EnableDryRunCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (extensionData == null) return;
             UpdateDryRunSetting();
         }
 
         private void UpdateDryRunSetting()
         {
+            if (extensionData == null) return;
+            
             if (extensionData.Settings == null)
                 extensionData.Settings = new ExtensionSettings();
             
-            extensionData.Settings.EnableDryRun = EnableDryRunCheckBox.IsChecked ?? false;
+            extensionData.Settings.EnableDryRun = EnableDryRunCheckBox?.IsChecked ?? false;
             plugin.UpdateExtensionData(extensionData);
         }
 
         private void MaxLogEntriesTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (extensionData == null) return;
+            
             if (extensionData.Settings == null)
                 extensionData.Settings = new ExtensionSettings();
             
-            if (int.TryParse(MaxLogEntriesTextBox.Text, out int maxEntries) && maxEntries > 0)
+            if (int.TryParse(MaxLogEntriesTextBox?.Text, out int maxEntries) && maxEntries > 0)
             {
                 extensionData.Settings.MaxLogEntries = maxEntries;
                 plugin.UpdateExtensionData(extensionData);

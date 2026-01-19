@@ -17,17 +17,30 @@ namespace AutomationProfileManager.Services
     public class ActionExecutor
     {
         private static readonly ILogger logger = LogManager.GetLogger();
-        private readonly ResolutionService resolutionService;
+        private ResolutionService? resolutionService;
         private ActionLogService? logService;
 
         public ActionExecutor(IPlayniteAPI api)
         {
-            resolutionService = new ResolutionService();
         }
 
         public void SetLogService(ActionLogService service)
         {
             logService = service;
+        }
+
+        private ResolutionService GetResolutionService()
+        {
+            try
+            {
+                resolutionService ??= new ResolutionService();
+                return resolutionService;
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, "Failed to initialize ResolutionService, resolution changes disabled");
+                throw;
+            }
         }
 
         public async Task<ActionExecutionResult> ExecuteActionAsync(GameAction action, bool dryRun = false)
@@ -97,12 +110,12 @@ namespace AutomationProfileManager.Services
 
         public void SaveCurrentResolution()
         {
-            resolutionService.SaveCurrentSettings();
+            GetResolutionService().SaveCurrentSettings();
         }
 
         public bool RestoreResolution()
         {
-            return resolutionService.RestoreOriginalSettings();
+            return GetResolutionService().RestoreOriginalSettings();
         }
 
         private ActionExecutionResult ExecuteChangeResolution(GameAction action)
@@ -113,20 +126,20 @@ namespace AutomationProfileManager.Services
                 // Handle RESTORE command
                 if (action.Path.Equals("RESTORE", StringComparison.OrdinalIgnoreCase))
                 {
-                    bool success = resolutionService.RestoreOriginalSettings();
-                    result.Success = success;
-                    result.Message = success 
+                    bool restored = GetResolutionService().RestoreOriginalSettings();
+                    result.Success = restored;
+                    result.Message = restored 
                         ? "Restored original resolution"
                         : "Failed to restore original resolution (fallback may have been used)";
                     return result;
                 }
 
                 var (width, height, refreshRate) = ResolutionService.ParseResolutionString(action.Path);
-                bool changeSuccess = resolutionService.ChangeResolution(width, height, refreshRate);
+                bool changeSuccess = GetResolutionService().ChangeResolution(width, height, refreshRate);
                 result.Success = changeSuccess;
                 result.Message = changeSuccess 
                     ? $"Changed resolution to {width}x{height}@{refreshRate}Hz"
-                    : $"Failed to change resolution to {width}x{height}@{refreshRate}Hz (fallback may have been used)";
+                    : $"Failed to change resolution to {width}x{height}@{refreshRate}Hz";
             }
             catch (Exception ex)
             {

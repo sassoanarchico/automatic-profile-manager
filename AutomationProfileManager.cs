@@ -25,18 +25,26 @@ namespace AutomationProfileManager
 
         public override Guid Id { get; } = Guid.Parse("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
 
+        private void EnsureInitialized()
+        {
+            dataService ??= new DataService(PlayniteApi);
+            actionExecutor ??= new ActionExecutor(PlayniteApi);
+            mirrorTracker ??= new MirrorActionTracker();
+            extensionData ??= dataService.LoadData();
+        }
+
         public AutomationProfileManagerPlugin(IPlayniteAPI api) : base(api)
         {
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
             };
+            EnsureInitialized();
         }
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            InitializeServices();
-            LoadData();
+            EnsureInitialized();
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
@@ -46,11 +54,13 @@ namespace AutomationProfileManager
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
+            EnsureInitialized();
             ExecuteProfileActions(args.Game, ExecutionPhase.AfterStarting);
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
+            EnsureInitialized();
             mirrorTracker?.ClearTracking();
             // Save current resolution before any changes
             if (actionExecutor != null)
@@ -62,87 +72,63 @@ namespace AutomationProfileManager
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
+            EnsureInitialized();
             ExecuteProfileActions(args.Game, ExecutionPhase.AfterClosing);
         }
 
         public override ISettings GetSettings(bool firstRunSettings)
         {
-            return new AutomationProfileManagerSettings(this);
+            try
+            {
+                EnsureInitialized();
+                return new AutomationProfileManagerSettings(this);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "GetSettings failed");
+                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    "AutomationProfileManager_SettingsError",
+                    $"Settings failed to load: {ex.Message}",
+                    NotificationType.Error
+                ));
+                return new AutomationProfileManagerSettings();
+            }
         }
 
         public override UserControl GetSettingsView(bool firstRunSettings)
         {
-            return new AutomationProfileManagerSettingsView(this);
-        }
-
-        public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
-        {
-            yield return new GameMenuItem
+            try
             {
-                Description = "Assegna Profilo di Automazione",
-                Action = (menuArgs) => ShowProfileAssignmentMenu(args.Games.ToList())
-            };
+                EnsureInitialized();
+                return new AutomationProfileManagerSettingsView(this);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "GetSettingsView failed");
+                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    "AutomationProfileManager_SettingsViewError",
+                    $"Settings view failed to load: {ex.Message}",
+                    NotificationType.Error
+                ));
+                throw;
+            }
         }
 
         private void InitializeServices()
         {
-            dataService = new DataService(PlayniteApi);
-            actionExecutor = new ActionExecutor(PlayniteApi);
-            mirrorTracker = new MirrorActionTracker();
+            dataService ??= new DataService(PlayniteApi);
+            actionExecutor ??= new ActionExecutor(PlayniteApi);
+            mirrorTracker ??= new MirrorActionTracker();
         }
 
         private void LoadData()
         {
-            extensionData = dataService.LoadData();
-            
-            // Ensure all properties are initialized
-            if (extensionData == null)
-            {
-                extensionData = new ExtensionData();
-            }
-            
-            if (extensionData.ActionLibrary == null)
-            {
-                extensionData.ActionLibrary = new List<Models.GameAction>();
-            }
-            
-            if (extensionData.Profiles == null)
-            {
-                extensionData.Profiles = new List<AutomationProfile>();
-            }
-            
-            if (extensionData.Mappings == null)
-            {
-                extensionData.Mappings = new ProfileMapping();
-            }
-            
-            if (extensionData.Settings == null)
-            {
-                extensionData.Settings = new ExtensionSettings();
-            }
-            
-            if (extensionData.ActionLog == null)
-            {
-                extensionData.ActionLog = new List<ActionLogEntry>();
-            }
-            
-            // Initialize log service with existing logs
-            actionLogService = new ActionLogService(
-                extensionData.ActionLog, 
-                extensionData.Settings.MaxLogEntries
-            );
-            if (actionExecutor != null)
-            {
-                actionExecutor.SetLogService(actionLogService);
-            }
+            extensionData = dataService?.LoadData() ?? new ExtensionData();
         }
 
         private void SaveData()
         {
-            if (dataService != null && extensionData != null)
-            {
-                dataService.SaveData(extensionData);
-            }
+            dataService?.SaveData(extensionData ?? new ExtensionData());
         }
 
         private async void ExecuteProfileActions(Game game, ExecutionPhase phase)

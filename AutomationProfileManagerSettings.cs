@@ -5,7 +5,11 @@ namespace AutomationProfileManager
 {
     public class AutomationProfileManagerSettings : ISettings
     {
-        private readonly AutomationProfileManagerPlugin plugin;
+        private AutomationProfileManagerPlugin? plugin;
+
+        public AutomationProfileManagerSettings()
+        {
+        }
 
         public AutomationProfileManagerSettings(AutomationProfileManagerPlugin plugin)
         {
