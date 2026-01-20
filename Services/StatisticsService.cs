@@ -46,7 +46,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, "Failed to record action execution statistics");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_FailedToRecordActionStats"));
             }
         }
 
@@ -71,7 +71,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, "Failed to record profile execution statistics");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_FailedToRecordProfileStats"));
             }
         }
 
@@ -139,11 +139,11 @@ namespace AutomationProfileManager.Services
             {
                 var ts = TimeSpan.FromSeconds(TotalTimeSavedSeconds);
                 if (ts.TotalHours >= 1)
-                    return $"{ts.TotalHours:F1} ore";
+                    return string.Format(LocalizationService.GetString("LOC_APM_Stats_Hours"), ts.TotalHours);
                 else if (ts.TotalMinutes >= 1)
-                    return $"{ts.TotalMinutes:F0} minuti";
+                    return string.Format(LocalizationService.GetString("LOC_APM_Stats_Minutes"), ts.TotalMinutes);
                 else
-                    return $"{ts.TotalSeconds:F0} secondi";
+                    return string.Format(LocalizationService.GetString("LOC_APM_Stats_Seconds"), ts.TotalSeconds);
             }
         }
     }

@@ -89,7 +89,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to get current display settings");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToGetDisplaySettings"));
             }
             return null;
         }
@@ -99,7 +99,7 @@ namespace AutomationProfileManager.Services
             originalSettings = GetCurrentSettings();
             if (originalSettings != null)
             {
-                logger.Info($"Saved original resolution: {originalSettings.Width}x{originalSettings.Height}@{originalSettings.RefreshRate}Hz");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_SavedOriginalResolution", originalSettings.Width, originalSettings.Height, originalSettings.RefreshRate));
             }
         }
 
@@ -118,7 +118,7 @@ namespace AutomationProfileManager.Services
 
                 if (EnumDisplaySettings(null, ENUM_CURRENT_SETTINGS, ref dm) == 0)
                 {
-                    logger.Error("Failed to enumerate display settings");
+                    logger.Error(LocalizationService.GetString("LOC_APM_Log_FailedToEnumerateDisplaySettings"));
                     return false;
                 }
 
@@ -130,19 +130,19 @@ namespace AutomationProfileManager.Services
                 int testResult = ChangeDisplaySettings(ref dm, CDS_TEST);
                 if (testResult != DISP_CHANGE_SUCCESSFUL)
                 {
-                    logger.Warn($"Resolution change test failed: {width}x{height}@{refreshRate}Hz (code: {testResult})");
+                    logger.Warn(LocalizationService.GetString("LOC_APM_Log_ResolutionTestFailed", width, height, refreshRate, testResult));
                     
                     // Fallback: try without refresh rate
                     if (refreshRate != 60)
                     {
-                        logger.Info($"Attempting fallback: trying {width}x{height}@60Hz");
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_AttemptingFallback", width, height, 60));
                         return ChangeResolution(width, height, 60);
                     }
                     
                     // Final fallback: try common resolution
                     if (width != 1920 || height != 1080)
                     {
-                        logger.Info($"Attempting fallback: trying 1920x1080@60Hz");
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_AttemptingFallbackCommon"));
                         return ChangeResolution(1920, 1080, 60);
                     }
                     
@@ -152,17 +152,17 @@ namespace AutomationProfileManager.Services
                 int result = ChangeDisplaySettings(ref dm, CDS_UPDATEREGISTRY);
                 if (result == DISP_CHANGE_SUCCESSFUL || result == DISP_CHANGE_RESTART)
                 {
-                    logger.Info($"Changed resolution to: {width}x{height}@{refreshRate}Hz");
+                    logger.Info(LocalizationService.GetString("LOC_APM_Log_ChangedResolution", width, height, refreshRate));
                     lastAppliedSettings = new DisplaySettings { Width = width, Height = height, RefreshRate = refreshRate };
                     return true;
                 }
 
-                logger.Error($"Failed to change resolution (code: {result})");
+                logger.Error(LocalizationService.GetString("LOC_APM_Log_FailedToChangeResolution", result));
                 
                 // Fallback on failure
                 if (refreshRate != 60)
                 {
-                    logger.Info($"Attempting fallback: trying {width}x{height}@60Hz");
+                    logger.Info(LocalizationService.GetString("LOC_APM_Log_AttemptingFallback", width, height, 60));
                     return ChangeResolution(width, height, 60);
                 }
                 
@@ -170,14 +170,14 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Exception while changing resolution");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_ExceptionWhileChangingResolution"));
                 
                 // Fallback on exception
                 if (width != 1920 || height != 1080 || refreshRate != 60)
                 {
                     try
                     {
-                        logger.Info($"Attempting fallback: trying 1920x1080@60Hz");
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_AttemptingFallbackCommon"));
                         return ChangeResolution(1920, 1080, 60);
                     }
                     catch
@@ -194,17 +194,17 @@ namespace AutomationProfileManager.Services
         {
             if (originalSettings == null)
             {
-                logger.Warn("No original settings saved to restore");
+                logger.Warn(LocalizationService.GetString("LOC_APM_Log_NoOriginalSettingsSaved"));
                 
                 // Fallback: try to restore to a common resolution
                 if (!hasRestoreAttempted)
                 {
                     hasRestoreAttempted = true;
-                    logger.Info("Attempting fallback restore to 1920x1080@60Hz");
+                    logger.Info(LocalizationService.GetString("LOC_APM_Log_AttemptingFallbackRestore"));
                     bool fallbackSuccess = ChangeResolution(1920, 1080, 60);
                     if (fallbackSuccess)
                     {
-                        logger.Info("Fallback restore successful");
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_FallbackRestoreSuccessful"));
                     }
                     return fallbackSuccess;
                 }
@@ -215,20 +215,20 @@ namespace AutomationProfileManager.Services
             bool success = ChangeResolution(originalSettings.Width, originalSettings.Height, originalSettings.RefreshRate);
             if (success)
             {
-                logger.Info("Restored original resolution");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_RestoredOriginalResolution"));
                 hasRestoreAttempted = false;
             }
             else
             {
                 // Fallback if restore fails
-                logger.Warn("Restore failed, attempting fallback");
+                logger.Warn(LocalizationService.GetString("LOC_APM_Log_RestoreFailedAttemptingFallback"));
                 if (!hasRestoreAttempted)
                 {
                     hasRestoreAttempted = true;
                     var current = GetCurrentSettings();
                     if (current != null && (current.Width != 1920 || current.Height != 1080))
                     {
-                        logger.Info("Attempting fallback restore to 1920x1080@60Hz");
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_AttemptingFallbackRestore"));
                         return ChangeResolution(1920, 1080, 60);
                     }
                 }

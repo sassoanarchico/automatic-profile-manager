@@ -17,12 +17,12 @@ namespace AutomationProfileManager.Services
                 if (int.TryParse(result?.Trim(), out int volume))
                 {
                     originalVolume = volume;
-                    logger.Info($"Saved original volume: {volume}%");
+                    logger.Info(LocalizationService.GetString("LOC_APM_Log_SavedOriginalVolume", volume));
                 }
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, "Failed to save current volume");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_FailedToSaveVolume"));
             }
         }
 
@@ -39,12 +39,12 @@ namespace AutomationProfileManager.Services
                 ";
                 
                 ExecutePowerShell(script);
-                logger.Info($"Set master volume to {volumePercent}%");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_SetMasterVolume", volumePercent));
                 return true;
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to set master volume");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToSetMasterVolume"));
                 return false;
             }
         }
@@ -75,12 +75,12 @@ namespace AutomationProfileManager.Services
                 ";
                 
                 ExecutePowerShell(script);
-                logger.Info($"Muted process: {processName}");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_MutedProcess", processName));
                 return true;
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, $"Failed to mute process {processName}, trying alternative method");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_FailedToMuteProcess", processName));
                 return MuteProcessAlternative(processName);
             }
         }
@@ -102,12 +102,12 @@ namespace AutomationProfileManager.Services
                 ";
                 
                 ExecutePowerShell(script);
-                logger.Info($"Unmuted process: {processName}");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_UnmutedProcess", processName));
                 return true;
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, $"Failed to unmute process {processName}");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_FailedToUnmuteProcess", processName));
                 return false;
             }
         }
@@ -138,7 +138,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Alternative mute method also failed for {processName}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_AlternativeMuteFailed", processName));
                 return false;
             }
         }
@@ -169,7 +169,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to execute PowerShell for audio");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToExecutePowerShellAudio"));
             }
             return null;
         }

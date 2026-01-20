@@ -42,7 +42,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to evaluate condition: {condition.Type}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToEvaluateCondition", condition.Type));
                 return true;
             }
         }
@@ -56,7 +56,7 @@ namespace AutomationProfileManager.Services
             var processes = Process.GetProcessesByName(processName);
             bool isRunning = processes.Length > 0;
             
-            logger.Info($"Condition check: Process '{processName}' running = {isRunning}");
+            logger.Info(LocalizationService.GetString("LOC_APM_Log_ConditionCheckProcessRunning", processName, isRunning));
             return isRunning;
         }
 
@@ -68,7 +68,7 @@ namespace AutomationProfileManager.Services
             string expandedPath = Environment.ExpandEnvironmentVariables(filePath);
             bool exists = File.Exists(expandedPath) || Directory.Exists(expandedPath);
             
-            logger.Info($"Condition check: File/Directory '{expandedPath}' exists = {exists}");
+            logger.Info(LocalizationService.GetString("LOC_APM_Log_ConditionCheckFileExists", expandedPath, exists));
             return exists;
         }
 
@@ -93,12 +93,12 @@ namespace AutomationProfileManager.Services
                     isWithin = now >= start || now <= end;
                 }
 
-                logger.Info($"Condition check: Time {now:hh\\:mm} within {startTime}-{endTime} = {isWithin}");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_ConditionCheckTimeRange", now.ToString(@"hh\:mm"), startTime, endTime, isWithin));
                 return isWithin;
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, $"Failed to parse time range: {startTime} - {endTime}");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_FailedToParseTimeRange", startTime, endTime));
                 return true;
             }
         }

@@ -65,7 +65,11 @@ namespace AutomationProfileManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Errore durante la scansione: {ex.Message}", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    LocalizationService.GetString("LOC_APM_Error") + ": " + ex.Message,
+                    LocalizationService.GetString("LOC_APM_Error"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -91,7 +95,7 @@ namespace AutomationProfileManager.Views
         {
             int selected = allApps.Count(a => a.IsSelected);
             int total = allApps.Count;
-            AppCountText.Text = $"{selected} selezionate su {total} app trovate";
+            AppCountText.Text = LocalizationService.GetString("LOC_APM_SelectedOfTotal", selected, total);
         }
 
         private void CategoryFilter_Changed(object sender, SelectionChangedEventArgs e)
@@ -107,15 +111,19 @@ namespace AutomationProfileManager.Views
         private void ScanInstalledApps_Click(object sender, RoutedEventArgs e)
         {
             ScanInstalledApps();
-            MessageBox.Show($"Trovate {allApps.Count} applicazioni installate!", "Scansione Completata", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(
+                LocalizationService.GetString("LOC_APM_ScanCompleted", allApps.Count),
+                LocalizationService.GetString("LOC_APM_ScanComplete"),
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         private void BrowseApp_Click(object sender, RoutedEventArgs e)
         {
             var openDialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "Applicazioni (*.exe)|*.exe|Collegamenti (*.lnk)|*.lnk|Tutti i file (*.*)|*.*",
-                Title = "Seleziona un'applicazione"
+                Filter = "Applications (*.exe)|*.exe|Shortcuts (*.lnk)|*.lnk|All files (*.*)|*.*",
+                Title = LocalizationService.GetString("LOC_APM_SelectApplicationTitle")
             };
 
             if (openDialog.ShowDialog() == true)
@@ -147,8 +155,11 @@ namespace AutomationProfileManager.Views
                     {
                         if (allApps.Any(a => a.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase)))
                         {
-                            MessageBox.Show($"L'app '{appName}' e gia presente nella lista.",
-                                "App Duplicata", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            MessageBox.Show(
+                                LocalizationService.GetString("LOC_APM_AppAlreadyExists", appName),
+                                LocalizationService.GetString("LOC_APM_AppDuplicate"),
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
                             return;
                         }
 
@@ -157,7 +168,7 @@ namespace AutomationProfileManager.Views
                             Name = appName,
                             ProcessName = processName,
                             ExecutablePath = exePath,
-                            Category = "Manuale",
+                            Category = LocalizationService.GetString("LOC_APM_CategoryManual"),
                             IsSelected = true
                         });
 
@@ -168,8 +179,11 @@ namespace AutomationProfileManager.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Errore durante l'aggiunta dell'app: {ex.Message}",
-                        "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(
+                        LocalizationService.GetString("LOC_APM_Error") + ": " + ex.Message,
+                        LocalizationService.GetString("LOC_APM_Error"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }

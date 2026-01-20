@@ -121,7 +121,7 @@ namespace AutomationProfileManager.Services
             {
                 playniteAPI.Notifications.Add(new NotificationMessage(
                     "AutomationProfileManager_SaveError",
-                    $"Failed to save data: {ex.Message}",
+                    string.Format(LocalizationService.GetString("LOC_APM_SaveDataFailed"), ex.Message),
                     NotificationType.Error
                 ));
             }

@@ -198,12 +198,12 @@ namespace AutomationProfileManager.Views
             if (selectedActions.Count == 0) return;
 
             var message = selectedActions.Count == 1
-                ? $"Rimuovere l'azione '{selectedActions[0].Name}'?\n\nQuesta azione verrà rimossa anche da tutti i profili."
-                : $"Rimuovere {selectedActions.Count} azioni selezionate?\n\nQueste azioni verranno rimosse anche da tutti i profili.";
+                ? LocalizationService.GetString("LOC_APM_ConfirmRemoveAction", selectedActions[0].Name)
+                : LocalizationService.GetString("LOC_APM_ConfirmRemoveMultipleActions", selectedActions.Count);
 
             var result = MessageBox.Show(
                 message,
-                "Conferma Rimozione",
+                LocalizationService.GetString("LOC_APM_ConfirmRemove"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning
             );
@@ -279,13 +279,8 @@ namespace AutomationProfileManager.Views
         private void ImportDefaultActions_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Vuoi importare le azioni predefinite?\n\n" +
-                "Verranno aggiunte azioni comuni come:\n" +
-                "- Chiudi/Apri applicazioni (Chrome, Discord, Spotify...)\n" +
-                "- Comandi di sistema (Prestazioni elevate, Game Mode...)\n" +
-                "- Azioni di attesa\n\n" +
-                "Le azioni esistenti non verranno modificate.",
-                "Importa Azioni Predefinite",
+                LocalizationService.GetString("LOC_APM_ImportDefaultActionsPrompt"),
+                LocalizationService.GetString("LOC_APM_ImportDefaultActions"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question
             );
@@ -308,9 +303,8 @@ namespace AutomationProfileManager.Views
                 plugin.UpdateExtensionData(extensionData);
 
                 MessageBox.Show(
-                    $"Importate {importedCount} azioni predefinite!\n\n" +
-                    $"({defaultActions.Count - importedCount} azioni erano gia presenti)",
-                    "Importazione Completata",
+                    LocalizationService.GetString("LOC_APM_ImportedActions", importedCount, defaultActions.Count - importedCount),
+                    LocalizationService.GetString("LOC_APM_ImportCompleted"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information
                 );
@@ -319,7 +313,9 @@ namespace AutomationProfileManager.Views
 
         private void AddProfile_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new TextInputDialog("Nuovo Profilo", "Inserisci il nome del profilo:");
+            var dialog = new TextInputDialog(
+                LocalizationService.GetString("LOC_APM_NewProfileTitle"),
+                LocalizationService.GetString("LOC_APM_EnterProfileName"));
             if (dialog.ShowDialog() == true)
             {
                 var profileName = dialog.GetText();
@@ -339,8 +335,8 @@ namespace AutomationProfileManager.Views
             if (selectedProfile == null) return;
 
             var result = MessageBox.Show(
-                $"Rimuovere il profilo '{selectedProfile.Name}'?\n\nI giochi assegnati perderanno l'associazione.",
-                "Conferma Rimozione",
+                LocalizationService.GetString("LOC_APM_ConfirmRemoveProfile", selectedProfile.Name),
+                LocalizationService.GetString("LOC_APM_ConfirmRemove"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning
             );
@@ -965,8 +961,8 @@ namespace AutomationProfileManager.Views
                 if (success)
                 {
                     MessageBox.Show(
-                        $"Esportati {extensionData.Profiles.Count} profili e {extensionData.ActionLibrary.Count} azioni.",
-                        "Esportazione Completata",
+                        LocalizationService.GetString("LOC_APM_ExportCompleted"),
+                        LocalizationService.GetString("LOC_APM_Success"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Information
                     );
@@ -974,8 +970,8 @@ namespace AutomationProfileManager.Views
                 else
                 {
                     MessageBox.Show(
-                        "Errore durante l'esportazione.",
-                        "Errore",
+                        LocalizationService.GetString("LOC_APM_Error"),
+                        LocalizationService.GetString("LOC_APM_Error"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error
                     );
@@ -1001,8 +997,8 @@ namespace AutomationProfileManager.Views
                 if (importData == null)
                 {
                     MessageBox.Show(
-                        "Errore durante l'importazione. Verifica che il file sia valido.",
-                        "Errore",
+                        LocalizationService.GetString("LOC_APM_Error"),
+                        LocalizationService.GetString("LOC_APM_Error"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error
                     );
@@ -1036,9 +1032,8 @@ namespace AutomationProfileManager.Views
                 plugin.UpdateExtensionData(extensionData);
 
                 MessageBox.Show(
-                    $"Importati {profilesImported} profili e {actionsImported} azioni.\n" +
-                    $"({importData.Profiles.Count - profilesImported} profili e {importData.Actions.Count - actionsImported} azioni erano gia presenti)",
-                    "Importazione Completata",
+                    LocalizationService.GetString("LOC_APM_ImportCompletedDetails", profilesImported, actionsImported),
+                    LocalizationService.GetString("LOC_APM_ImportCompleted"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information
                 );
@@ -1057,8 +1052,8 @@ namespace AutomationProfileManager.Views
         private void ClearLog_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Vuoi pulire tutti i log?",
-                "Conferma",
+                LocalizationService.GetString("LOC_APM_ConfirmClearLog"),
+                LocalizationService.GetString("LOC_APM_Confirm"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question
             );

@@ -32,7 +32,7 @@ namespace AutomationProfileManager.Services
             {
                 playniteApi.Notifications.Add(new NotificationMessage(
                     $"AutomationProfileManager_Start_{Guid.NewGuid()}",
-                    $"?? Profilo '{profileName}' avviato per {gameName}\n{actionCount} azioni in esecuzione...",
+                    string.Format(LocalizationService.GetString("LOC_APM_Notification_ProfileStarted"), profileName, gameName, actionCount),
                     NotificationType.Info
                 ));
             }
@@ -49,9 +49,12 @@ namespace AutomationProfileManager.Services
             try
             {
                 string status = failCount == 0 ? "?" : "??";
-                string message = $"{status} Profilo '{profileName}' completato\n" +
-                                 $"Azioni: {successCount} OK, {failCount} errori\n" +
-                                 $"Tempo: {elapsedSeconds:F1}s";
+                string message = string.Format(
+                    LocalizationService.GetString(failCount == 0 ? "LOC_APM_Notification_ProfileCompleted_OK" : "LOC_APM_Notification_ProfileCompleted_Fail"),
+                    profileName,
+                    successCount,
+                    failCount,
+                    elapsedSeconds);
 
                 playniteApi.Notifications.Add(new NotificationMessage(
                     $"AutomationProfileManager_Complete_{Guid.NewGuid()}",
@@ -74,7 +77,7 @@ namespace AutomationProfileManager.Services
                 string status = success ? "?" : "?";
                 playniteApi.Notifications.Add(new NotificationMessage(
                     $"AutomationProfileManager_Action_{Guid.NewGuid()}",
-                    $"{status} {actionName}: {message}",
+                    string.Format(LocalizationService.GetString(success ? "LOC_APM_Notification_ActionOK" : "LOC_APM_Notification_ActionFail"), actionName, message),
                     success ? NotificationType.Info : NotificationType.Error
                 ));
             }
@@ -90,7 +93,7 @@ namespace AutomationProfileManager.Services
             {
                 playniteApi.Notifications.Add(new NotificationMessage(
                     $"AutomationProfileManager_Error_{Guid.NewGuid()}",
-                    $"? {title}: {message}",
+                    string.Format(LocalizationService.GetString("LOC_APM_Notification_Error"), title, message),
                     NotificationType.Error
                 ));
             }
@@ -108,7 +111,7 @@ namespace AutomationProfileManager.Services
             {
                 playniteApi.Notifications.Add(new NotificationMessage(
                     $"AutomationProfileManager_Backup_{Guid.NewGuid()}",
-                    $"?? Backup configurazione completato:\n{backupPath}",
+                    string.Format(LocalizationService.GetString("LOC_APM_Notification_BackupCompleted"), backupPath),
                     NotificationType.Info
                 ));
             }

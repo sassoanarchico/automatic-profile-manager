@@ -83,7 +83,7 @@ namespace AutomationProfileManager.Views
             MirrorActionCheckBox.IsChecked = action.IsMirrorAction;
             PriorityTextBox.Text = action.Priority.ToString();
             WaitSecondsTextBox.Text = action.WaitSeconds.ToString();
-            CategoryComboBox.Text = action.Category ?? "Generale";
+            CategoryComboBox.Text = action.Category ?? LocalizationService.GetString("LOC_APM_DefaultCategory");
             TagsTextBox.Text = action.Tags != null ? string.Join(", ", action.Tags) : "";
             UpdateUIForActionType();
         }
@@ -115,19 +115,19 @@ namespace AutomationProfileManager.Views
                 if (PathLabel != null)
                 {
                     if (selectedType == ActionType.StartApp)
-                        PathLabel.Content = "Applicazione da Aprire:";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_StartApp");
                     else if (selectedType == ActionType.CloseApp)
-                        PathLabel.Content = "Applicazione da Chiudere:";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_CloseApp");
                     else if (selectedType == ActionType.PowerShellScript)
-                        PathLabel.Content = "Script PowerShell:";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_PowerShell");
                     else if (selectedType == ActionType.SystemCommand)
-                        PathLabel.Content = "Comando Sistema:";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_SystemCommand");
                     else if (selectedType == ActionType.ChangeResolution)
-                        PathLabel.Content = "Risoluzione (es: 1920x1080@60 o RESTORE):";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_Resolution");
                     else if (isWait)
-                        PathLabel.Content = "Attesa:";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_Wait");
                     else
-                        PathLabel.Content = "Percorso/Comando:";
+                        PathLabel.Content = LocalizationService.GetString("LOC_APM_PathLabel_Default");
                 }
                 
                 // Enable/disable fields for Wait and Resolution actions
@@ -148,7 +148,7 @@ namespace AutomationProfileManager.Views
         {
             var dialog = new ApplicationSelectionDialog(
                 appDiscovery.GetInstalledApplications(), 
-                "Seleziona un'applicazione installata sul sistema");
+                LocalizationService.GetString("LOC_APM_SelectInstalledAppPrompt"));
             dialog.Owner = this;
             
             if (dialog.ShowDialog() == true)
@@ -169,7 +169,7 @@ namespace AutomationProfileManager.Views
         {
             var dialog = new ApplicationSelectionDialog(
                 appDiscovery.GetRunningProcesses(), 
-                "Seleziona un processo attualmente in esecuzione");
+                LocalizationService.GetString("LOC_APM_SelectRunningProcessPrompt"));
             dialog.Owner = this;
             
             if (dialog.ShowDialog() == true)
@@ -202,7 +202,7 @@ namespace AutomationProfileManager.Views
             var dialog = new OpenFileDialog
             {
                 Filter = "Executables (*.exe)|*.exe|PowerShell Scripts (*.ps1)|*.ps1|Batch Files (*.bat;*.cmd)|*.bat;*.cmd|All Files (*.*)|*.*",
-                Title = "Seleziona file"
+                Title = LocalizationService.GetString("LOC_APM_SelectFile")
             };
 
             if (dialog.ShowDialog() == true)
@@ -219,7 +219,11 @@ namespace AutomationProfileManager.Views
         {
             if (string.IsNullOrWhiteSpace(NameTextBox.Text))
             {
-                MessageBox.Show("Il nome dell'azione e obbligatorio.", "Errore", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(
+                    LocalizationService.GetString("LOC_APM_ActionNameRequired"),
+                    LocalizationService.GetString("LOC_APM_Error"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 NameTextBox.Focus();
                 return;
             }
@@ -229,7 +233,7 @@ namespace AutomationProfileManager.Views
             action.Path = PathTextBox.Text?.Trim() ?? "";
             action.Arguments = ArgumentsTextBox.Text?.Trim() ?? "";
             action.IsMirrorAction = MirrorActionCheckBox.IsChecked ?? false;
-            action.Category = CategoryComboBox.Text?.Trim() ?? "Generale";
+            action.Category = CategoryComboBox.Text?.Trim() ?? LocalizationService.GetString("LOC_APM_DefaultCategory");
             
             // Salva i tag
             action.Tags = (TagsTextBox.Text ?? "")

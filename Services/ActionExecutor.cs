@@ -56,7 +56,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Warn(ex, "Failed to initialize ResolutionService, resolution changes disabled");
+                logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_ResolutionServiceInitFailed"));
                 throw;
             }
         }
@@ -78,7 +78,7 @@ namespace AutomationProfileManager.Services
             // Execute parallel actions first
             if (parallelActions.Any())
             {
-                logger.Info($"Executing {parallelActions.Count} actions in parallel...");
+                logger.Info(string.Format(LocalizationService.GetString("LOC_APM_Log_ExecutingParallel"), parallelActions.Count));
                 var parallelTasks = parallelActions.Select(a => ExecuteActionWithTimeoutAsync(a, dryRun)).ToList();
                 
                 if (parallelActions.All(a => !a.WaitForCompletion))
@@ -107,7 +107,7 @@ namespace AutomationProfileManager.Services
                             {
                                 ActionId = action.Id,
                                 Success = false,
-                                Message = $"Skipped: dependency action failed",
+                                Message = LocalizationService.GetString("LOC_APM_ActionSkipped_DependencyFailed"),
                                 SkippedByCondition = true
                             };
                             results.Add(skipResult);
@@ -151,7 +151,7 @@ namespace AutomationProfileManager.Services
                     ActionId = action.Id,
                     Success = false,
                     TimedOut = true,
-                    Message = $"Action timed out after {timeoutSeconds} seconds",
+                    Message = LocalizationService.GetString("LOC_APM_ActionTimedOut", timeoutSeconds),
                     ExecutionTimeMs = stopwatch.ElapsedMilliseconds
                 };
                 
@@ -173,19 +173,24 @@ namespace AutomationProfileManager.Services
                 {
                     result.Success = true;
                     result.SkippedByCondition = true;
-                    result.Message = $"Skipped: condition not met ({action.Condition?.Type})";
+                    result.Message = LocalizationService.GetString(
+                        "LOC_APM_ActionSkipped_ConditionNotMet",
+                        action.Condition != null ? action.Condition.Type.ToString() : "");
                     logService?.Log(action, true, 0, result.Message, false);
-                    logger.Info($"Action '{action.Name}' skipped due to condition: {action.Condition?.Type}");
+                    logger.Info(LocalizationService.GetString(
+                        "LOC_APM_Log_ActionSkippedDueToCondition",
+                        action.Name,
+                        action.Condition != null ? action.Condition.Type.ToString() : ""));
                     return result;
                 }
 
                 string dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
-                logger.Info($"{dryRunPrefix}Executing action: {action.Name} (Type: {action.ActionType}, Phase: {action.ExecutionPhase})");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_ExecutingAction", dryRunPrefix, action.Name, action.ActionType, action.ExecutionPhase));
 
                 if (dryRun)
                 {
                     result.Success = true;
-                    result.Message = $"Would execute: {action.ActionType} - {action.Path} {action.Arguments}";
+                    result.Message = LocalizationService.GetString("LOC_APM_DryRunWouldExecute", action.ActionType, action.Path, action.Arguments);
                     logService?.Log(action, true, 0, result.Message, true);
                     return result;
                 }
@@ -211,7 +216,7 @@ namespace AutomationProfileManager.Services
                     case ActionType.Wait:
                         await ExecuteWaitAsync(action);
                         result.Success = true;
-                        result.Message = $"Waited {action.WaitSeconds} seconds";
+                        result.Message = LocalizationService.GetString("LOC_APM_ActionWaited", action.WaitSeconds);
                         break;
 
                     case ActionType.ChangeResolution:
@@ -231,9 +236,9 @@ namespace AutomationProfileManager.Services
                         break;
                     
                     default:
-                        logger.Warn($"Unknown action type: {action.ActionType}");
+                        logger.Warn(LocalizationService.GetString("LOC_APM_Log_UnknownActionType", action.ActionType));
                         result.Success = false;
-                        result.Message = $"Unknown action type: {action.ActionType}";
+                        result.Message = LocalizationService.GetString("LOC_APM_UnknownActionType", action.ActionType);
                         break;
                 }
 
@@ -241,7 +246,7 @@ namespace AutomationProfileManager.Services
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to execute action: {action.Name}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToExecuteAction", action.Name));
                 result.Success = false;
                 result.Message = ex.Message;
                 logService?.Log(action, false, -1, ex.Message, dryRun);
@@ -270,18 +275,18 @@ namespace AutomationProfileManager.Services
                 {
                     bool restored = GetResolutionService().RestoreOriginalSettings();
                     result.Success = restored;
-                    result.Message = restored 
-                        ? "Restored original resolution"
-                        : "Failed to restore original resolution (fallback may have been used)";
+                    result.Message = restored
+                        ? LocalizationService.GetString("LOC_APM_ResolutionRestored")
+                        : LocalizationService.GetString("LOC_APM_ResolutionRestoreFailed");
                     return result;
                 }
 
                 var (width, height, refreshRate) = ResolutionService.ParseResolutionString(action.Path);
                 bool changeSuccess = GetResolutionService().ChangeResolution(width, height, refreshRate);
                 result.Success = changeSuccess;
-                result.Message = changeSuccess 
-                    ? $"Changed resolution to {width}x{height}@{refreshRate}Hz"
-                    : $"Failed to change resolution to {width}x{height}@{refreshRate}Hz";
+                result.Message = changeSuccess
+                    ? LocalizationService.GetString("LOC_APM_ResolutionChanged", width, height, refreshRate)
+                    : LocalizationService.GetString("LOC_APM_ResolutionChangeFailed", width, height, refreshRate);
             }
             catch (Exception ex)
             {
@@ -305,13 +310,13 @@ namespace AutomationProfileManager.Services
                 };
 
                 Process.Start(processStartInfo);
-                logger.Info($"Started application: {action.Path}");
+                logger.Info(LocalizationService.GetString("LOC_APM_Log_StartedApplication", action.Path));
                 result.Success = true;
-                result.Message = $"Started: {action.Path}";
+                result.Message = LocalizationService.GetString("LOC_APM_AppStarted", action.Path);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to start app: {action.Path}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToStartApp", action.Path));
                 result.Success = false;
                 result.Message = ex.Message;
             }
@@ -328,9 +333,9 @@ namespace AutomationProfileManager.Services
 
                 if (processes.Length == 0)
                 {
-                    logger.Info($"Process not running: {processName}");
+                    logger.Info(LocalizationService.GetString("LOC_APM_Log_ProcessNotRunning", processName));
                     result.Success = true;
-                    result.Message = $"Process not running: {processName}";
+                    result.Message = LocalizationService.GetString("LOC_APM_ProcessNotRunning", processName);
                     return result;
                 }
 
@@ -341,20 +346,20 @@ namespace AutomationProfileManager.Services
                     {
                         process.Kill();
                         closed++;
-                        logger.Info($"Closed process: {processName} (PID: {process.Id})");
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_ClosedProcess", processName, process.Id));
                     }
                     catch (Exception ex)
                     {
-                        logger.Warn(ex, $"Failed to close process: {processName} (PID: {process.Id})");
+                        logger.Warn(ex, LocalizationService.GetString("LOC_APM_Log_CloseProcessFailed", processName, process.Id));
                     }
                 }
 
                 result.Success = true;
-                result.Message = $"Closed {closed} instance(s) of {processName}";
+                result.Message = LocalizationService.GetString("LOC_APM_ProcessClosedInstances", closed, processName);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to close app: {action.Path}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToCloseApp", action.Path));
                 result.Success = false;
                 result.Message = ex.Message;
             }
@@ -413,15 +418,21 @@ namespace AutomationProfileManager.Services
                         process.WaitForExit();
                         result.ExitCode = process.ExitCode;
                         result.Success = process.ExitCode == 0;
-                        result.Message = $"PowerShell {(isScriptFile ? "script" : "command")} completed with exit code {process.ExitCode}";
-                        logger.Info($"Executed PowerShell {(isScriptFile ? "script" : "command")}: {action.Path}");
+                        result.Message = LocalizationService.GetString(
+                            "LOC_APM_PowerShellCompleted",
+                            isScriptFile ? LocalizationService.GetString("LOC_APM_PowerShellScript") : LocalizationService.GetString("LOC_APM_PowerShellCommand"),
+                            process.ExitCode);
+                        logger.Info(LocalizationService.GetString(
+                            "LOC_APM_Log_ExecutedPowerShell",
+                            isScriptFile ? LocalizationService.GetString("LOC_APM_PowerShellScript") : LocalizationService.GetString("LOC_APM_PowerShellCommand"),
+                            action.Path ?? string.Empty));
                     }
                 }
                 return result;
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to execute PowerShell script via process: {action.Path}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToExecutePowerShell", action.Path ?? string.Empty));
                 return new ActionExecutionResult { Success = false, Message = ex.Message };
             }
         }
@@ -448,14 +459,14 @@ namespace AutomationProfileManager.Services
                         process.WaitForExit();
                         result.ExitCode = process.ExitCode;
                         result.Success = process.ExitCode == 0;
-                        result.Message = $"Command completed with exit code {process.ExitCode}";
-                        logger.Info($"Executed system command: {action.Path}");
+                        result.Message = LocalizationService.GetString("LOC_APM_CommandCompleted", process.ExitCode);
+                        logger.Info(LocalizationService.GetString("LOC_APM_Log_ExecutedSystemCommand", action.Path));
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to execute system command: {action.Path}");
+                logger.Error(ex, LocalizationService.GetString("LOC_APM_Log_FailedToExecuteSystemCommand", action.Path));
                 result.Success = false;
                 result.Message = ex.Message;
             }
@@ -465,7 +476,7 @@ namespace AutomationProfileManager.Services
         private Task ExecuteWaitAsync(GameAction action)
         {
             var waitTime = action.WaitSeconds > 0 ? action.WaitSeconds : 1;
-            logger.Info($"Waiting {waitTime} seconds...");
+            logger.Info(LocalizationService.GetString("LOC_APM_Log_Waiting", waitTime));
             return Task.Delay(waitTime * 1000);
         }
 
@@ -479,21 +490,21 @@ namespace AutomationProfileManager.Services
                     bool success = GetAudioService().SetMasterVolume(volumePercent);
                     result.Success = success;
                     result.Message = success 
-                        ? $"Set master volume to {volumePercent}%"
-                        : "Failed to set master volume";
+                        ? LocalizationService.GetString("LOC_APM_VolumeSet", volumePercent)
+                        : LocalizationService.GetString("LOC_APM_VolumeSetFailed");
                 }
                 else if (action.Path.Equals("RESTORE", StringComparison.OrdinalIgnoreCase))
                 {
                     bool success = GetAudioService().RestoreOriginalVolume();
                     result.Success = success;
                     result.Message = success 
-                        ? "Restored original volume"
-                        : "Failed to restore original volume";
+                        ? LocalizationService.GetString("LOC_APM_VolumeRestored")
+                        : LocalizationService.GetString("LOC_APM_VolumeRestoreFailed");
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = $"Invalid volume value: {action.Path}. Use a number 0-100 or 'RESTORE'.";
+                    result.Message = LocalizationService.GetString("LOC_APM_VolumeInvalid", action.Path);
                 }
             }
             catch (Exception ex)
@@ -512,8 +523,8 @@ namespace AutomationProfileManager.Services
                 bool success = GetAudioService().MuteProcess(action.Path);
                 result.Success = success;
                 result.Message = success 
-                    ? $"Muted process: {action.Path}"
-                    : $"Failed to mute process: {action.Path}";
+                    ? LocalizationService.GetString("LOC_APM_ProcessMuted", action.Path)
+                    : LocalizationService.GetString("LOC_APM_ProcessMuteFailed", action.Path);
             }
             catch (Exception ex)
             {
@@ -531,8 +542,8 @@ namespace AutomationProfileManager.Services
                 bool success = GetAudioService().UnmuteProcess(action.Path);
                 result.Success = success;
                 result.Message = success 
-                    ? $"Unmuted process: {action.Path}"
-                    : $"Failed to unmute process: {action.Path}";
+                    ? LocalizationService.GetString("LOC_APM_ProcessUnmuted", action.Path)
+                    : LocalizationService.GetString("LOC_APM_ProcessUnmuteFailed", action.Path);
             }
             catch (Exception ex)
             {

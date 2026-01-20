@@ -27,37 +27,37 @@
     </HierarchicalDataTemplate>
 </UserControl.Resources>
 <Grid>
-    <TabControl>
-        <!-- Action Library Tab -->
-        <TabItem Header="Libreria Azioni">
-            <Grid Margin="10">
-                <Grid.RowDefinitions>
+<TabControl>
+    <!-- Action Library Tab -->
+    <TabItem Header="{DynamicResource LOC_APM_Tab_ActionLibrary}">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                    
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                    <Button Content="{DynamicResource LOC_APM_AddAction}" Click="AddAction_Click" Margin="0,0,5,0" Padding="10,5"/>
+                    <Button Content="{DynamicResource LOC_APM_Edit}" Click="EditAction_Click" Margin="0,0,5,0" Padding="10,5" x:Name="EditActionButton" IsEnabled="False"/>
+                    <Button Content="{DynamicResource LOC_APM_Remove}" Click="RemoveAction_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveActionButton" IsEnabled="False"/>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
+                    <Button Content="{DynamicResource LOC_APM_ImportDefaultActions}" Click="ImportDefaultActions_Click" Margin="0,0,5,0" Padding="10,5"/>
+                </StackPanel>
+
+                <TextBlock Grid.Row="1" Text="{DynamicResource LOC_APM_ActionLibraryDescription}" 
+                           TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
+                    
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
-                        <Button Content="+ Aggiungi Azione" Click="AddAction_Click" Margin="0,0,5,0" Padding="10,5"/>
-                        <Button Content="Modifica" Click="EditAction_Click" Margin="0,0,5,0" Padding="10,5" x:Name="EditActionButton" IsEnabled="False"/>
-                        <Button Content="Rimuovi" Click="RemoveAction_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveActionButton" IsEnabled="False"/>
-                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
-                        <Button Content="Importa Azioni Predefinite" Click="ImportDefaultActions_Click" Margin="0,0,5,0" Padding="10,5"/>
-                    </StackPanel>
-
-                    <TextBlock Grid.Row="1" Text="Crea azioni riutilizzabili da assegnare ai profili. Le azioni Mirror ripristinano lo stato precedente alla chiusura del gioco." 
-                               TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
-                    
-                    <Grid Grid.Row="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
                         
-                        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,5">
-                            <Label Content="Filtra per categoria:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <ComboBox x:Name="CategoryFilterComboBox" Width="150" SelectionChanged="CategoryFilter_SelectionChanged" Margin="0,0,10,0">
-                                <ComboBoxItem Content="Tutte" IsSelected="True"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,5">
+                        <Label Content="{DynamicResource LOC_APM_FilterByCategory}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <ComboBox x:Name="CategoryFilterComboBox" Width="150" SelectionChanged="CategoryFilter_SelectionChanged" Margin="0,0,10,0">
+                            <ComboBoxItem Content="{DynamicResource LOC_APM_AllCategories}" IsSelected="True"/>
                             </ComboBox>
                         </StackPanel>
                         
@@ -68,9 +68,9 @@
                                   SelectionChanged="ActionsDataGrid_SelectionChanged"
                                   KeyDown="ActionsDataGrid_KeyDown">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*"/>
-                                <DataGridTextColumn Header="Categoria" Binding="{Binding Category}" Width="100"/>
-                                <DataGridTemplateColumn Header="Tag" Width="120">
+                                <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnName}" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnCategory}" Binding="{Binding Category}" Width="100"/>
+                                <DataGridTemplateColumn Header="{DynamicResource LOC_APM_ColumnTags}" Width="120">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Tags, Converter={StaticResource TagsToStringConverter}}" 
@@ -78,9 +78,9 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="Tipo" Binding="{Binding ActionType}" Width="100"/>
-                                <DataGridTextColumn Header="Percorso/Comando" Binding="{Binding Path}" Width="*"/>
-                                <DataGridCheckBoxColumn Header="Mirror" Binding="{Binding IsMirrorAction}" Width="50"/>
+                                <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnType}" Binding="{Binding ActionType}" Width="100"/>
+                                <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnPath}" Binding="{Binding Path}" Width="*"/>
+                                <DataGridCheckBoxColumn Header="{DynamicResource LOC_APM_ColumnMirror}" Binding="{Binding IsMirrorAction}" Width="50"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -88,7 +88,7 @@
             </TabItem>
             
             <!-- Profile Management Tab -->
-            <TabItem Header="Gestione Profili">
+            <TabItem Header="{DynamicResource LOC_APM_Tab_ProfileManagement}">
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="250"/>
@@ -105,16 +105,16 @@
                         </Grid.RowDefinitions>
                         
                         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
-                            <Button Content="+ Nuovo Profilo" Click="AddProfile_Click" Margin="0,0,5,0" Padding="10,5"/>
-                            <Button Content="Duplica" Click="DuplicateProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="DuplicateProfileButton" IsEnabled="False"/>
-                            <Button Content="Da Template..." Click="CreateFromTemplate_Click" Margin="0,0,5,0" Padding="10,5"/>
-                            <Button Content="Elimina" Click="RemoveProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveProfileButton" IsEnabled="False"/>
+                            <Button Content="{DynamicResource LOC_APM_NewProfile}" Click="AddProfile_Click" Margin="0,0,5,0" Padding="10,5"/>
+                            <Button Content="{DynamicResource LOC_APM_Duplicate}" Click="DuplicateProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="DuplicateProfileButton" IsEnabled="False"/>
+                            <Button Content="{DynamicResource LOC_APM_FromTemplate}" Click="CreateFromTemplate_Click" Margin="0,0,5,0" Padding="10,5"/>
+                            <Button Content="{DynamicResource LOC_APM_Delete}" Click="RemoveProfile_Click" Margin="0,0,5,0" Padding="10,5" x:Name="RemoveProfileButton" IsEnabled="False"/>
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5,0"/>
-                            <Button Content="Esporta..." Click="ExportProfiles_Click" Margin="0,0,5,0" Padding="10,5" ToolTip="Esporta profili e azioni in un file JSON"/>
-                            <Button Content="Importa..." Click="ImportProfiles_Click" Margin="0,0,5,0" Padding="10,5" ToolTip="Importa profili e azioni da un file JSON"/>
+                            <Button Content="{DynamicResource LOC_APM_Export}" Click="ExportProfiles_Click" Margin="0,0,5,0" Padding="10,5"/>
+                            <Button Content="{DynamicResource LOC_APM_Import}" Click="ImportProfiles_Click" Margin="0,0,5,0" Padding="10,5"/>
                         </StackPanel>
 
-                        <TextBlock Grid.Row="1" Text="Profili disponibili:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock Grid.Row="1" Text="{DynamicResource LOC_APM_AvailableProfiles}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                         
                         <ListBox x:Name="ProfilesListBox" Grid.Row="2" 
                                  SelectionChanged="ProfilesListBox_SelectionChanged"
@@ -135,18 +135,16 @@
                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
                             <TextBlock x:Name="ProfileNameTextBlock" 
                                        FontSize="16" FontWeight="Bold" 
-                                       VerticalAlignment="Center" Text="Seleziona un profilo"/>
-                            <Button Content="Esegui Azioni di Prova" Click="DryRunProfile_Click" 
+                                       VerticalAlignment="Center" Text="{DynamicResource LOC_APM_SelectProfile}"/>
+                            <Button Content="{DynamicResource LOC_APM_DryRun}" Click="DryRunProfile_Click" 
                                     Margin="20,0,0,0" Padding="10,5" 
-                                    x:Name="DryRunButton" IsEnabled="False"
-                                    ToolTip="Esegue tutte le azioni del profilo in modalità dry-run (senza esecuzione reale)"/>
-                            <Button Content="Trova/Sostituisci Path" Click="FindReplacePath_Click" 
+                                    x:Name="DryRunButton" IsEnabled="False"/>
+                            <Button Content="{DynamicResource LOC_APM_FindReplacePath}" Click="FindReplacePath_Click" 
                                     Margin="10,0,0,0" Padding="10,5" 
-                                    x:Name="FindReplaceButton" IsEnabled="False"
-                                    ToolTip="Trova e sostituisci percorsi nelle azioni del profilo"/>
+                                    x:Name="FindReplaceButton" IsEnabled="False"/>
                         </StackPanel>
 
-                        <TextBlock Grid.Row="1" Text="Doppio click o trascina le azioni dalla lista a sinistra. Usa i pulsanti per riordinare o rimuovere." 
+                        <TextBlock Grid.Row="1" Text="{DynamicResource LOC_APM_ProfileActionsDescription}" 
                                    TextWrapping="Wrap" Foreground="#FF808080" Margin="0,0,0,10" FontSize="11"/>
                         
                         <Grid Grid.Row="2" Margin="0,0,0,5">
@@ -155,9 +153,9 @@
                                 <ColumnDefinition Width="40"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Azioni Disponibili" FontWeight="SemiBold" Grid.Column="0"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_AvailableActions}" FontWeight="SemiBold" Grid.Column="0"/>
                             <TextBlock Text="-->" HorizontalAlignment="Center" Grid.Column="1" Foreground="#FF808080"/>
-                            <TextBlock Text="Azioni nel Profilo" FontWeight="SemiBold" Grid.Column="2"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_ProfileActions}" FontWeight="SemiBold" Grid.Column="2"/>
                         </Grid>
                         
                         <Grid Grid.Row="3">
@@ -215,9 +213,9 @@
                                             <!-- Move Up/Down buttons -->
                                             <StackPanel Orientation="Vertical" Grid.Column="0" Margin="0,0,5,0">
                                                 <Button Content="^" Width="20" Height="16" Padding="0" Margin="0,0,0,1"
-                                                        FontSize="10" Click="MoveActionUp_Click" ToolTip="Sposta su"/>
+                                                        FontSize="10" Click="MoveActionUp_Click" ToolTip="{DynamicResource LOC_APM_MoveUp}"/>
                                                 <Button Content="v" Width="20" Height="16" Padding="0"
-                                                        FontSize="10" Click="MoveActionDown_Click" ToolTip="Sposta giu"/>
+                                                        FontSize="10" Click="MoveActionDown_Click" ToolTip="{DynamicResource LOC_APM_MoveDown}"/>
                                             </StackPanel>
                                             
                                             <TextBlock Text="{Binding Name}" Grid.Column="1" VerticalAlignment="Center" 
@@ -242,7 +240,7 @@
                                                     Padding="0"
                                                     FontSize="12"
                                                     Click="RemoveActionFromProfile_Click"
-                                                    ToolTip="Rimuovi dal profilo"/>
+                                                    ToolTip="{DynamicResource LOC_APM_RemoveFromProfile}"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
@@ -253,7 +251,7 @@
             </TabItem>
             
             <!-- Log Viewer Tab -->
-            <TabItem Header="Log Azioni">
+            <TabItem Header="{DynamicResource LOC_APM_Tab_ActionLog}">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -261,9 +259,9 @@
                     </Grid.RowDefinitions>
                     
                     <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
-                        <Button Content="Aggiorna" Click="RefreshLog_Click" Margin="0,0,5,0" Padding="10,5"/>
-                        <Button Content="Pulisci Log" Click="ClearLog_Click" Margin="0,0,5,0" Padding="10,5"/>
-                        <CheckBox x:Name="ShowDryRunLogsCheckBox" Content="Mostra anche dry-run" 
+                        <Button Content="{DynamicResource LOC_APM_Refresh}" Click="RefreshLog_Click" Margin="0,0,5,0" Padding="10,5"/>
+                        <Button Content="{DynamicResource LOC_APM_ClearLog}" Click="ClearLog_Click" Margin="0,0,5,0" Padding="10,5"/>
+                        <CheckBox x:Name="ShowDryRunLogsCheckBox" Content="{DynamicResource LOC_APM_ShowDryRunLogs}" 
                                   VerticalAlignment="Center" Margin="20,0,0,0" IsChecked="True"
                                   Checked="LogFilter_Changed" Unchecked="LogFilter_Changed"/>
                     </StackPanel>
@@ -274,9 +272,9 @@
                               CanUserAddRows="False"
                               IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Width="150"/>
-                            <DataGridTextColumn Header="Azione" Binding="{Binding ActionName}" Width="*"/>
-                            <DataGridTextColumn Header="Esito" Width="80">
+                            <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnTimestamp}" Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Width="150"/>
+                            <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnAction}" Binding="{Binding ActionName}" Width="*"/>
+                            <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnResult}" Width="80">
                                 <DataGridTextColumn.Binding>
                                     <Binding Path="Success">
                                         <Binding.Converter>
@@ -285,16 +283,16 @@
                                     </Binding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Codice Ritorno" Binding="{Binding ExitCode}" Width="100"/>
-                            <DataGridTextColumn Header="Messaggio" Binding="{Binding Message}" Width="*"/>
-                            <DataGridCheckBoxColumn Header="Dry-Run" Binding="{Binding IsDryRun}" Width="70"/>
+                            <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnExitCode}" Binding="{Binding ExitCode}" Width="100"/>
+                            <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnMessage}" Binding="{Binding Message}" Width="*"/>
+                            <DataGridCheckBoxColumn Header="{DynamicResource LOC_APM_ColumnDryRun}" Binding="{Binding IsDryRun}" Width="70"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
 
             <!-- Statistics Tab -->
-            <TabItem Header="Statistiche">
+            <TabItem Header="{DynamicResource LOC_APM_Tab_Statistics}">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -305,23 +303,23 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
                         <Border Background="#FF2D2D30" CornerRadius="5" Padding="15" Margin="0,0,10,0">
                             <StackPanel>
-                                <TextBlock Text="Azioni Eseguite" Foreground="Gray" FontSize="11"/>
+                                <TextBlock Text="{DynamicResource LOC_APM_ActionsExecuted}" Foreground="Gray" FontSize="11"/>
                                 <TextBlock x:Name="TotalActionsText" Text="0" FontSize="24" FontWeight="Bold"/>
                             </StackPanel>
                         </Border>
                         <Border Background="#FF2D2D30" CornerRadius="5" Padding="15" Margin="0,0,10,0">
                             <StackPanel>
-                                <TextBlock Text="Tempo Risparmiato" Foreground="Gray" FontSize="11"/>
-                                <TextBlock x:Name="TimeSavedText" Text="0 secondi" FontSize="24" FontWeight="Bold"/>
+                                <TextBlock Text="{DynamicResource LOC_APM_TimeSaved}" Foreground="Gray" FontSize="11"/>
+                                <TextBlock x:Name="TimeSavedText" Text="0" FontSize="24" FontWeight="Bold"/>
                             </StackPanel>
                         </Border>
                         <Border Background="#FF2D2D30" CornerRadius="5" Padding="15" Margin="0,0,10,0">
                             <StackPanel>
-                                <TextBlock Text="Tasso Successo" Foreground="Gray" FontSize="11"/>
+                                <TextBlock Text="{DynamicResource LOC_APM_SuccessRate}" Foreground="Gray" FontSize="11"/>
                                 <TextBlock x:Name="SuccessRateText" Text="100%" FontSize="24" FontWeight="Bold" Foreground="LimeGreen"/>
                             </StackPanel>
                         </Border>
-                        <Button Content="Aggiorna" Click="RefreshStatistics_Click" VerticalAlignment="Center" Padding="10,5" Margin="10,0,0,0"/>
+                        <Button Content="{DynamicResource LOC_APM_Refresh}" Click="RefreshStatistics_Click" VerticalAlignment="Center" Padding="10,5" Margin="10,0,0,0"/>
                     </StackPanel>
 
                     <Grid Grid.Row="1">
@@ -331,21 +329,21 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                            <TextBlock Text="🔥 Azioni più usate" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_MostUsedActions}" FontWeight="Bold" Margin="0,0,0,5"/>
                             <DataGrid x:Name="MostUsedActionsGrid" AutoGenerateColumns="False" IsReadOnly="True" Height="150">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Azione" Binding="{Binding ActionName}" Width="*"/>
-                                    <DataGridTextColumn Header="Esecuzioni" Binding="{Binding ExecutionCount}" Width="80"/>
+                                    <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnAction}" Binding="{Binding ActionName}" Width="*"/>
+                                    <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnExecutions}" Binding="{Binding ExecutionCount}" Width="80"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="⚠️ Azioni con errori" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_FailingActions}" FontWeight="Bold" Margin="0,0,0,5"/>
                             <DataGrid x:Name="FailingActionsGrid" AutoGenerateColumns="False" IsReadOnly="True" Height="150">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Azione" Binding="{Binding ActionName}" Width="*"/>
-                                    <DataGridTextColumn Header="Errori" Binding="{Binding FailureCount}" Width="80"/>
+                                    <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnAction}" Binding="{Binding ActionName}" Width="*"/>
+                                    <DataGridTextColumn Header="{DynamicResource LOC_APM_ColumnErrors}" Binding="{Binding FailureCount}" Width="80"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
@@ -354,39 +352,39 @@
             </TabItem>
             
             <!-- Settings Tab -->
-            <TabItem Header="Impostazioni">
+            <TabItem Header="{DynamicResource LOC_APM_Tab_Settings}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
-                        <TextBlock Text="Notifiche" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
-                        <CheckBox x:Name="ShowNotificationsCheckBox" Content="Mostra notifiche" 
+                        <TextBlock Text="{DynamicResource LOC_APM_Notifications}" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
+                        <CheckBox x:Name="ShowNotificationsCheckBox" Content="{DynamicResource LOC_APM_ShowNotifications}" 
                                   Margin="0,0,0,5" Checked="ShowNotificationsCheckBox_Checked" Unchecked="ShowNotificationsCheckBox_Unchecked"/>
-                        <TextBlock Text="Quando disabilitato, le notifiche dell'estensione non verranno mostrate" 
+                        <TextBlock Text="{DynamicResource LOC_APM_ShowNotificationsDesc}" 
                                    Foreground="#FF808080" FontSize="11" Margin="20,0,0,10"/>
                         
-                        <TextBlock Text="Esecuzione" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
-                        <CheckBox x:Name="EnableDryRunCheckBox" Content="Abilita dry-run globale (solo test, nessuna esecuzione)" 
+                        <TextBlock Text="{DynamicResource LOC_APM_Execution}" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
+                        <CheckBox x:Name="EnableDryRunCheckBox" Content="{DynamicResource LOC_APM_EnableDryRun}" 
                                   Margin="0,0,0,5" Checked="EnableDryRunCheckBox_Checked" Unchecked="EnableDryRunCheckBox_Unchecked"/>
-                        <TextBlock Text="Quando abilitato, tutte le azioni vengono eseguite in modalità test senza effetti reali" 
+                        <TextBlock Text="{DynamicResource LOC_APM_EnableDryRunDesc}" 
                                    Foreground="#FF808080" FontSize="11" Margin="20,0,0,10"/>
                         
-                        <TextBlock Text="Backup" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
-                        <CheckBox x:Name="AutoBackupCheckBox" Content="Backup automatico configurazione" 
+                        <TextBlock Text="{DynamicResource LOC_APM_Backup}" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
+                        <CheckBox x:Name="AutoBackupCheckBox" Content="{DynamicResource LOC_APM_AutoBackup}" 
                                   Margin="0,0,0,5" Checked="AutoBackupCheckBox_Checked" Unchecked="AutoBackupCheckBox_Unchecked"/>
                         <StackPanel Orientation="Horizontal" Margin="20,0,0,5">
-                            <TextBlock Text="Intervallo backup (giorni):" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_BackupInterval}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox x:Name="BackupIntervalTextBox" Width="50" TextChanged="BackupIntervalTextBox_TextChanged"/>
                         </StackPanel>
-                        <Button Content="Esegui Backup Ora" Click="BackupNow_Click" HorizontalAlignment="Left" Padding="10,5" Margin="20,5,0,10"/>
-                        <Button Content="Ripristina da Backup..." Click="RestoreBackup_Click" HorizontalAlignment="Left" Padding="10,5" Margin="20,0,0,10"/>
+                        <Button Content="{DynamicResource LOC_APM_BackupNow}" Click="BackupNow_Click" HorizontalAlignment="Left" Padding="10,5" Margin="20,5,0,10"/>
+                        <Button Content="{DynamicResource LOC_APM_RestoreBackup}" Click="RestoreBackup_Click" HorizontalAlignment="Left" Padding="10,5" Margin="20,0,0,10"/>
 
-                        <TextBlock Text="Log" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
+                        <TextBlock Text="{DynamicResource LOC_APM_Log}" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <TextBlock Text="Massimo voci di log:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_MaxLogEntries}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox x:Name="MaxLogEntriesTextBox" Width="100" TextChanged="MaxLogEntriesTextBox_TextChanged"/>
                         </StackPanel>
 
-                        <TextBlock Text="Wizard" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
-                        <Button Content="Riavvia Wizard Configurazione" Click="RestartWizard_Click" HorizontalAlignment="Left" Padding="10,5"/>
+                        <TextBlock Text="{DynamicResource LOC_APM_Wizard}" FontWeight="Bold" FontSize="14" Margin="0,20,0,10"/>
+                        <Button Content="{DynamicResource LOC_APM_RestartWizard}" Click="RestartWizard_Click" HorizontalAlignment="Left" Padding="10,5"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
