@@ -107,7 +107,8 @@ namespace AutomationProfileManager.Services
                     Path = "OneDrive",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Cloud/Sync"
                 },
                 new GameAction
                 {
@@ -117,7 +118,8 @@ namespace AutomationProfileManager.Services
                     Path = "Dropbox",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Cloud/Sync"
                 },
                 new GameAction
                 {
@@ -127,7 +129,8 @@ namespace AutomationProfileManager.Services
                     Path = "OUTLOOK",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Comunicazione"
                 },
                 new GameAction
                 {
@@ -137,7 +140,8 @@ namespace AutomationProfileManager.Services
                     Path = "steam",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Gaming"
                 },
                 new GameAction
                 {
@@ -147,7 +151,8 @@ namespace AutomationProfileManager.Services
                     Path = "EpicGamesLauncher",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Gaming"
                 },
                 new GameAction
                 {
@@ -157,7 +162,8 @@ namespace AutomationProfileManager.Services
                     Path = "GalaxyClient",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Gaming"
                 },
 
                 // === APP COMUNI DA APRIRE ===
@@ -170,7 +176,8 @@ namespace AutomationProfileManager.Services
                     Arguments = "--processStart Discord.exe",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Comunicazione"
                 },
                 new GameAction
                 {
@@ -180,7 +187,8 @@ namespace AutomationProfileManager.Services
                     Path = @"%APPDATA%\Spotify\Spotify.exe",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Multimedia"
                 },
 
                 // === COMANDI DI SISTEMA ===
@@ -193,7 +201,8 @@ namespace AutomationProfileManager.Services
                     Arguments = "/setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Sistema"
                 },
                 new GameAction
                 {
@@ -204,7 +213,8 @@ namespace AutomationProfileManager.Services
                     Arguments = "/setactive 381b4222-f694-41f0-9685-ff5bb260df2e",
                     ExecutionPhase = ExecutionPhase.AfterClosing,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Sistema"
                 },
                 new GameAction
                 {
@@ -215,7 +225,8 @@ namespace AutomationProfileManager.Services
                     Arguments = "/setactive a1841308-3541-4fab-bc81-f71556f20b4a",
                     ExecutionPhase = ExecutionPhase.AfterClosing,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Sistema"
                 },
 
                 // === AZIONI DI ATTESA ===
@@ -226,7 +237,8 @@ namespace AutomationProfileManager.Services
                     ActionType = ActionType.Wait,
                     WaitSeconds = 3,
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Utilita"
                 },
                 new GameAction
                 {
@@ -235,7 +247,8 @@ namespace AutomationProfileManager.Services
                     ActionType = ActionType.Wait,
                     WaitSeconds = 5,
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Utilita"
                 },
                 new GameAction
                 {
@@ -244,7 +257,8 @@ namespace AutomationProfileManager.Services
                     ActionType = ActionType.Wait,
                     WaitSeconds = 10,
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Utilita"
                 },
 
                 // === STREAMING / RECORDING ===
@@ -256,7 +270,8 @@ namespace AutomationProfileManager.Services
                     Path = @"C:\Program Files\obs-studio\bin\64bit\obs64.exe",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Streaming"
                 },
                 new GameAction
                 {
@@ -266,7 +281,8 @@ namespace AutomationProfileManager.Services
                     Path = "obs64",
                     ExecutionPhase = ExecutionPhase.AfterClosing,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Streaming"
                 },
 
                 // === NVIDIA / AMD ===
@@ -278,7 +294,8 @@ namespace AutomationProfileManager.Services
                     Path = "NVIDIA GeForce Experience",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Hardware/Overlay"
                 },
                 new GameAction
                 {
@@ -288,7 +305,8 @@ namespace AutomationProfileManager.Services
                     Path = "AMDRSServ",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Hardware/Overlay"
                 },
 
                 // === SCRIPT POWERSHELL UTILI ===
@@ -300,7 +318,8 @@ namespace AutomationProfileManager.Services
                     Path = "[System.GC]::Collect(); [System.GC]::WaitForPendingFinalizers()",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
                 },
                 new GameAction
                 {
@@ -310,7 +329,8 @@ namespace AutomationProfileManager.Services
                     Path = "Clear-DnsClientCache",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
                 },
                 new GameAction
                 {
@@ -320,7 +340,8 @@ namespace AutomationProfileManager.Services
                     Path = "Get-ChildItem $env:TEMP -Recurse -Force | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
                 },
                 new GameAction
                 {
@@ -330,7 +351,8 @@ namespace AutomationProfileManager.Services
                     Path = "Clear-RecycleBin -Force -ErrorAction SilentlyContinue",
                     ExecutionPhase = ExecutionPhase.AfterClosing,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
                 },
                 new GameAction
                 {
@@ -340,7 +362,8 @@ namespace AutomationProfileManager.Services
                     Path = "Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue; Start-Process explorer.exe",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = false,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
                 },
                 new GameAction
                 {
@@ -350,7 +373,8 @@ namespace AutomationProfileManager.Services
                     Path = "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\GameBar\" -Name \"AutoGameModeEnabled\" -Value 1",
                     ExecutionPhase = ExecutionPhase.BeforeStarting,
                     IsMirrorAction = true,
-                    Priority = 0
+                    Priority = 0,
+                    Category = "Script"
                 },
                 new GameAction
                 {

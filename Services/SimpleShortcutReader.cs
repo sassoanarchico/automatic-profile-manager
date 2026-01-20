@@ -55,7 +55,7 @@ namespace AutomationProfileManager.Services
         private const int MAX_PATH = 260;
         private const int STGM_READ = 0;
 
-        public static string GetShortcutTarget(string shortcutPath)
+        public static string? GetShortcutTarget(string shortcutPath)
         {
             try
             {

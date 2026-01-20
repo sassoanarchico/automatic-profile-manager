@@ -12,11 +12,33 @@ namespace AutomationProfileManager.Services
         private readonly IPlayniteAPI playniteAPI;
         private readonly string dataPath;
         private const string DataFileName = "automation_data.json";
+        // Usa l'ID GUID dell'estensione per garantire coerenza tra aggiornamenti
+        private const string ExtensionId = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890";
 
         public DataService(IPlayniteAPI api)
         {
             playniteAPI = api;
-            dataPath = Path.Combine(api.Paths.ExtensionsDataPath, "AutomationProfileManager");
+            // Usa l'ID dell'estensione come nome cartella per evitare problemi di percorso
+            dataPath = Path.Combine(api.Paths.ExtensionsDataPath, ExtensionId);
+            
+            // Migrazione: se esiste la vecchia cartella, migra i dati
+            var oldDataPath = Path.Combine(api.Paths.ExtensionsDataPath, "AutomationProfileManager");
+            if (Directory.Exists(oldDataPath) && !Directory.Exists(dataPath))
+            {
+                try
+                {
+                    Directory.Move(oldDataPath, dataPath);
+                }
+                catch
+                {
+                    // Se la migrazione fallisce, copia i file
+                    Directory.CreateDirectory(dataPath);
+                    foreach (var file in Directory.GetFiles(oldDataPath))
+                    {
+                        File.Copy(file, Path.Combine(dataPath, Path.GetFileName(file)), true);
+                    }
+                }
+            }
             
             if (!Directory.Exists(dataPath))
             {

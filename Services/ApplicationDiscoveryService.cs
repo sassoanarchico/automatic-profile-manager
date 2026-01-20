@@ -9,9 +9,9 @@ namespace AutomationProfileManager.Services
 {
     public class InstalledApplication
     {
-        public string Name { get; set; }
-        public string ExecutablePath { get; set; }
-        public string ProcessName { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string ExecutablePath { get; set; } = string.Empty;
+        public string ProcessName { get; set; } = string.Empty;
     }
 
     public class ApplicationDiscoveryService
@@ -42,8 +42,8 @@ namespace AutomationProfileManager.Services
 
                 // Remove duplicates and sort
                 return applications
-                    .GroupBy(a => a.ExecutablePath?.ToLowerInvariant())
-                    .Where(g => !string.IsNullOrEmpty(g.Key) && File.Exists(g.Key))
+                    .Where(a => !string.IsNullOrEmpty(a.ExecutablePath) && File.Exists(a.ExecutablePath))
+                    .GroupBy(a => a.ExecutablePath!.ToLowerInvariant())
                     .Select(g => g.First())
                     .OrderBy(a => a.Name)
                     .ToList();
@@ -82,7 +82,13 @@ namespace AutomationProfileManager.Services
                                 // Clean executable path
                                 if (!string.IsNullOrEmpty(executable))
                                 {
-                                    executable = executable.Split(',')[0].Trim('"');
+                                    var execPath = executable!;
+                                    var commaIndex = execPath.IndexOf(',');
+                                    if (commaIndex >= 0)
+                                    {
+                                        execPath = execPath.Substring(0, commaIndex);
+                                    }
+                                    executable = execPath.Trim('"');
                                 }
 
                                 // Try to find exe in install location
@@ -97,11 +103,12 @@ namespace AutomationProfileManager.Services
 
                                 if (!string.IsNullOrEmpty(executable) && File.Exists(executable))
                                 {
+                                    var exec = executable!;
                                     applications.Add(new InstalledApplication
                                     {
-                                        Name = displayName,
-                                        ExecutablePath = executable,
-                                        ProcessName = Path.GetFileNameWithoutExtension(executable)
+                                        Name = displayName ?? string.Empty,
+                                        ExecutablePath = exec,
+                                        ProcessName = Path.GetFileNameWithoutExtension(exec) ?? string.Empty
                                     });
                                 }
                             }
@@ -143,16 +150,19 @@ namespace AutomationProfileManager.Services
                     {
                         try
                         {
-                            var targetPath = GetShortcutTarget(lnkFile);
-                            if (!string.IsNullOrEmpty(targetPath) && File.Exists(targetPath) && 
-                                targetPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                            var target = GetShortcutTarget(lnkFile);
+                            if (string.IsNullOrEmpty(target))
+                                continue;
+
+                            var targetPath = target!;
+                            if (File.Exists(targetPath) && targetPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                             {
-                                var name = Path.GetFileNameWithoutExtension(lnkFile);
+                                var name = Path.GetFileNameWithoutExtension(lnkFile) ?? string.Empty;
                                 applications.Add(new InstalledApplication
                                 {
                                     Name = name,
                                     ExecutablePath = targetPath,
-                                    ProcessName = Path.GetFileNameWithoutExtension(targetPath)
+                                    ProcessName = Path.GetFileNameWithoutExtension(targetPath) ?? string.Empty
                                 });
                             }
                         }
@@ -171,7 +181,7 @@ namespace AutomationProfileManager.Services
             return applications;
         }
 
-        private string GetShortcutTarget(string shortcutPath)
+        private string? GetShortcutTarget(string shortcutPath)
         {
             return SimpleShortcutReader.GetShortcutTarget(shortcutPath);
         }
@@ -185,6 +195,7 @@ namespace AutomationProfileManager.Services
                 var runningProcesses = Process.GetProcesses()
                     .Where(p => !string.IsNullOrEmpty(p.MainWindowTitle) || 
                                !string.IsNullOrEmpty(p.ProcessName))
+                
                     .GroupBy(p => p.ProcessName)
                     .Select(g => g.First())
                     .ToList();
@@ -193,15 +204,16 @@ namespace AutomationProfileManager.Services
                 {
                     try
                     {
-                        if (!string.IsNullOrEmpty(process.MainModule?.FileName))
+                        var exePath = process.MainModule?.FileName;
+                        if (!string.IsNullOrEmpty(exePath))
                         {
                             processes.Add(new InstalledApplication
                             {
                                 Name = string.IsNullOrEmpty(process.MainWindowTitle) 
-                                    ? process.ProcessName 
-                                    : $"{process.ProcessName} - {process.MainWindowTitle}",
-                                ExecutablePath = process.MainModule.FileName,
-                                ProcessName = process.ProcessName
+                                    ? (process.ProcessName ?? string.Empty) 
+                                    : $"{process.ProcessName ?? string.Empty} - {process.MainWindowTitle}",
+                                ExecutablePath = exePath!,
+                                ProcessName = process.ProcessName ?? string.Empty
                             });
                         }
                     }

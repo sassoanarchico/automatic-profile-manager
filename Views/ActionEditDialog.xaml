@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:AutomationProfileManager.Models"
-        Title="Modifica Azione" Height="480" Width="550"
+        Title="Modifica Azione" Height="530" Width="550"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#FF1E1E1E">
@@ -17,6 +17,7 @@
     
     <Grid Margin="15">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -77,10 +78,17 @@
             <Label Content="Priorita:" VerticalAlignment="Center"/>
             <TextBox x:Name="PriorityTextBox" Width="60" Text="0" VerticalAlignment="Center" Margin="0,0,20,0"/>
             <Label Content="Categoria:" VerticalAlignment="Center"/>
-            <TextBox x:Name="CategoryTextBox" Width="120" Text="Generale" VerticalAlignment="Center"/>
+            <ComboBox x:Name="CategoryComboBox" Width="120" IsEditable="True" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="9" Margin="0,0,0,5" x:Name="WaitSecondsPanel" Visibility="Collapsed">
+        <!-- Campo Tag -->
+        <StackPanel Orientation="Horizontal" Grid.Row="9" Margin="0,0,0,10">
+            <Label Content="Tag (separati da virgola):" VerticalAlignment="Center"/>
+            <TextBox x:Name="TagsTextBox" Width="350" VerticalAlignment="Center" 
+                     ToolTip="Es: gaming, chiusura, browser"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="10" Margin="0,0,0,5" x:Name="WaitSecondsPanel" Visibility="Collapsed">
             <Label Content="Secondi di attesa:"/>
             <TextBox x:Name="WaitSecondsTextBox" Width="100" HorizontalAlignment="Left"/>
         </StackPanel>
@@ -88,7 +96,7 @@
         <!-- Hidden old controls for compatibility -->
         <Label x:Name="WaitSecondsLabel" Visibility="Collapsed"/>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="10" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Grid.Row="11" HorizontalAlignment="Right">
             <Button Content="Salva" Click="OK_Click" Width="90" Margin="0,0,10,0" IsDefault="True"/>
             <Button Content="Annulla" Click="Cancel_Click" Width="90" IsCancel="True"/>
         </StackPanel>

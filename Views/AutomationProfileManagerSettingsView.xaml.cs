@@ -12,10 +12,35 @@ using Playnite.SDK;
 
 namespace AutomationProfileManager.Views
 {
+    // Classe per raggruppamento azioni per categoria nel TreeView
+    public class ActionCategory
+    {
+        public string CategoryName { get; set; } = string.Empty;
+        public List<GameActionViewModel> Actions { get; set; } = new List<GameActionViewModel>();
+    }
+
+    // ViewModel per visualizzazione azioni con tag
+    public class GameActionViewModel
+    {
+        public GameAction Action { get; set; }
+        public string Name => Action?.Name ?? "";
+        public string TagsDisplay => Action?.Tags?.Any() == true 
+            ? $"[{string.Join(", ", Action.Tags)}]" 
+            : "";
+        public string DisplayText => Action?.Tags?.Any() == true 
+            ? $"{Action.Name} [{string.Join(", ", Action.Tags)}]"
+            : Action?.Name ?? "";
+        
+        public GameActionViewModel(GameAction action)
+        {
+            Action = action;
+        }
+    }
+
     public partial class AutomationProfileManagerSettingsView : UserControl
     {
-        private readonly AutomationProfileManagerPlugin plugin;
-        private ExtensionData? extensionData;
+        private readonly AutomationProfileManagerPlugin plugin = null!;
+        private ExtensionData extensionData = new ExtensionData();
         private AutomationProfile? selectedProfile;
         private Models.GameAction? selectedAction;
         
@@ -23,15 +48,20 @@ namespace AutomationProfileManager.Views
         private Point? dragStartPoint;
         private bool isDragging = false;
         private const double DragThreshold = 10; // Pixel minimi per iniziare il drag
+        
+        // Flag per evitare eventi durante l'inizializzazione
+        private bool isInitializing = true;
 
         public AutomationProfileManagerSettingsView(AutomationProfileManagerPlugin plugin)
         {
             try
             {
+                isInitializing = true;
                 InitializeComponent();
-                this.plugin = plugin;
+                this.plugin = plugin ?? throw new ArgumentNullException(nameof(plugin));
                 LoadData();
                 InitializeUI();
+                isInitializing = false;
             }
             catch (Exception ex)
             {
@@ -103,7 +133,7 @@ namespace AutomationProfileManager.Views
                 
                 ActionsDataGrid.ItemsSource = extensionData.ActionLibrary ?? new List<Models.GameAction>();
                 ProfilesListBox.ItemsSource = extensionData.Profiles ?? new List<AutomationProfile>();
-                AvailableActionsListBox.ItemsSource = extensionData.ActionLibrary ?? new List<Models.GameAction>();
+                RefreshActionsTreeView();
                 
                 // Initialize category filter
                 RefreshCategoryFilter();
@@ -148,18 +178,70 @@ namespace AutomationProfileManager.Views
         private void ActionsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             selectedAction = ActionsDataGrid.SelectedItem as Models.GameAction;
-            EditActionButton.IsEnabled = selectedAction != null;
-            RemoveActionButton.IsEnabled = selectedAction != null;
+            var selectedCount = ActionsDataGrid.SelectedItems.Count;
+            EditActionButton.IsEnabled = selectedCount == 1;
+            RemoveActionButton.IsEnabled = selectedCount > 0;
+        }
+
+        private void ActionsDataGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete && ActionsDataGrid.SelectedItems.Count > 0)
+            {
+                RemoveSelectedActions();
+                e.Handled = true;
+            }
+        }
+
+        private void RemoveSelectedActions()
+        {
+            var selectedActions = ActionsDataGrid.SelectedItems.Cast<Models.GameAction>().ToList();
+            if (selectedActions.Count == 0) return;
+
+            var message = selectedActions.Count == 1
+                ? $"Rimuovere l'azione '{selectedActions[0].Name}'?\n\nQuesta azione verrà rimossa anche da tutti i profili."
+                : $"Rimuovere {selectedActions.Count} azioni selezionate?\n\nQueste azioni verranno rimosse anche da tutti i profili.";
+
+            var result = MessageBox.Show(
+                message,
+                "Conferma Rimozione",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning
+            );
+
+            if (result == MessageBoxResult.Yes)
+            {
+                foreach (var action in selectedActions)
+                {
+                    extensionData.ActionLibrary.Remove(action);
+                    
+                    foreach (var profile in extensionData.Profiles)
+                    {
+                        profile.Actions.RemoveAll(a => a.Id == action.Id);
+                    }
+                }
+                
+                RefreshActions();
+                RefreshProfiles();
+                RefreshCategoryFilter();
+                plugin.UpdateExtensionData(extensionData);
+            }
         }
 
         private void AddAction_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new ActionEditDialog();
+            var existingCategories = extensionData.ActionLibrary
+                .Select(a => a.Category)
+                .Where(c => !string.IsNullOrEmpty(c))
+                .Distinct()
+                .ToList();
+            
+            var dialog = new ActionEditDialog(null, existingCategories);
             if (dialog.ShowDialog() == true)
             {
                 var newAction = dialog.GetAction();
                 extensionData.ActionLibrary.Add(newAction);
                 RefreshActions();
+                RefreshCategoryFilter();
                 plugin.UpdateExtensionData(extensionData);
             }
         }
@@ -168,7 +250,13 @@ namespace AutomationProfileManager.Views
         {
             if (selectedAction == null) return;
 
-            var dialog = new ActionEditDialog(selectedAction);
+            var existingCategories = extensionData.ActionLibrary
+                .Select(a => a.Category)
+                .Where(c => !string.IsNullOrEmpty(c))
+                .Distinct()
+                .ToList();
+
+            var dialog = new ActionEditDialog(selectedAction, existingCategories);
             if (dialog.ShowDialog() == true)
             {
                 var updatedAction = dialog.GetAction();
@@ -178,34 +266,14 @@ namespace AutomationProfileManager.Views
                     extensionData.ActionLibrary[index] = updatedAction;
                 }
                 RefreshActions();
+                RefreshCategoryFilter();
                 plugin.UpdateExtensionData(extensionData);
             }
         }
 
         private void RemoveAction_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedAction == null) return;
-
-            var result = MessageBox.Show(
-                $"Rimuovere l'azione '{selectedAction.Name}'?\n\nQuesta azione verra rimossa anche da tutti i profili.",
-                "Conferma Rimozione",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning
-            );
-
-            if (result == MessageBoxResult.Yes)
-            {
-                extensionData.ActionLibrary.Remove(selectedAction);
-                
-                foreach (var profile in extensionData.Profiles)
-                {
-                    profile.Actions.RemoveAll(a => a.Id == selectedAction.Id);
-                }
-                
-                RefreshActions();
-                RefreshProfiles();
-                plugin.UpdateExtensionData(extensionData);
-            }
+            RemoveSelectedActions();
         }
 
         private void ImportDefaultActions_Click(object sender, RoutedEventArgs e)
@@ -321,15 +389,15 @@ namespace AutomationProfileManager.Views
             }
         }
 
-        #region Available Actions - Drag Start
+        #region Available Actions - TreeView Drag Start
 
-        private void AvailableActionsListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void AvailableActionsTreeView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             dragStartPoint = e.GetPosition(null);
             isDragging = false;
         }
 
-        private void AvailableActionsListBox_PreviewMouseMove(object sender, MouseEventArgs e)
+        private void AvailableActionsTreeView_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton != MouseButtonState.Pressed || dragStartPoint == null)
                 return;
@@ -337,26 +405,33 @@ namespace AutomationProfileManager.Views
             Point currentPoint = e.GetPosition(null);
             Vector diff = dragStartPoint.Value - currentPoint;
 
-            // Inizia il drag solo se il mouse si � mosso abbastanza
+            // Inizia il drag solo se il mouse si è mosso abbastanza
             if (Math.Abs(diff.X) > DragThreshold || Math.Abs(diff.Y) > DragThreshold)
             {
-                if (!isDragging && selectedProfile != null && AvailableActionsListBox.SelectedItem != null)
+                if (!isDragging && selectedProfile != null)
                 {
-                    isDragging = true;
-                    var action = AvailableActionsListBox.SelectedItem as Models.GameAction;
+                    var selectedItem = AvailableActionsTreeView.SelectedItem;
+                    GameAction? action = null;
+                    
+                    if (selectedItem is GameActionViewModel vm)
+                    {
+                        action = vm.Action;
+                    }
+                    
                     if (action != null)
                     {
+                        isDragging = true;
                         var data = new DataObject("GameActionData", action);
                         data.SetData("SourceType", "AvailableActions");
-                        DragDrop.DoDragDrop(AvailableActionsListBox, data, DragDropEffects.Copy);
+                        DragDrop.DoDragDrop(AvailableActionsTreeView, data, DragDropEffects.Copy);
+                        isDragging = false;
+                        dragStartPoint = null;
                     }
-                    isDragging = false;
-                    dragStartPoint = null;
                 }
             }
         }
 
-        private void AvailableActionsListBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void AvailableActionsTreeView_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             dragStartPoint = null;
             isDragging = false;
@@ -407,7 +482,8 @@ namespace AutomationProfileManager.Views
                         IsMirrorAction = action.IsMirrorAction,
                         Priority = selectedProfile.Actions.Count,
                         WaitSeconds = action.WaitSeconds,
-                        Category = action.Category
+                        Category = action.Category,
+                        Tags = action.Tags != null ? new List<string>(action.Tags) : new List<string>()
                     };
                     
                     selectedProfile.Actions.Add(profileAction);
@@ -489,8 +565,8 @@ namespace AutomationProfileManager.Views
 
         #endregion
 
-        // Metodo per aggiungere azione con doppio click
-        private void AvailableActionsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        // Metodo per aggiungere azione con doppio click nel TreeView
+        private void AvailableActionsTreeView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (selectedProfile == null)
             {
@@ -498,7 +574,14 @@ namespace AutomationProfileManager.Views
                 return;
             }
 
-            var action = AvailableActionsListBox.SelectedItem as GameAction;
+            var selectedItem = AvailableActionsTreeView.SelectedItem;
+            GameAction? action = null;
+            
+            if (selectedItem is GameActionViewModel vm)
+            {
+                action = vm.Action;
+            }
+            
             if (action != null)
             {
                 var profileAction = new GameAction
@@ -512,7 +595,8 @@ namespace AutomationProfileManager.Views
                     IsMirrorAction = action.IsMirrorAction,
                     Priority = selectedProfile.Actions.Count,
                     WaitSeconds = action.WaitSeconds,
-                    Category = action.Category
+                    Category = action.Category,
+                    Tags = action.Tags != null ? new List<string>(action.Tags) : new List<string>()
                 };
 
                 selectedProfile.Actions.Add(profileAction);
@@ -537,8 +621,32 @@ namespace AutomationProfileManager.Views
         {
             ActionsDataGrid.ItemsSource = null;
             ActionsDataGrid.ItemsSource = extensionData.ActionLibrary;
-            AvailableActionsListBox.ItemsSource = null;
-            AvailableActionsListBox.ItemsSource = extensionData.ActionLibrary;
+            RefreshActionsTreeView();
+        }
+
+        // Aggiorna il TreeView con le azioni raggruppate per categoria
+        private void RefreshActionsTreeView()
+        {
+            if (extensionData?.ActionLibrary == null)
+            {
+                AvailableActionsTreeView.ItemsSource = null;
+                return;
+            }
+            
+            var groupedActions = extensionData.ActionLibrary
+                .GroupBy(a => a.Category ?? "Generale")
+                .OrderBy(g => g.Key)
+                .Select(g => new ActionCategory
+                {
+                    CategoryName = $"{g.Key} ({g.Count()})",
+                    Actions = g.OrderBy(a => a.Name)
+                               .Select(a => new GameActionViewModel(a))
+                               .ToList()
+                })
+                .ToList();
+            
+            AvailableActionsTreeView.ItemsSource = null;
+            AvailableActionsTreeView.ItemsSource = groupedActions;
         }
 
         private void RefreshProfiles()
@@ -589,6 +697,12 @@ namespace AutomationProfileManager.Views
 
         private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Skip during initialization
+            if (isInitializing)
+            {
+                return;
+            }
+            
             if (extensionData?.ActionLibrary == null)
             {
                 return;
@@ -1234,4 +1348,23 @@ namespace AutomationProfileManager.Views
             throw new NotImplementedException();
         }
     }
+
+    // Converter for Tags list to comma-separated string
+    public class TagsToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is List<string> tags && tags.Any())
+            {
+                return string.Join(", ", tags);
+            }
+            return "";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
+

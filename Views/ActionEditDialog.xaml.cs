@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using AutomationProfileManager.Models;
 using AutomationProfileManager.Services;
@@ -11,6 +13,7 @@ namespace AutomationProfileManager.Views
     {
         private GameAction action;
         private ApplicationDiscoveryService appDiscovery;
+        private List<string> existingCategories = new List<string>();
 
         public ActionEditDialog()
         {
@@ -18,13 +21,57 @@ namespace AutomationProfileManager.Views
             action = new GameAction();
             appDiscovery = new ApplicationDiscoveryService();
             ActionTypeComboBox.SelectedIndex = 0;
+            InitializeCategories();
             UpdateUIForActionType();
         }
 
-        public ActionEditDialog(GameAction existingAction) : this()
+        public ActionEditDialog(GameAction? existingAction) : this()
         {
-            action = existingAction;
+            action = existingAction ?? new GameAction();
             LoadAction();
+        }
+
+        public ActionEditDialog(GameAction? existingAction, List<string>? categories) : this()
+        {
+            action = existingAction ?? new GameAction();
+            existingCategories = categories ?? new List<string>();
+            InitializeCategories();
+            if (existingAction != null)
+            {
+                LoadAction();
+            }
+        }
+
+        private void InitializeCategories()
+        {
+            var defaultCategories = new[] { 
+                "Browser", 
+                "Comunicazione", 
+                "Multimedia", 
+                "Gaming", 
+                "Cloud/Sync", 
+                "Hardware/Overlay", 
+                "Sistema", 
+                "Script", 
+                "Streaming", 
+                "Audio", 
+                "Display", 
+                "Utilita",
+                "Emulatori",
+                "Altro"
+            };
+            var allCategories = defaultCategories.Concat(existingCategories)
+                .Where(c => !string.IsNullOrEmpty(c))
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+            CategoryComboBox.ItemsSource = allCategories;
+            
+            // Seleziona la prima categoria o "Altro" se vuota
+            if (allCategories.Count > 0)
+            {
+                CategoryComboBox.SelectedIndex = 0;
+            }
         }
 
         private void LoadAction()
@@ -36,7 +83,8 @@ namespace AutomationProfileManager.Views
             MirrorActionCheckBox.IsChecked = action.IsMirrorAction;
             PriorityTextBox.Text = action.Priority.ToString();
             WaitSecondsTextBox.Text = action.WaitSeconds.ToString();
-            CategoryTextBox.Text = action.Category ?? "Generale";
+            CategoryComboBox.Text = action.Category ?? "Generale";
+            TagsTextBox.Text = action.Tags != null ? string.Join(", ", action.Tags) : "";
             UpdateUIForActionType();
         }
 
@@ -181,7 +229,14 @@ namespace AutomationProfileManager.Views
             action.Path = PathTextBox.Text?.Trim() ?? "";
             action.Arguments = ArgumentsTextBox.Text?.Trim() ?? "";
             action.IsMirrorAction = MirrorActionCheckBox.IsChecked ?? false;
-            action.Category = CategoryTextBox.Text?.Trim() ?? "Generale";
+            action.Category = CategoryComboBox.Text?.Trim() ?? "Generale";
+            
+            // Salva i tag
+            action.Tags = (TagsTextBox.Text ?? "")
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToList();
             
             if (int.TryParse(PriorityTextBox.Text, out int priority))
             {
@@ -216,3 +271,4 @@ namespace AutomationProfileManager.Views
         }
     }
 }
+

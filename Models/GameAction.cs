@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace AutomationProfileManager.Models
 {
@@ -14,6 +15,9 @@ namespace AutomationProfileManager.Models
         public int Priority { get; set; }
         public int WaitSeconds { get; set; }
         public string Category { get; set; } = "Generale";
+        
+        // Tag personalizzati per organizzazione
+        public List<string> Tags { get; set; } = new List<string>();
 
         // Condizioni per l'esecuzione
         public ActionCondition? Condition { get; set; }

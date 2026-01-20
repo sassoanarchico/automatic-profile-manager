@@ -20,7 +20,6 @@ namespace AutomationProfileManager
         
         private DataService? dataService;
         private ActionExecutor? actionExecutor;
-        private ActionLogService? actionLogService;
         private MirrorActionTracker? mirrorTracker;
         private NotificationService? notificationService;
         private BackupService? backupService;
@@ -294,6 +293,8 @@ namespace AutomationProfileManager
 
         private void AssignProfileToGame(Game game, Guid profileId)
         {
+            if (extensionData?.Mappings?.GameToProfile == null) return;
+            
             extensionData.Mappings.GameToProfile[game.Id] = profileId;
             SaveData();
             if (extensionData.Settings?.ShowNotifications ?? true)
@@ -308,6 +309,8 @@ namespace AutomationProfileManager
 
         private void RemoveProfileAssignment(Game game)
         {
+            if (extensionData?.Mappings?.GameToProfile == null) return;
+            
             if (extensionData.Mappings.GameToProfile.ContainsKey(game.Id))
             {
                 extensionData.Mappings.GameToProfile.Remove(game.Id);

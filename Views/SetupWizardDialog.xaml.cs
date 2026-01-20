@@ -320,7 +320,7 @@ namespace AutomationProfileManager.Views
                                 Path = app.ProcessName,
                                 ExecutionPhase = ExecutionPhase.BeforeStarting,
                                 IsMirrorAction = mirrorActions,
-                                Category = $"Chiudi/{app.Category}"
+                                Category = app.Category
                             };
 
                             if (addConditions)
@@ -350,7 +350,7 @@ namespace AutomationProfileManager.Views
                                 Path = app.ExecutablePath,
                                 ExecutionPhase = ExecutionPhase.BeforeStarting,
                                 IsMirrorAction = false,
-                                Category = $"Apri/{app.Category}"
+                                Category = app.Category
                             };
 
                             if (addConditions)

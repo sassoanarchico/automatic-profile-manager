@@ -175,7 +175,7 @@ namespace AutomationProfileManager.Services
                                 {
                                     if (subKey == null) continue;
 
-                                    var displayName = subKey.GetValue("DisplayName") as string;
+                                    var displayName = (subKey.GetValue("DisplayName") as string) ?? string.Empty;
                                     var installLocation = subKey.GetValue("InstallLocation") as string;
                                     var displayIcon = subKey.GetValue("DisplayIcon") as string;
 
@@ -187,7 +187,7 @@ namespace AutomationProfileManager.Services
                                     // Try to find exe from DisplayIcon
                                     if (!string.IsNullOrEmpty(displayIcon))
                                     {
-                                        var iconPath = displayIcon.Split(',')[0].Trim('"');
+                                    	var iconPath = (displayIcon ?? string.Empty).Split(',')[0].Trim('"');
                                         if (iconPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && File.Exists(iconPath))
                                         {
                                             exePath = iconPath;
@@ -206,7 +206,7 @@ namespace AutomationProfileManager.Services
 
                                     if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
                                     {
-                                        var processName = Path.GetFileNameWithoutExtension(exePath);
+                                        var processName = Path.GetFileNameWithoutExtension(exePath) ?? string.Empty;
 
                                         if (IsSystemApp(displayName) || IsSystemApp(processName))
                                             continue;
@@ -216,7 +216,7 @@ namespace AutomationProfileManager.Services
                                             apps.Add(new InstalledApp
                                             {
                                                 Name = displayName,
-                                                ExecutablePath = exePath,
+                                                ExecutablePath = exePath!,
                                                 ProcessName = processName,
                                                 Category = CategorizeApp(displayName, processName)
                                             });
