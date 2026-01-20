@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using AutomationProfileManager.Models;
 using AutomationProfileManager.Services;
 
@@ -11,6 +12,8 @@ namespace AutomationProfileManager.Views
     {
         public string Name { get; set; } = string.Empty;
         public string ProcessName { get; set; } = string.Empty;
+        public string ExecutablePath { get; set; } = string.Empty;
+        public string Category { get; set; } = "Altro";
         public bool IsSelected { get; set; } = true;
     }
 
@@ -18,91 +21,199 @@ namespace AutomationProfileManager.Views
     {
         private readonly AutomationProfileManagerPlugin plugin;
         private ExtensionData? extensionData;
-        private List<DetectedApp> detectedApps = new List<DetectedApp>();
+        private List<DetectedApp> allApps = new List<DetectedApp>();
+        private List<DetectedApp> filteredApps = new List<DetectedApp>();
 
         public SetupWizardDialog(AutomationProfileManagerPlugin plugin)
         {
             InitializeComponent();
             this.plugin = plugin;
             this.extensionData = plugin.GetExtensionData();
-            
-            DetectApps();
+
+            // Auto-scan on load
+            ScanInstalledApps();
         }
 
-        private void DetectApps()
+        private void ScanInstalledApps()
         {
-            detectedApps = new List<DetectedApp>();
-
-            // Process names are case-insensitive on Windows, but GetProcessesByName needs exact match
-            // These are the actual process names as they appear in Task Manager
-            var commonApps = new[]
+            try
             {
-                ("Chrome", new[] { "chrome", "Chrome" }),
-                ("Firefox", new[] { "firefox", "Firefox" }),
-                ("Edge", new[] { "msedge", "MicrosoftEdge" }),
-                ("Discord", new[] { "Discord", "discord" }),
-                ("Spotify", new[] { "Spotify", "spotify" }),
-                ("Steam", new[] { "steam", "Steam", "steamwebhelper" }),
-                ("Epic Games", new[] { "EpicGamesLauncher", "EpicWebHelper" }),
-                ("GOG Galaxy", new[] { "GalaxyClient", "GOG Galaxy" }),
-                ("Telegram", new[] { "Telegram", "telegram" }),
-                ("Teams", new[] { "Teams", "ms-teams", "msteams" }),
-                ("Slack", new[] { "slack", "Slack" }),
-                ("OneDrive", new[] { "OneDrive", "onedrive" }),
-                ("Dropbox", new[] { "Dropbox", "dropbox" }),
-                ("Brave", new[] { "brave", "Brave" }),
-                ("Opera", new[] { "opera", "Opera" }),
-                ("Vivaldi", new[] { "vivaldi", "Vivaldi" }),
-                ("WhatsApp", new[] { "WhatsApp", "whatsapp" }),
-                ("Zoom", new[] { "Zoom", "zoom" }),
-                ("Skype", new[] { "Skype", "skype" }),
-                ("VLC", new[] { "vlc", "VLC" }),
-                ("Nvidia Overlay", new[] { "nvcontainer", "NVIDIA Share" }),
-                ("AMD Software", new[] { "RadeonSoftware", "AMDRSServ" }),
-                ("Wallpaper Engine", new[] { "wallpaper32", "wallpaper64" }),
-                ("Rainmeter", new[] { "Rainmeter", "rainmeter" }),
-                ("MSI Afterburner", new[] { "MSIAfterburner" }),
-                ("OBS Studio", new[] { "obs64", "obs32" }),
-                ("Xbox Game Bar", new[] { "GameBar", "XboxGameBar" })
-            };
+                var service = new InstalledAppsService();
+                var installedApps = service.GetInstalledApps();
 
-            foreach (var (name, processNames) in commonApps)
-            {
-                try
+                allApps = installedApps.Select(a => new DetectedApp
                 {
-                    bool found = false;
-                    string foundProcess = "";
-                    
-                    foreach (var processName in processNames)
+                    Name = a.Name,
+                    ProcessName = a.ProcessName,
+                    ExecutablePath = a.ExecutablePath,
+                    Category = a.Category,
+                    IsSelected = false // Default to not selected
+                }).ToList();
+
+                // Pre-select common apps
+                var commonApps = new[] { "chrome", "firefox", "discord", "spotify", "steam", "obs", "nvidia" };
+                foreach (var app in allApps)
+                {
+                    if (commonApps.Any(c => app.ProcessName.ToLowerInvariant().Contains(c)))
                     {
-                        var processes = System.Diagnostics.Process.GetProcessesByName(processName);
-                        if (processes.Length > 0)
-                        {
-                            found = true;
-                            foundProcess = processName;
-                            break;
-                        }
-                    }
-                    
-                    if (found)
-                    {
-                        detectedApps.Add(new DetectedApp
-                        {
-                            Name = name,
-                            ProcessName = foundProcess,
-                            IsSelected = true
-                        });
+                        app.IsSelected = true;
                     }
                 }
-                catch { }
-            }
 
-            DetectedAppsListBox.ItemsSource = detectedApps;
+                ApplyFilter();
+                UpdateAppCount();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Errore durante la scansione: {ex.Message}", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void DetectApps_Click(object sender, RoutedEventArgs e)
+        private void ApplyFilter()
         {
-            DetectApps();
+            var categoryFilter = (CategoryFilter.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Tutte";
+            var searchText = SearchBox?.Text?.ToLowerInvariant() ?? "";
+
+            filteredApps = allApps.Where(a =>
+            {
+                bool matchCategory = categoryFilter == "Tutte" || a.Category == categoryFilter;
+                bool matchSearch = string.IsNullOrEmpty(searchText) ||
+                                   a.Name.ToLowerInvariant().Contains(searchText) ||
+                                   a.ProcessName.ToLowerInvariant().Contains(searchText);
+                return matchCategory && matchSearch;
+            }).ToList();
+
+            DetectedAppsListBox.ItemsSource = null;
+            DetectedAppsListBox.ItemsSource = filteredApps;
+        }
+
+        private void UpdateAppCount()
+        {
+            int selected = allApps.Count(a => a.IsSelected);
+            int total = allApps.Count;
+            AppCountText.Text = $"{selected} selezionate su {total} app trovate";
+        }
+
+        private void CategoryFilter_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyFilter();
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ApplyFilter();
+        }
+
+        private void ScanInstalledApps_Click(object sender, RoutedEventArgs e)
+        {
+            ScanInstalledApps();
+            MessageBox.Show($"Trovate {allApps.Count} applicazioni installate!", "Scansione Completata", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void BrowseApp_Click(object sender, RoutedEventArgs e)
+        {
+            var openDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Applicazioni (*.exe)|*.exe|Collegamenti (*.lnk)|*.lnk|Tutti i file (*.*)|*.*",
+                Title = "Seleziona un'applicazione"
+            };
+
+            if (openDialog.ShowDialog() == true)
+            {
+                string filePath = openDialog.FileName;
+                string appName = "";
+                string processName = "";
+                string exePath = filePath;
+
+                try
+                {
+                    if (filePath.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var targetPath = ResolveShortcut(filePath);
+                        if (!string.IsNullOrEmpty(targetPath))
+                        {
+                            processName = System.IO.Path.GetFileNameWithoutExtension(targetPath);
+                            appName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                            exePath = targetPath;
+                        }
+                    }
+                    else
+                    {
+                        processName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                        appName = processName;
+                    }
+
+                    if (!string.IsNullOrEmpty(processName))
+                    {
+                        if (allApps.Any(a => a.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            MessageBox.Show($"L'app '{appName}' e gia presente nella lista.",
+                                "App Duplicata", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+
+                        allApps.Add(new DetectedApp
+                        {
+                            Name = appName,
+                            ProcessName = processName,
+                            ExecutablePath = exePath,
+                            Category = "Manuale",
+                            IsSelected = true
+                        });
+
+                        allApps = allApps.OrderBy(a => a.Name).ToList();
+                        ApplyFilter();
+                        UpdateAppCount();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Errore durante l'aggiunta dell'app: {ex.Message}",
+                        "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private string ResolveShortcut(string shortcutPath)
+        {
+            try
+            {
+                byte[] fileBytes = System.IO.File.ReadAllBytes(shortcutPath);
+                string content = System.Text.Encoding.Default.GetString(fileBytes);
+
+                var match = System.Text.RegularExpressions.Regex.Match(content,
+                    @"[A-Za-z]:\\[^\x00]+?\.exe",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                if (match.Success)
+                {
+                    return match.Value;
+                }
+            }
+            catch { }
+            return "";
+        }
+
+        private void SelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var app in filteredApps)
+            {
+                app.IsSelected = true;
+            }
+            DetectedAppsListBox.ItemsSource = null;
+            DetectedAppsListBox.ItemsSource = filteredApps;
+            UpdateAppCount();
+        }
+
+        private void DeselectAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var app in filteredApps)
+            {
+                app.IsSelected = false;
+            }
+            DetectedAppsListBox.ItemsSource = null;
+            DetectedAppsListBox.ItemsSource = filteredApps;
+            UpdateAppCount();
         }
 
         private void Prev_Click(object sender, RoutedEventArgs e)
@@ -118,6 +229,11 @@ namespace AutomationProfileManager.Views
         {
             if (WizardTabs.SelectedIndex < WizardTabs.Items.Count - 1)
             {
+                // Update summary when reaching last tab
+                if (WizardTabs.SelectedIndex == WizardTabs.Items.Count - 2)
+                {
+                    UpdateSummary();
+                }
                 WizardTabs.SelectedIndex++;
                 UpdateButtons();
             }
@@ -125,6 +241,18 @@ namespace AutomationProfileManager.Views
             {
                 CompleteWizard();
             }
+        }
+
+        private void UpdateSummary()
+        {
+            var selectedApps = allApps.Where(a => a.IsSelected).ToList();
+            int closeActions = GenerateCloseActions.IsChecked == true ? selectedApps.Count : 0;
+            int openActions = GenerateOpenActions.IsChecked == true ? selectedApps.Count : 0;
+
+            SummaryText.Text = $"Verranno create {closeActions + openActions} azioni:\n" +
+                              $"- {closeActions} azioni CHIUDI\n" +
+                              $"- {openActions} azioni APRI\n" +
+                              $"per {selectedApps.Count} app selezionate.";
         }
 
         private void Skip_Click(object sender, RoutedEventArgs e)
@@ -151,7 +279,6 @@ namespace AutomationProfileManager.Views
                 if (extensionData == null)
                     extensionData = new ExtensionData();
 
-                // Apply settings
                 if (extensionData.Settings == null)
                     extensionData.Settings = new ExtensionSettings();
 
@@ -172,52 +299,101 @@ namespace AutomationProfileManager.Views
                     }
                 }
 
-                // Add detected apps as close actions
-                foreach (var app in detectedApps.Where(a => a.IsSelected))
+                // Generate actions for selected apps
+                var selectedApps = allApps.Where(a => a.IsSelected).ToList();
+                bool addConditions = AddConditions.IsChecked == true;
+                bool mirrorActions = GenerateMirrorActions.IsChecked == true;
+
+                foreach (var app in selectedApps)
                 {
-                    var actionName = $"[Chiudi] {app.Name}";
-                    if (!extensionData.ActionLibrary.Any(a => a.Name == actionName))
+                    // Generate CLOSE action
+                    if (GenerateCloseActions.IsChecked == true)
                     {
-                        extensionData.ActionLibrary.Add(new GameAction
+                        var closeName = $"[Chiudi] {app.Name}";
+                        if (!extensionData.ActionLibrary.Any(a => a.Name == closeName))
                         {
-                            Id = Guid.NewGuid(),
-                            Name = actionName,
-                            ActionType = ActionType.CloseApp,
-                            Path = app.ProcessName,
-                            ExecutionPhase = ExecutionPhase.BeforeStarting,
-                            IsMirrorAction = true,
-                            Category = "App Rilevate"
-                        });
+                            var closeAction = new GameAction
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = closeName,
+                                ActionType = ActionType.CloseApp,
+                                Path = app.ProcessName,
+                                ExecutionPhase = ExecutionPhase.BeforeStarting,
+                                IsMirrorAction = mirrorActions,
+                                Category = $"Chiudi/{app.Category}"
+                            };
+
+                            if (addConditions)
+                            {
+                                closeAction.Condition = new ActionCondition
+                                {
+                                    Type = ConditionType.ProcessRunning,
+                                    Value = app.ProcessName
+                                };
+                            }
+
+                            extensionData.ActionLibrary.Add(closeAction);
+                        }
+                    }
+
+                    // Generate OPEN action
+                    if (GenerateOpenActions.IsChecked == true && !string.IsNullOrEmpty(app.ExecutablePath))
+                    {
+                        var openName = $"[Apri] {app.Name}";
+                        if (!extensionData.ActionLibrary.Any(a => a.Name == openName))
+                        {
+                            var openAction = new GameAction
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = openName,
+                                ActionType = ActionType.StartApp,
+                                Path = app.ExecutablePath,
+                                ExecutionPhase = ExecutionPhase.BeforeStarting,
+                                IsMirrorAction = false,
+                                Category = $"Apri/{app.Category}"
+                            };
+
+                            if (addConditions)
+                            {
+                                openAction.Condition = new ActionCondition
+                                {
+                                    Type = ConditionType.ProcessNotRunning,
+                                    Value = app.ProcessName
+                                };
+                            }
+
+                            extensionData.ActionLibrary.Add(openAction);
+                        }
                     }
                 }
 
                 // Create profile based on selection
                 if (ProfileGaming.IsChecked == true)
                 {
-                    CreateGamingProfile();
+                    CreateGamingProfile(selectedApps);
                 }
                 else if (ProfileStreaming.IsChecked == true)
                 {
-                    CreateStreamingProfile();
+                    CreateStreamingProfile(selectedApps);
                 }
                 else if (ProfileEmulator.IsChecked == true)
                 {
-                    CreateEmulatorProfile();
+                    CreateEmulatorProfile(selectedApps);
                 }
 
                 plugin.UpdateExtensionData(extensionData);
-                
+
                 DialogResult = true;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Errore durante la configurazione: {ex.Message}", "Errore", 
+                MessageBox.Show($"Errore durante la configurazione: {ex.Message}", "Errore",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void CreateGamingProfile()
+        private void CreateGamingProfile(List<DetectedApp> selectedApps)
         {
             var profile = new AutomationProfile
             {
@@ -225,35 +401,36 @@ namespace AutomationProfileManager.Views
                 Name = "Gaming Immersivo"
             };
 
-            foreach (var app in detectedApps.Where(a => a.IsSelected))
+            // Add close actions for browsers and communication apps
+            var appsToClose = selectedApps.Where(a =>
+                a.Category == "Browser" || a.Category == "Comunicazione" || a.Category == "Cloud/Sync");
+
+            foreach (var app in appsToClose)
             {
-                profile.Actions.Add(new GameAction
+                var actionName = $"[Chiudi] {app.Name}";
+                var existingAction = extensionData?.ActionLibrary.FirstOrDefault(a => a.Name == actionName);
+                if (existingAction != null)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = $"[Chiudi] {app.Name}",
-                    ActionType = ActionType.CloseApp,
-                    Path = app.ProcessName,
-                    ExecutionPhase = ExecutionPhase.BeforeStarting,
-                    IsMirrorAction = true,
-                    Priority = profile.Actions.Count
-                });
+                    profile.Actions.Add(new GameAction
+                    {
+                        Id = existingAction.Id,
+                        Name = existingAction.Name,
+                        ActionType = existingAction.ActionType,
+                        Path = existingAction.Path,
+                        ExecutionPhase = ExecutionPhase.BeforeStarting,
+                        IsMirrorAction = true,
+                        Priority = profile.Actions.Count
+                    });
+                }
             }
 
-            profile.Actions.Add(new GameAction
+            if (profile.Actions.Count > 0)
             {
-                Id = Guid.NewGuid(),
-                Name = "[Sistema] Prestazioni Elevate",
-                ActionType = ActionType.SystemCommand,
-                Path = "powercfg",
-                Arguments = "/setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
-                ExecutionPhase = ExecutionPhase.BeforeStarting,
-                Priority = profile.Actions.Count
-            });
-
-            extensionData?.Profiles.Add(profile);
+                extensionData?.Profiles.Add(profile);
+            }
         }
 
-        private void CreateStreamingProfile()
+        private void CreateStreamingProfile(List<DetectedApp> selectedApps)
         {
             var profile = new AutomationProfile
             {
@@ -261,30 +438,35 @@ namespace AutomationProfileManager.Views
                 Name = "Streaming/Recording"
             };
 
-            profile.Actions.Add(new GameAction
-            {
-                Id = Guid.NewGuid(),
-                Name = "[Apri] OBS Studio",
-                ActionType = ActionType.StartApp,
-                Path = @"C:\Program Files\obs-studio\bin\64bit\obs64.exe",
-                ExecutionPhase = ExecutionPhase.BeforeStarting,
-                Priority = 0
-            });
+            // Find OBS
+            var obsApp = selectedApps.FirstOrDefault(a =>
+                a.ProcessName.ToLowerInvariant().Contains("obs"));
 
-            profile.Actions.Add(new GameAction
+            if (obsApp != null)
             {
-                Id = Guid.NewGuid(),
-                Name = "[Chiudi] OBS Studio",
-                ActionType = ActionType.CloseApp,
-                Path = "obs64",
-                ExecutionPhase = ExecutionPhase.AfterClosing,
-                Priority = 1
-            });
+                var openActionName = $"[Apri] {obsApp.Name}";
+                var openAction = extensionData?.ActionLibrary.FirstOrDefault(a => a.Name == openActionName);
+                if (openAction != null)
+                {
+                    profile.Actions.Add(new GameAction
+                    {
+                        Id = openAction.Id,
+                        Name = openAction.Name,
+                        ActionType = openAction.ActionType,
+                        Path = openAction.Path,
+                        ExecutionPhase = ExecutionPhase.BeforeStarting,
+                        Priority = 0
+                    });
+                }
+            }
 
-            extensionData?.Profiles.Add(profile);
+            if (profile.Actions.Count > 0)
+            {
+                extensionData?.Profiles.Add(profile);
+            }
         }
 
-        private void CreateEmulatorProfile()
+        private void CreateEmulatorProfile(List<DetectedApp> selectedApps)
         {
             var profile = new AutomationProfile
             {
@@ -292,28 +474,26 @@ namespace AutomationProfileManager.Views
                 Name = "Emulatori"
             };
 
-            profile.Actions.Add(new GameAction
+            // Add resolution change from default actions
+            var resAction = extensionData?.ActionLibrary.FirstOrDefault(a => a.Name.Contains("1920x1080"));
+            if (resAction != null)
             {
-                Id = Guid.NewGuid(),
-                Name = "[Risoluzione] 1920x1080@60Hz",
-                ActionType = ActionType.ChangeResolution,
-                Path = "1920x1080@60",
-                ExecutionPhase = ExecutionPhase.BeforeStarting,
-                IsMirrorAction = true,
-                Priority = 0
-            });
+                profile.Actions.Add(new GameAction
+                {
+                    Id = resAction.Id,
+                    Name = resAction.Name,
+                    ActionType = resAction.ActionType,
+                    Path = resAction.Path,
+                    ExecutionPhase = ExecutionPhase.BeforeStarting,
+                    IsMirrorAction = true,
+                    Priority = 0
+                });
+            }
 
-            profile.Actions.Add(new GameAction
+            if (profile.Actions.Count > 0)
             {
-                Id = Guid.NewGuid(),
-                Name = "[Risoluzione] Ripristina",
-                ActionType = ActionType.ChangeResolution,
-                Path = "RESTORE",
-                ExecutionPhase = ExecutionPhase.AfterClosing,
-                Priority = 1
-            });
-
-            extensionData?.Profiles.Add(profile);
+                extensionData?.Profiles.Add(profile);
+            }
         }
     }
 }

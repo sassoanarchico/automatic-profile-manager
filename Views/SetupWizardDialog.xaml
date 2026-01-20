@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Configurazione Iniziale - Automation Profile Manager"
-        Height="500" Width="600"
+        Height="550" Width="700"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#FF1E1E1E">
@@ -31,7 +31,8 @@
                         Puoi:
                     </TextBlock>
                     <TextBlock Text="- Chiudere app in background per liberare risorse" Margin="20,0,0,5"/>
-                    <TextBlock Text="- Cambiare risoluzione o profilo energetico" Margin="20,0,0,5"/>
+                    <TextBlock Text="- Aprire app necessarie prima del gioco" Margin="20,0,0,5"/>
+                    <TextBlock Text="- Cambiare risoluzione o volume" Margin="20,0,0,5"/>
                     <TextBlock Text="- Eseguire script personalizzati" Margin="20,0,0,5"/>
                     <TextBlock Text="- Ripristinare tutto automaticamente alla chiusura" Margin="20,0,0,5"/>
                     <TextBlock TextWrapping="Wrap" Margin="0,20,0,0">
@@ -40,36 +41,123 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="2. App Rilevate">
+            <TabItem Header="2. App Installate">
                 <Grid Margin="20">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,10">
-                        Abbiamo rilevato queste applicazioni sul tuo sistema. 
-                        Seleziona quelle che vuoi poter chiudere automaticamente:
+                        Seleziona le applicazioni per cui vuoi creare azioni automatiche.
+                        Verranno create sia azioni di APERTURA che di CHIUSURA per ogni app selezionata.
                     </TextBlock>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Label Content="Filtra per categoria:" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CategoryFilter" Width="150" SelectionChanged="CategoryFilter_Changed" Margin="5,0,15,0">
+                            <ComboBoxItem Content="Tutte" IsSelected="True"/>
+                            <ComboBoxItem Content="Browser"/>
+                            <ComboBoxItem Content="Comunicazione"/>
+                            <ComboBoxItem Content="Multimedia"/>
+                            <ComboBoxItem Content="Gaming"/>
+                            <ComboBoxItem Content="Hardware/Overlay"/>
+                            <ComboBoxItem Content="Sviluppo"/>
+                            <ComboBoxItem Content="Creativita"/>
+                            <ComboBoxItem Content="Cloud/Sync"/>
+                            <ComboBoxItem Content="Altro"/>
+                        </ComboBox>
+                        <TextBox x:Name="SearchBox" Width="150" TextChanged="SearchBox_TextChanged">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <VisualBrush Stretch="None" AlignmentX="Left">
+                                                        <VisualBrush.Visual>
+                                                            <TextBlock Text="Cerca..." Foreground="Gray" Margin="5,0,0,0"/>
+                                                        </VisualBrush.Visual>
+                                                    </VisualBrush>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </StackPanel>
                     
-                    <ListBox x:Name="DetectedAppsListBox" Grid.Row="1" SelectionMode="Multiple">
+                    <ListBox x:Name="DetectedAppsListBox" Grid.Row="2" SelectionMode="Extended">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" Margin="5,5,10,5"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Category}" Foreground="#FF808080" 
+                                               FontSize="10" VerticalAlignment="Center" Margin="10,0,10,0"
+                                               Background="#FF3E3E42" Padding="5,2"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding ProcessName}" Foreground="#FF606060" 
+                                               FontSize="10" VerticalAlignment="Center"/>
+                                </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                     
-                    <Button Grid.Row="2" Content="Rileva App" Click="DetectApps_Click" 
-                            HorizontalAlignment="Left" Padding="10,5" Margin="0,10,0,0"/>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="Scansiona App Installate" Click="ScanInstalledApps_Click" 
+                                Padding="10,5" Margin="0,0,10,0"/>
+                        <Button Content="Aggiungi Manualmente..." Click="BrowseApp_Click" 
+                                Padding="10,5" Margin="0,0,10,0"/>
+                        <Button Content="Seleziona Tutto" Click="SelectAll_Click" 
+                                Padding="10,5" Margin="0,0,10,0"/>
+                        <Button Content="Deseleziona Tutto" Click="DeselectAll_Click" 
+                                Padding="10,5"/>
+                        <TextBlock x:Name="AppCountText" VerticalAlignment="Center" Margin="20,0,0,0" Foreground="#FF808080"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="3. Primo Profilo">
+            <TabItem Header="3. Tipo Azioni">
+                <StackPanel Margin="20">
+                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,15">
+                        Quali tipi di azioni vuoi generare per le app selezionate?
+                    </TextBlock>
+                    
+                    <CheckBox x:Name="GenerateCloseActions" Content="Genera azioni CHIUDI" 
+                              IsChecked="True" Margin="0,0,0,5"/>
+                    <TextBlock Text="Crea azioni per chiudere le app prima del gioco (con verifica se in esecuzione)" 
+                               Foreground="#FF808080" Margin="20,0,0,15" FontSize="11"/>
+                    
+                    <CheckBox x:Name="GenerateOpenActions" Content="Genera azioni APRI" 
+                              IsChecked="True" Margin="0,0,0,5"/>
+                    <TextBlock Text="Crea azioni per aprire le app (utile per OBS, Discord, ecc.)" 
+                               Foreground="#FF808080" Margin="20,0,0,15" FontSize="11"/>
+
+                    <CheckBox x:Name="AddConditions" Content="Aggiungi condizioni intelligenti" 
+                              IsChecked="True" Margin="0,0,0,5"/>
+                    <TextBlock Text="Le azioni CHIUDI verificano se l'app e in esecuzione prima di agire" 
+                               Foreground="#FF808080" Margin="20,0,0,15" FontSize="11"/>
+
+                    <CheckBox x:Name="GenerateMirrorActions" Content="Genera azioni Mirror (ripristino automatico)" 
+                              IsChecked="True" Margin="0,0,0,5"/>
+                    <TextBlock Text="Le app chiuse verranno riaperte automaticamente alla chiusura del gioco" 
+                               Foreground="#FF808080" Margin="20,0,0,15" FontSize="11"/>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="4. Profilo">
                 <StackPanel Margin="20">
                     <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
-                        Vuoi creare un profilo predefinito? Seleziona un template:
+                        Vuoi creare un profilo predefinito?
                     </TextBlock>
                     
                     <RadioButton x:Name="ProfileGaming" Content="Profilo Gaming Immersivo" 
@@ -79,7 +167,7 @@
                     
                     <RadioButton x:Name="ProfileStreaming" Content="Profilo Streaming/Recording" 
                                  Margin="0,10,0,5"/>
-                    <TextBlock Text="Avvia OBS, chiude app pesanti, ottimizza per lo streaming" 
+                    <TextBlock Text="Apre OBS, chiude app pesanti" 
                                Foreground="#FF808080" Margin="20,0,0,10" FontSize="11"/>
                     
                     <RadioButton x:Name="ProfileEmulator" Content="Profilo Emulatori" 
@@ -92,7 +180,7 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="4. Impostazioni">
+            <TabItem Header="5. Impostazioni">
                 <StackPanel Margin="20">
                     <TextBlock TextWrapping="Wrap" Margin="0,0,0,20">
                         Configura le impostazioni iniziali:
@@ -104,20 +192,18 @@
                     <CheckBox x:Name="EnableAutoBackup" Content="Backup automatico della configurazione" 
                               IsChecked="True" Margin="0,0,0,10"/>
                     
-                    <CheckBox x:Name="ImportDefaultActions" Content="Importa libreria azioni predefinite" 
+                    <CheckBox x:Name="ImportDefaultActions" Content="Importa libreria azioni predefinite (risoluzione, audio, sistema)" 
                               IsChecked="True" Margin="0,0,0,10"/>
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="5. Completato">
+            <TabItem Header="6. Completato">
                 <StackPanel Margin="20" VerticalAlignment="Center">
                     <TextBlock Text="Configurazione completata!" 
                                FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20">
-                        L'estensione e pronta per l'uso. Puoi:
-                    </TextBlock>
+                    <TextBlock x:Name="SummaryText" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20"/>
                     <TextBlock Text="- Creare nuovi profili dalla tab Gestione Profili" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-                    <TextBlock Text="- Aggiungere azioni dalla tab Libreria Azioni" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                    <TextBlock Text="- Le azioni sono organizzate per categoria nella Libreria Azioni" HorizontalAlignment="Center" Margin="0,0,0,5"/>
                     <TextBlock Text="- Assegnare profili ai giochi dal menu contestuale" HorizontalAlignment="Center" Margin="0,0,0,5"/>
                     <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="0,20,0,0" Foreground="#FF808080">
                         Clicca "Completa" per iniziare ad usare l'estensione.
