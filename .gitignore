@@ -48,3 +48,18 @@ pext-output/
 *.zip
 *.log
 *.txt
+
+# Scripts
+*.ps1
+*.bat
+*.sh
+
+# SDK and libraries (should be downloaded, not committed)
+lib/
+Playnite.SDK.dll
+
+# Temporary directories
+temp_*/
+~/
+err/
+dist/

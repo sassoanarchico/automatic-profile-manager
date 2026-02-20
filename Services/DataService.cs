@@ -13,7 +13,7 @@ namespace AutomationProfileManager.Services
         private readonly string dataPath;
         private const string DataFileName = "automation_data.json";
         // Usa l'ID GUID dell'estensione per garantire coerenza tra aggiornamenti
-        private const string ExtensionId = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890";
+        private const string ExtensionId = "d2e3f4a5-b6c7-8901-defa-2345678901bc";
 
         public DataService(IPlayniteAPI api)
         {

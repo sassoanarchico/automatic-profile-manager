@@ -26,7 +26,7 @@ namespace AutomationProfileManager
         private StatisticsService? statisticsService;
         private ExtensionData? extensionData;
 
-        public override Guid Id { get; } = Guid.Parse("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
+        public override Guid Id { get; } = Guid.Parse("d2e3f4a5-b6c7-8901-defa-2345678901bc");
 
         private void EnsureInitialized()
         {
@@ -182,87 +182,102 @@ namespace AutomationProfileManager
 
         private async void ExecuteProfileActions(Game game, ExecutionPhase phase)
         {
-            if (extensionData == null || extensionData.Mappings == null || extensionData.Mappings.GameToProfile == null)
-                return;
-
-            if (!extensionData.Mappings.GameToProfile.TryGetValue(game.Id, out var profileId))
-                return;
-
-            var profile = extensionData.Profiles?.FirstOrDefault(p => p.Id == profileId);
-            if (profile == null)
+            try
             {
-                if (extensionData.Settings?.ShowNotifications ?? true)
+                if (extensionData == null || extensionData.Mappings == null || extensionData.Mappings.GameToProfile == null)
+                    return;
+
+                if (!extensionData.Mappings.GameToProfile.TryGetValue(game.Id, out var profileId))
+                    return;
+
+                var profile = extensionData.Profiles?.FirstOrDefault(p => p.Id == profileId);
+                if (profile == null)
                 {
-                    PlayniteApi.Notifications.Add(new NotificationMessage(
-                        "AutomationProfileManager_ProfileNotFound",
-                        $"Profile not found for game: {game.Name}",
-                        NotificationType.Error
-                    ));
-                }
-                return;
-            }
-            
-            // Check if dry-run is enabled
-            bool dryRun = extensionData.Settings?.EnableDryRun ?? false;
-
-            var actions = profile.Actions
-                .Where(a => a.ExecutionPhase == phase)
-                .OrderBy(a => a.Priority)
-                .ToList();
-
-            if (actions.Count == 0) return;
-
-            // Show notification
-            notificationService?.ShowProfileStarted(profile.Name, game.Name, actions.Count);
-            var stopwatch = Stopwatch.StartNew();
-            int successCount = 0;
-            int failCount = 0;
-
-            // Use new batch execution with parallel support
-            if (actionExecutor != null)
-            {
-                var results = await actionExecutor.ExecuteActionsAsync(actions, dryRun);
-                successCount = results.Count(r => r.Success);
-                failCount = results.Count(r => !r.Success);
-            }
-
-            // Handle mirror actions for AfterClosing phase
-            if (phase == ExecutionPhase.AfterClosing)
-            {
-                foreach (var action in actions.Where(a => a.IsMirrorAction))
-                {
-                    if (mirrorTracker != null && mirrorTracker.ShouldRestoreAction(action))
+                    if (extensionData.Settings?.ShowNotifications ?? true)
                     {
-                        var reverseAction = new Models.GameAction
+                        PlayniteApi.Notifications.Add(new NotificationMessage(
+                            "AutomationProfileManager_ProfileNotFound",
+                            $"Profile not found for game: {game.Name}",
+                            NotificationType.Error
+                        ));
+                    }
+                    return;
+                }
+                
+                // Check if dry-run is enabled
+                bool dryRun = extensionData.Settings?.EnableDryRun ?? false;
+
+                var actions = profile.Actions
+                    .Where(a => a.ExecutionPhase == phase)
+                    .OrderBy(a => a.Priority)
+                    .ToList();
+
+                if (actions.Count == 0) return;
+
+                // Show notification
+                notificationService?.ShowProfileStarted(profile.Name, game.Name, actions.Count);
+                var stopwatch = Stopwatch.StartNew();
+                int successCount = 0;
+                int failCount = 0;
+
+                // Use new batch execution with parallel support
+                if (actionExecutor != null)
+                {
+                    var results = await actionExecutor.ExecuteActionsAsync(actions, dryRun);
+                    successCount = results.Count(r => r.Success);
+                    failCount = results.Count(r => !r.Success);
+                }
+
+                // Handle mirror actions for AfterClosing phase
+                if (phase == ExecutionPhase.AfterClosing)
+                {
+                    foreach (var action in actions.Where(a => a.IsMirrorAction))
+                    {
+                        if (mirrorTracker != null && mirrorTracker.ShouldRestoreAction(action))
                         {
-                            Name = $"Restore: {action.Name}",
-                            ActionType = ActionType.StartApp,
-                            Path = action.Path,
-                            Arguments = action.Arguments,
-                            ExecutionPhase = ExecutionPhase.AfterClosing
-                        };
-                        if (actionExecutor != null)
-                        {
-                            await actionExecutor.ExecuteActionAsync(reverseAction, dryRun);
+                            var reverseAction = new Models.GameAction
+                            {
+                                Name = $"Restore: {action.Name}",
+                                ActionType = ActionType.StartApp,
+                                Path = action.Path,
+                                Arguments = action.Arguments,
+                                ExecutionPhase = ExecutionPhase.AfterClosing
+                            };
+                            if (actionExecutor != null)
+                            {
+                                await actionExecutor.ExecuteActionAsync(reverseAction, dryRun);
+                            }
                         }
                     }
                 }
-            }
-            else if (phase == ExecutionPhase.BeforeStarting)
-            {
-                foreach (var action in actions.Where(a => a.IsMirrorAction))
+                else if (phase == ExecutionPhase.BeforeStarting)
                 {
-                    mirrorTracker?.TrackActionBeforeExecution(action);
+                    foreach (var action in actions.Where(a => a.IsMirrorAction))
+                    {
+                        mirrorTracker?.TrackActionBeforeExecution(action);
+                    }
+                }
+
+                stopwatch.Stop();
+
+                // Record statistics
+                statisticsService?.RecordProfileExecution(profile, stopwatch.Elapsed.TotalSeconds);
+
+                // Show completion notification
+                notificationService?.ShowProfileCompleted(profile.Name, successCount, failCount, stopwatch.Elapsed.TotalSeconds);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Error executing profile actions for game '{game?.Name ?? "(unknown)"}' in phase {phase}");
+                if (extensionData?.Settings?.ShowNotifications ?? true)
+                {
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
+                        "AutomationProfileManager_ExecutionError",
+                        $"Error executing profile actions: {ex.Message}",
+                        NotificationType.Error
+                    ));
                 }
             }
-
-            stopwatch.Stop();
-
-            // Record statistics
-            statisticsService?.RecordProfileExecution(profile, stopwatch.Elapsed.TotalSeconds);
-
-            // Show completion notification
-            notificationService?.ShowProfileCompleted(profile.Name, successCount, failCount, stopwatch.Elapsed.TotalSeconds);
         }
 
         private void ShowProfileAssignmentMenu(List<Game> games)
