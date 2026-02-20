@@ -107,16 +107,19 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          powershell -ExecutionPolicy Bypass -File "build-pext.ps1" -Configuration Release
+          $releaseDir = Join-Path $PWD "bin\Release"
+          if (-not (Test-Path $releaseDir)) { throw "Release output folder not found: $releaseDir" }
 
-          $pext = Join-Path $PWD "AutomationProfileManager.pext"
-          if (-not (Test-Path $pext)) { throw ".pext not created: $pext" }
+          $zipFile = Join-Path $PWD ("AutomationProfileManager_v{0}.zip" -f $env:VERSION)
+          $pextFile = Join-Path $PWD ("AutomationProfileManager_v{0}.pext" -f $env:VERSION)
 
-          $targetName = "AutomationProfileManager_v$($env:VERSION).pext"
-          if ($targetName -ne "AutomationProfileManager.pext") {
-            if (Test-Path $targetName) { Remove-Item $targetName -Force }
-            Copy-Item $pext $targetName
-          }
+          if (Test-Path $zipFile) { Remove-Item $zipFile -Force }
+          if (Test-Path $pextFile) { Remove-Item $pextFile -Force }
+
+          Compress-Archive -Path (Join-Path $releaseDir "*") -DestinationPath $zipFile -Force
+          Rename-Item -Path $zipFile -NewName ("AutomationProfileManager_v{0}.pext" -f $env:VERSION)
+
+          if (-not (Test-Path $pextFile)) { throw ".pext was not created: $pextFile" }
 
       - name: Create/Update GitHub Release and upload asset
         shell: pwsh
@@ -127,8 +130,9 @@ jobs:
 
           $tag = $env:TAG
           $file = "AutomationProfileManager_v$($env:VERSION).pext"
-          if (-not (Test-Path $file)) { $file = "AutomationProfileManager.pext" }
+          if (-not (Test-Path $file)) { throw "File not found: $file" }
 
+          # Create release if missing, otherwise keep it and just overwrite the asset.
           gh release view $tag *> $null
           if ($LASTEXITCODE -ne 0) {
             gh release create $tag --title "AutomationProfileManager $tag" --generate-notes
