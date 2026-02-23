@@ -46,19 +46,19 @@ namespace AutomationProfileManager.Views
         {
             var defaultCategories = new[] { 
                 "Browser", 
-                "Comunicazione", 
+                "Communication", 
                 "Multimedia", 
                 "Gaming", 
                 "Cloud/Sync", 
                 "Hardware/Overlay", 
-                "Sistema", 
+                "System", 
                 "Script", 
                 "Streaming", 
                 "Audio", 
                 "Display", 
-                "Utilita",
-                "Emulatori",
-                "Altro"
+                "Utility",
+                "Emulators",
+                "Other"
             };
             var allCategories = defaultCategories.Concat(existingCategories)
                 .Where(c => !string.IsNullOrEmpty(c))

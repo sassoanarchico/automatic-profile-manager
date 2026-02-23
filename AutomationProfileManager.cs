@@ -135,9 +135,9 @@ namespace AutomationProfileManager
             catch (Exception ex)
             {
                 logger.Error(ex, "GetSettings failed");
-                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
                     "AutomationProfileManager_SettingsError",
-                    $"Settings failed to load: {ex.Message}",
+                    string.Format(LocalizationService.GetString("LOC_APM_SettingsLoadFailed"), ex.Message),
                     NotificationType.Error
                 ));
                 return new AutomationProfileManagerSettings();
@@ -156,7 +156,7 @@ namespace AutomationProfileManager
                 logger.Error(ex, "GetSettingsView failed");
                 PlayniteApi.Notifications.Add(new NotificationMessage(
                     "AutomationProfileManager_SettingsViewError",
-                    $"Settings view failed to load: {ex.Message}",
+                    string.Format(LocalizationService.GetString("LOC_APM_SettingsViewLoadFailed"), ex.Message),
                     NotificationType.Error
                 ));
                 throw;
@@ -197,7 +197,7 @@ namespace AutomationProfileManager
                     {
                         PlayniteApi.Notifications.Add(new NotificationMessage(
                             "AutomationProfileManager_ProfileNotFound",
-                            $"Profile not found for game: {game.Name}",
+                            string.Format(LocalizationService.GetString("LOC_APM_ProfileNotFound"), game.Name),
                             NotificationType.Error
                         ));
                     }
@@ -273,7 +273,7 @@ namespace AutomationProfileManager
                 {
                     PlayniteApi.Notifications.Add(new NotificationMessage(
                         "AutomationProfileManager_ExecutionError",
-                        $"Error executing profile actions: {ex.Message}",
+                        string.Format(LocalizationService.GetString("LOC_APM_ExecutionError"), ex.Message),
                         NotificationType.Error
                     ));
                 }
@@ -316,7 +316,7 @@ namespace AutomationProfileManager
             {
                 PlayniteApi.Notifications.Add(new NotificationMessage(
                     "AutomationProfileManager_ProfileAssigned",
-                    $"Profile assigned to {game.Name}",
+                    string.Format(LocalizationService.GetString("LOC_APM_ProfileAssigned"), game.Name),
                     NotificationType.Info
                 ));
             }
@@ -334,7 +334,7 @@ namespace AutomationProfileManager
                 {
                     PlayniteApi.Notifications.Add(new NotificationMessage(
                         "AutomationProfileManager_ProfileRemoved",
-                        $"Profile removed from {game.Name}",
+                        string.Format(LocalizationService.GetString("LOC_APM_ProfileRemovedFrom"), game.Name),
                         NotificationType.Info
                     ));
                 }

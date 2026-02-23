@@ -37,6 +37,15 @@
     <None Include="Localization\it_IT.xaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Localization\es_ES.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Localization\fr_FR.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Localization\de_DE.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
   
@@ -57,7 +66,7 @@
     </PropertyGroup>
   </Target>
   
-  <!-- Aggiunge il riferimento al progetto temporaneo dopo la generazione -->
+  <!-- Add Playnite SDK reference to temporary project after generation -->
   <Target Name="AddPlayniteSDKToTemporaryProject" AfterTargets="GenerateTemporaryTargetAssembly" BeforeTargets="_CompileTemporaryAssembly">
     <ItemGroup>
       <_ReferenceFromItem Include="Playnite.SDK">

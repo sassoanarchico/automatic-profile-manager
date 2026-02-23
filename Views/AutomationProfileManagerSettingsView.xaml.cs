@@ -68,8 +68,8 @@ namespace AutomationProfileManager.Views
                 // Log error and show message
                 Playnite.SDK.LogManager.GetLogger().Error(ex, "Failed to initialize settings view");
                 System.Windows.MessageBox.Show(
-                    $"Errore nel caricamento delle impostazioni: {ex.Message}\n\nDettagli: {ex.StackTrace}",
-                    "Errore Impostazioni",
+                    string.Format(LocalizationService.GetString("LOC_APM_SettingsLoadError"), ex.Message, ex.StackTrace),
+                    LocalizationService.GetString("LOC_APM_SettingsError"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error
                 );
@@ -167,8 +167,8 @@ namespace AutomationProfileManager.Views
             {
                 LogManager.GetLogger().Error(ex, "Failed to initialize UI");
                 System.Windows.MessageBox.Show(
-                    $"Errore nell'inizializzazione dell'interfaccia: {ex.Message}",
-                    "Errore",
+                    string.Format(LocalizationService.GetString("LOC_APM_InitError"), ex.Message),
+                    LocalizationService.GetString("LOC_APM_Error"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error
                 );
@@ -374,13 +374,13 @@ namespace AutomationProfileManager.Views
             
             if (selectedProfile != null)
             {
-                ProfileNameTextBlock.Text = "Profilo: " + selectedProfile.Name;
+                ProfileNameTextBlock.Text = string.Format(LocalizationService.GetString("LOC_APM_ProfileLabel"), selectedProfile.Name);
                 ProfileActionsListBox.ItemsSource = null;
                 ProfileActionsListBox.ItemsSource = selectedProfile.Actions;
             }
             else
             {
-                ProfileNameTextBlock.Text = "Seleziona un profilo";
+                ProfileNameTextBlock.Text = LocalizationService.GetString("LOC_APM_SelectProfile");
                 ProfileActionsListBox.ItemsSource = null;
             }
         }
@@ -566,7 +566,7 @@ namespace AutomationProfileManager.Views
         {
             if (selectedProfile == null)
             {
-                MessageBox.Show("Seleziona prima un profilo dalla lista a sinistra.", "Nessun Profilo Selezionato", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationService.GetString("LOC_APM_SelectProfileFirst"), LocalizationService.GetString("LOC_APM_NoProfileSelected"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -630,7 +630,7 @@ namespace AutomationProfileManager.Views
             }
             
             var groupedActions = extensionData.ActionLibrary
-                .GroupBy(a => a.Category ?? "Generale")
+                .GroupBy(a => a.Category ?? "General")
                 .OrderBy(g => g.Key)
                 .Select(g => new ActionCategory
                 {
@@ -672,13 +672,13 @@ namespace AutomationProfileManager.Views
                 }
                 
                 var categories = extensionData.ActionLibrary
-                    .Select(a => a.Category ?? "Generale")
+                    .Select(a => a.Category ?? "General")
                     .Distinct()
                     .OrderBy(c => c)
                     .ToList();
 
                 CategoryFilterComboBox.Items.Clear();
-                CategoryFilterComboBox.Items.Add(new ComboBoxItem { Content = "Tutte", IsSelected = true });
+                CategoryFilterComboBox.Items.Add(new ComboBoxItem { Content = LocalizationService.GetString("LOC_APM_AllCategories"), IsSelected = true });
                 
                 foreach (var category in categories)
                 {
@@ -706,16 +706,16 @@ namespace AutomationProfileManager.Views
 
             if (CategoryFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
-                string selectedCategory = selectedItem.Content?.ToString() ?? "Tutte";
+                string selectedCategory = selectedItem.Content?.ToString() ?? LocalizationService.GetString("LOC_APM_AllCategories");
                 
-                if (selectedCategory == "Tutte")
+                if (selectedCategory == LocalizationService.GetString("LOC_APM_AllCategories"))
                 {
                     ActionsDataGrid.ItemsSource = extensionData.ActionLibrary;
                 }
                 else
                 {
                     ActionsDataGrid.ItemsSource = extensionData.ActionLibrary
-                        .Where(a => (a.Category ?? "Generale") == selectedCategory)
+                        .Where(a => (a.Category ?? "General") == selectedCategory)
                         .ToList();
                 }
             }
@@ -729,7 +729,7 @@ namespace AutomationProfileManager.Views
         {
             if (selectedProfile == null) return;
 
-            var dialog = new TextInputDialog("Duplica Profilo", "Inserisci il nome per il profilo duplicato:");
+            var dialog = new TextInputDialog(LocalizationService.GetString("LOC_APM_DuplicateProfileTitle"), LocalizationService.GetString("LOC_APM_DuplicateProfilePrompt"));
             if (dialog.ShowDialog() == true)
             {
                 var newName = dialog.GetText();
@@ -777,7 +777,7 @@ namespace AutomationProfileManager.Views
             
             var templateDialog = new Window
             {
-                Title = "Seleziona Template",
+                Title = LocalizationService.GetString("LOC_APM_SelectTemplate"),
                 Width = 400,
                 Height = 300,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -803,7 +803,7 @@ namespace AutomationProfileManager.Views
 
             var okButton = new Button
             {
-                Content = "Crea",
+                Content = LocalizationService.GetString("LOC_APM_CreateButton"),
                 Width = 100,
                 Height = 30,
                 Margin = new Thickness(0, 0, 10, 10),
@@ -812,9 +812,9 @@ namespace AutomationProfileManager.Views
             };
 
             var stackPanel = new StackPanel();
-            stackPanel.Children.Add(new TextBlock { Text = "Nome profilo:", Margin = new Thickness(10, 10, 10, 5) });
+            stackPanel.Children.Add(new TextBlock { Text = LocalizationService.GetString("LOC_APM_ProfileName"), Margin = new Thickness(10, 10, 10, 5) });
             stackPanel.Children.Add(nameTextBox);
-            stackPanel.Children.Add(new TextBlock { Text = "Template:", Margin = new Thickness(10, 10, 10, 5) });
+            stackPanel.Children.Add(new TextBlock { Text = LocalizationService.GetString("LOC_APM_Template"), Margin = new Thickness(10, 10, 10, 5) });
             stackPanel.Children.Add(listBox);
             stackPanel.Children.Add(okButton);
 
@@ -844,8 +844,8 @@ namespace AutomationProfileManager.Views
             if (selectedProfile == null) return;
 
             MessageBox.Show(
-                "Esecuzione dry-run del profilo. Controlla il tab 'Log Azioni' per vedere i risultati.",
-                "Dry-Run Avviato",
+                LocalizationService.GetString("LOC_APM_DryRunStartedDesc"),
+                LocalizationService.GetString("LOC_APM_DryRunStarted"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information
             );
@@ -860,7 +860,7 @@ namespace AutomationProfileManager.Views
 
             var dialog = new Window
             {
-                Title = "Trova e Sostituisci Percorsi",
+                Title = LocalizationService.GetString("LOC_APM_FindReplaceTitle"),
                 Width = 500,
                 Height = 200,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -871,7 +871,7 @@ namespace AutomationProfileManager.Views
             var replaceTextBox = new TextBox { Margin = new Thickness(10), Height = 25 };
             var replaceButton = new Button
             {
-                Content = "Sostituisci",
+                Content = LocalizationService.GetString("LOC_APM_ReplaceButton"),
                 Width = 120,
                 Height = 30,
                 Margin = new Thickness(10),
@@ -885,10 +885,10 @@ namespace AutomationProfileManager.Views
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            grid.Children.Add(new TextBlock { Text = "Trova:", Margin = new Thickness(10, 10, 10, 5) });
+            grid.Children.Add(new TextBlock { Text = LocalizationService.GetString("LOC_APM_FindText"), Margin = new Thickness(10, 10, 10, 5) });
             Grid.SetRow(findTextBox, 1);
             grid.Children.Add(findTextBox);
-            grid.Children.Add(new TextBlock { Text = "Sostituisci con:", Margin = new Thickness(10, 10, 10, 5) });
+            grid.Children.Add(new TextBlock { Text = LocalizationService.GetString("LOC_APM_ReplaceWith"), Margin = new Thickness(10, 10, 10, 5) });
             Grid.SetRow(replaceTextBox, 2);
             grid.Children.Add(replaceTextBox);
             Grid.SetRow(replaceButton, 3);
@@ -903,7 +903,7 @@ namespace AutomationProfileManager.Views
 
                 if (string.IsNullOrWhiteSpace(findText))
                 {
-                    MessageBox.Show("Inserisci il testo da cercare.", "Errore", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(LocalizationService.GetString("LOC_APM_EnterSearchText"), LocalizationService.GetString("LOC_APM_Error"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -926,8 +926,8 @@ namespace AutomationProfileManager.Views
                 plugin.UpdateExtensionData(extensionData);
 
                 MessageBox.Show(
-                    $"Sostituiti {replacedCount} occorrenze.",
-                    "Sostituzione Completata",
+                    LocalizationService.GetString("LOC_APM_ReplacedOccurrences", replacedCount),
+                    LocalizationService.GetString("LOC_APM_ReplaceCompleted"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information
                 );
@@ -1215,8 +1215,8 @@ namespace AutomationProfileManager.Views
                     plugin.UpdateExtensionData(extensionData);
                     
                     MessageBox.Show(
-                        $"Backup creato con successo:\n{backupPath}",
-                        "Backup Completato",
+                        string.Format(LocalizationService.GetString("LOC_APM_BackupCreatedAtPath"), backupPath),
+                        LocalizationService.GetString("LOC_APM_BackupCompleted"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Information
                     );
@@ -1225,8 +1225,8 @@ namespace AutomationProfileManager.Views
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Errore durante il backup: {ex.Message}",
-                    "Errore",
+                    string.Format(LocalizationService.GetString("LOC_APM_BackupError"), ex.Message),
+                    LocalizationService.GetString("LOC_APM_Error"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error
                 );
@@ -1242,7 +1242,7 @@ namespace AutomationProfileManager.Views
 
                 if (backups.Length == 0)
                 {
-                    MessageBox.Show("Nessun backup disponibile.", "Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(LocalizationService.GetString("LOC_APM_NoBackupsAvailable"), LocalizationService.GetString("LOC_APM_Backup"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
@@ -1265,13 +1265,13 @@ namespace AutomationProfileManager.Views
                         RefreshLog();
                         RefreshStatistics();
                         
-                        MessageBox.Show("Backup ripristinato con successo!", "Ripristino", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(LocalizationService.GetString("LOC_APM_RestoreCompleted"), LocalizationService.GetString("LOC_APM_RestoreLabel"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Errore durante il ripristino: {ex.Message}", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LocalizationService.GetString("LOC_APM_RestoreError"), ex.Message), LocalizationService.GetString("LOC_APM_Error"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1281,7 +1281,7 @@ namespace AutomationProfileManager.Views
             {
                 extensionData.Settings.WizardCompleted = false;
                 plugin.UpdateExtensionData(extensionData);
-                MessageBox.Show("Il wizard verrà mostrato al prossimo riavvio di Playnite.", "Wizard", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationService.GetString("LOC_APM_WizardRestartMessage"), LocalizationService.GetString("LOC_APM_Wizard"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -1333,7 +1333,7 @@ namespace AutomationProfileManager.Views
         {
             if (value is bool success)
             {
-                return success ? "OK" : "Errore";
+                return success ? LocalizationService.GetString("LOC_APM_ResultSuccess") : LocalizationService.GetString("LOC_APM_ResultFailed");
             }
             return "?";
         }

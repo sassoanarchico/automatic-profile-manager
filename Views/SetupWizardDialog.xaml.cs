@@ -13,7 +13,7 @@ namespace AutomationProfileManager.Views
         public string Name { get; set; } = string.Empty;
         public string ProcessName { get; set; } = string.Empty;
         public string ExecutablePath { get; set; } = string.Empty;
-        public string Category { get; set; } = "Altro";
+        public string Category { get; set; } = "Other";
         public bool IsSelected { get; set; } = true;
     }
 
@@ -75,12 +75,12 @@ namespace AutomationProfileManager.Views
 
         private void ApplyFilter()
         {
-            var categoryFilter = (CategoryFilter.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Tutte";
+            var categoryFilter = (CategoryFilter.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? LocalizationService.GetString("LOC_APM_AllCategories");
             var searchText = SearchBox?.Text?.ToLowerInvariant() ?? "";
 
             filteredApps = allApps.Where(a =>
             {
-                bool matchCategory = categoryFilter == "Tutte" || a.Category == categoryFilter;
+                bool matchCategory = categoryFilter == LocalizationService.GetString("LOC_APM_AllCategories") || a.Category == categoryFilter;
                 bool matchSearch = string.IsNullOrEmpty(searchText) ||
                                    a.Name.ToLowerInvariant().Contains(searchText) ||
                                    a.ProcessName.ToLowerInvariant().Contains(searchText);
@@ -263,10 +263,7 @@ namespace AutomationProfileManager.Views
             int closeActions = GenerateCloseActions.IsChecked == true ? selectedApps.Count : 0;
             int openActions = GenerateOpenActions.IsChecked == true ? selectedApps.Count : 0;
 
-            SummaryText.Text = $"Verranno create {closeActions + openActions} azioni:\n" +
-                              $"- {closeActions} azioni CHIUDI\n" +
-                              $"- {openActions} azioni APRI\n" +
-                              $"per {selectedApps.Count} app selezionate.";
+            SummaryText.Text = LocalizationService.GetString("LOC_APM_ActionsToCreate", closeActions + openActions, closeActions, openActions, selectedApps.Count);
         }
 
         private void Skip_Click(object sender, RoutedEventArgs e)
@@ -283,7 +280,7 @@ namespace AutomationProfileManager.Views
         private void UpdateButtons()
         {
             PrevButton.IsEnabled = WizardTabs.SelectedIndex > 0;
-            NextButton.Content = WizardTabs.SelectedIndex == WizardTabs.Items.Count - 1 ? "Completa" : "Avanti";
+            NextButton.Content = WizardTabs.SelectedIndex == WizardTabs.Items.Count - 1 ? LocalizationService.GetString("LOC_APM_WizardComplete") : LocalizationService.GetString("LOC_APM_WizardNext");
         }
 
         private void CompleteWizard()
@@ -323,7 +320,7 @@ namespace AutomationProfileManager.Views
                     // Generate CLOSE action
                     if (GenerateCloseActions.IsChecked == true)
                     {
-                        var closeName = $"[Chiudi] {app.Name}";
+                        var closeName = $"[Close] {app.Name}";
                         if (!extensionData.ActionLibrary.Any(a => a.Name == closeName))
                         {
                             var closeAction = new GameAction
@@ -353,7 +350,7 @@ namespace AutomationProfileManager.Views
                     // Generate OPEN action
                     if (GenerateOpenActions.IsChecked == true && !string.IsNullOrEmpty(app.ExecutablePath))
                     {
-                        var openName = $"[Apri] {app.Name}";
+                        var openName = $"[Open] {app.Name}";
                         if (!extensionData.ActionLibrary.Any(a => a.Name == openName))
                         {
                             var openAction = new GameAction
@@ -402,7 +399,7 @@ namespace AutomationProfileManager.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Errore durante la configurazione: {ex.Message}", "Errore",
+                MessageBox.Show(string.Format(LocalizationService.GetString("LOC_APM_WizardConfigError"), ex.Message), LocalizationService.GetString("LOC_APM_Error"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -412,16 +409,16 @@ namespace AutomationProfileManager.Views
             var profile = new AutomationProfile
             {
                 Id = Guid.NewGuid(),
-                Name = "Gaming Immersivo"
+                Name = "Immersive Gaming"
             };
 
             // Add close actions for browsers and communication apps
             var appsToClose = selectedApps.Where(a =>
-                a.Category == "Browser" || a.Category == "Comunicazione" || a.Category == "Cloud/Sync");
+                a.Category == "Browser" || a.Category == "Communication" || a.Category == "Cloud/Sync");
 
             foreach (var app in appsToClose)
             {
-                var actionName = $"[Chiudi] {app.Name}";
+                var actionName = $"[Close] {app.Name}";
                 var existingAction = extensionData?.ActionLibrary.FirstOrDefault(a => a.Name == actionName);
                 if (existingAction != null)
                 {
@@ -458,7 +455,7 @@ namespace AutomationProfileManager.Views
 
             if (obsApp != null)
             {
-                var openActionName = $"[Apri] {obsApp.Name}";
+                var openActionName = $"[Open] {obsApp.Name}";
                 var openAction = extensionData?.ActionLibrary.FirstOrDefault(a => a.Name == openActionName);
                 if (openAction != null)
                 {
@@ -485,7 +482,7 @@ namespace AutomationProfileManager.Views
             var profile = new AutomationProfile
             {
                 Id = Guid.NewGuid(),
-                Name = "Emulatori"
+                Name = "Emulators"
             };
 
             // Add resolution change from default actions

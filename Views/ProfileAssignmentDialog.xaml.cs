@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using AutomationProfileManager.Models;
+using AutomationProfileManager.Services;
 
 namespace AutomationProfileManager.Views
 {
@@ -15,7 +16,7 @@ namespace AutomationProfileManager.Views
         {
             InitializeComponent();
             profiles = availableProfiles;
-            GameNameTextBlock.Text = $"Seleziona un profilo per:\n{gameName}";
+            GameNameTextBlock.Text = string.Format(LocalizationService.GetString("LOC_APM_SelectProfileForGame"), gameName);
             ProfilesListBox.ItemsSource = profiles;
             ProfilesListBox.SelectionChanged += ProfilesListBox_SelectionChanged;
         }

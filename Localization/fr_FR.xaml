@@ -1,0 +1,430 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Tab Headers -->
+    <sys:String x:Key="LOC_APM_Tab_ActionLibrary">Bibliotheque d'Actions</sys:String>
+    <sys:String x:Key="LOC_APM_Tab_ProfileManagement">Gestion des Profils</sys:String>
+    <sys:String x:Key="LOC_APM_Tab_ActionLog">Journal d'Actions</sys:String>
+    <sys:String x:Key="LOC_APM_Tab_Statistics">Statistiques</sys:String>
+    <sys:String x:Key="LOC_APM_Tab_Settings">Parametres</sys:String>
+
+    <!-- Action Library -->
+    <sys:String x:Key="LOC_APM_AddAction">+ Ajouter Action</sys:String>
+    <sys:String x:Key="LOC_APM_Edit">Modifier</sys:String>
+    <sys:String x:Key="LOC_APM_Remove">Supprimer</sys:String>
+    <sys:String x:Key="LOC_APM_ImportDefaultActions">Importer Actions par Defaut</sys:String>
+    <sys:String x:Key="LOC_APM_ActionLibraryDescription">Creez des actions reutilisables a assigner aux profils. Les actions Mirror restaurent l'etat precedent a la fermeture du jeu.</sys:String>
+    <sys:String x:Key="LOC_APM_FilterByCategory">Filtrer par categorie :</sys:String>
+    <sys:String x:Key="LOC_APM_AllCategories">Toutes</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnName">Nom</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnCategory">Categorie</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnTags">Tags</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnType">Type</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnPath">Chemin/Commande</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnMirror">Mirror</sys:String>
+
+    <!-- Profile Management -->
+    <sys:String x:Key="LOC_APM_NewProfile">+ Nouveau Profil</sys:String>
+    <sys:String x:Key="LOC_APM_Duplicate">Dupliquer</sys:String>
+    <sys:String x:Key="LOC_APM_FromTemplate">Depuis Modele...</sys:String>
+    <sys:String x:Key="LOC_APM_Delete">Supprimer</sys:String>
+    <sys:String x:Key="LOC_APM_Export">Exporter...</sys:String>
+    <sys:String x:Key="LOC_APM_Import">Importer...</sys:String>
+    <sys:String x:Key="LOC_APM_AvailableProfiles">Profils disponibles :</sys:String>
+    <sys:String x:Key="LOC_APM_SelectProfile">Selectionnez un profil</sys:String>
+    <sys:String x:Key="LOC_APM_DryRun">Execution Test</sys:String>
+    <sys:String x:Key="LOC_APM_FindReplacePath">Chercher/Remplacer Chemin</sys:String>
+    <sys:String x:Key="LOC_APM_ProfileActionsDescription">Double-cliquez ou glissez les actions depuis la liste de gauche. Utilisez les boutons pour reordonner ou supprimer.</sys:String>
+    <sys:String x:Key="LOC_APM_AvailableActions">Actions Disponibles</sys:String>
+    <sys:String x:Key="LOC_APM_ProfileActions">Actions du Profil</sys:String>
+    <sys:String x:Key="LOC_APM_MoveUp">Monter</sys:String>
+    <sys:String x:Key="LOC_APM_MoveDown">Descendre</sys:String>
+    <sys:String x:Key="LOC_APM_RemoveFromProfile">Retirer du profil</sys:String>
+
+    <!-- Action Log -->
+    <sys:String x:Key="LOC_APM_Refresh">Actualiser</sys:String>
+    <sys:String x:Key="LOC_APM_ClearLog">Vider le Journal</sys:String>
+    <sys:String x:Key="LOC_APM_ShowDryRunLogs">Afficher aussi dry-run</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnTimestamp">Horodatage</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnAction">Action</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnResult">Resultat</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnExitCode">Code de Sortie</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnMessage">Message</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnDryRun">Dry-Run</sys:String>
+
+    <!-- Statistics -->
+    <sys:String x:Key="LOC_APM_ActionsExecuted">Actions Executees</sys:String>
+    <sys:String x:Key="LOC_APM_TimeSaved">Temps Economise</sys:String>
+    <sys:String x:Key="LOC_APM_SuccessRate">Taux de Reussite</sys:String>
+    <sys:String x:Key="LOC_APM_MostUsedActions">Actions les plus utilisees</sys:String>
+    <sys:String x:Key="LOC_APM_FailingActions">Actions avec erreurs</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnExecutions">Executions</sys:String>
+    <sys:String x:Key="LOC_APM_ColumnErrors">Erreurs</sys:String>
+    <sys:String x:Key="LOC_APM_Seconds">secondes</sys:String>
+
+    <!-- Settings -->
+    <sys:String x:Key="LOC_APM_Notifications">Notifications</sys:String>
+    <sys:String x:Key="LOC_APM_ShowNotifications">Afficher les notifications</sys:String>
+    <sys:String x:Key="LOC_APM_ShowNotificationsDesc">Lorsque desactive, les notifications de l'extension ne seront pas affichees</sys:String>
+    <sys:String x:Key="LOC_APM_Execution">Execution</sys:String>
+    <sys:String x:Key="LOC_APM_EnableDryRun">Activer dry-run global (test uniquement, sans execution)</sys:String>
+    <sys:String x:Key="LOC_APM_EnableDryRunDesc">Lorsque active, toutes les actions sont executees en mode test sans effets reels</sys:String>
+    <sys:String x:Key="LOC_APM_Backup">Sauvegarde</sys:String>
+    <sys:String x:Key="LOC_APM_AutoBackup">Sauvegarde automatique de la configuration</sys:String>
+    <sys:String x:Key="LOC_APM_BackupInterval">Intervalle de sauvegarde (jours) :</sys:String>
+    <sys:String x:Key="LOC_APM_BackupNow">Sauvegarder Maintenant</sys:String>
+    <sys:String x:Key="LOC_APM_RestoreBackup">Restaurer depuis Sauvegarde...</sys:String>
+    <sys:String x:Key="LOC_APM_Log">Journal</sys:String>
+    <sys:String x:Key="LOC_APM_MaxLogEntries">Entrees maximum du journal :</sys:String>
+    <sys:String x:Key="LOC_APM_Wizard">Assistant</sys:String>
+    <sys:String x:Key="LOC_APM_RestartWizard">Relancer l'Assistant de Configuration</sys:String>
+
+    <!-- Action Edit Dialog -->
+    <sys:String x:Key="LOC_APM_ActionEditTitle">Modifier Action</sys:String>
+    <sys:String x:Key="LOC_APM_ActionName">Nom :</sys:String>
+    <sys:String x:Key="LOC_APM_ActionType">Type :</sys:String>
+    <sys:String x:Key="LOC_APM_Path">Chemin :</sys:String>
+    <sys:String x:Key="LOC_APM_Arguments">Arguments :</sys:String>
+    <sys:String x:Key="LOC_APM_Category">Categorie :</sys:String>
+    <sys:String x:Key="LOC_APM_Tags">Tags (separes par virgule) :</sys:String>
+    <sys:String x:Key="LOC_APM_WaitSeconds">Secondes d'attente :</sys:String>
+    <sys:String x:Key="LOC_APM_Priority">Priorite :</sys:String>
+    <sys:String x:Key="LOC_APM_MirrorAction">Action Mirror (restaurer a la fermeture du jeu)</sys:String>
+    <sys:String x:Key="LOC_APM_Browse">Parcourir...</sys:String>
+    <sys:String x:Key="LOC_APM_SelectInstalledApp">App Installee...</sys:String>
+    <sys:String x:Key="LOC_APM_SelectRunningProcess">Processus Actif...</sys:String>
+    <sys:String x:Key="LOC_APM_SelectResolution">Selectionner Resolution...</sys:String>
+    <sys:String x:Key="LOC_APM_Save">Enregistrer</sys:String>
+    <sys:String x:Key="LOC_APM_Cancel">Annuler</sys:String>
+    <sys:String x:Key="LOC_APM_Select">Selectionner</sys:String>
+    <sys:String x:Key="LOC_APM_Process">Processus</sys:String>
+    <sys:String x:Key="LOC_APM_SearchLabel">Rechercher :</sys:String>
+    <sys:String x:Key="LOC_APM_SelectApplicationTitle">Selectionner Application</sys:String>
+    <sys:String x:Key="LOC_APM_Input">Entree</sys:String>
+    <sys:String x:Key="LOC_APM_CategoryManual">Manuel</sys:String>
+    <sys:String x:Key="LOC_APM_DefaultCategory">Autre</sys:String>
+    <sys:String x:Key="LOC_APM_ActionNameRequired">Le nom de l'action est obligatoire.</sys:String>
+    <sys:String x:Key="LOC_APM_SelectFile">Selectionner fichier</sys:String>
+    <sys:String x:Key="LOC_APM_SelectInstalledAppPrompt">Selectionnez une application installee</sys:String>
+    <sys:String x:Key="LOC_APM_SelectRunningProcessPrompt">Selectionnez un processus en cours d'execution</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_StartApp">Application a demarrer :</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_CloseApp">Application a fermer :</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_PowerShell">Script PowerShell :</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_SystemCommand">Commande systeme :</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_Resolution">Resolution (ex : 1920x1080@60 ou RESTORE) :</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_Wait">Attente :</sys:String>
+    <sys:String x:Key="LOC_APM_PathLabel_Default">Chemin/Commande :</sys:String>
+
+    <!-- Notifications -->
+    <sys:String x:Key="LOC_APM_Notification_ProfileStarted">Profil '{0}' demarre pour {1}
+{2} actions en cours...</sys:String>
+    <sys:String x:Key="LOC_APM_Notification_ProfileCompleted_OK">Profil '{0}' termine
+Actions : {1} OK, {2} erreurs
+Temps : {3:F1}s</sys:String>
+    <sys:String x:Key="LOC_APM_Notification_ProfileCompleted_Fail">Profil '{0}' termine avec erreurs
+Actions : {1} OK, {2} erreurs
+Temps : {3:F1}s</sys:String>
+    <sys:String x:Key="LOC_APM_Notification_ActionOK">{0}: {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Notification_ActionFail">{0}: {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Notification_Error">{0}: {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Notification_BackupCompleted">Sauvegarde de configuration terminee :
+{0}</sys:String>
+
+    <!-- DataService -->
+    <sys:String x:Key="LOC_APM_SaveDataFailed">Echec de sauvegarde : {0}</sys:String>
+
+    <!-- ActionExecutor -->
+    <sys:String x:Key="LOC_APM_Log_ExecutingParallel">Execution de {0} actions en parallele...</sys:String>
+    <sys:String x:Key="LOC_APM_ActionSkipped_DependencyFailed">Ignoree : l'action dependante a echoue</sys:String>
+    <sys:String x:Key="LOC_APM_ActionTimedOut">Delai d'action depasse apres {0} secondes</sys:String>
+    <sys:String x:Key="LOC_APM_ActionSkipped_ConditionNotMet">Ignoree : condition non remplie ({0})</sys:String>
+    <sys:String x:Key="LOC_APM_DryRunWouldExecute">Executerait : {0} - {1} {2}</sys:String>
+    <sys:String x:Key="LOC_APM_ActionWaited">Attendu {0} secondes</sys:String>
+    <sys:String x:Key="LOC_APM_UnknownActionType">Type d'action inconnu : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ResolutionRestored">Resolution originale restauree</sys:String>
+    <sys:String x:Key="LOC_APM_ResolutionRestoreFailed">Echec de restauration de la resolution originale (un fallback a pu etre utilise)</sys:String>
+    <sys:String x:Key="LOC_APM_ResolutionChanged">Resolution changee a {0}x{1}@{2}Hz</sys:String>
+    <sys:String x:Key="LOC_APM_ResolutionChangeFailed">Echec du changement de resolution a {0}x{1}@{2}Hz</sys:String>
+    <sys:String x:Key="LOC_APM_AppStarted">Demarree : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProcessNotRunning">Processus non en cours : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProcessClosedInstances">Fermees {0} instance(s) de {1}</sys:String>
+    <sys:String x:Key="LOC_APM_PowerShellScript">script</sys:String>
+    <sys:String x:Key="LOC_APM_PowerShellCommand">commande</sys:String>
+    <sys:String x:Key="LOC_APM_PowerShellCompleted">PowerShell {0} termine avec code de sortie {1}</sys:String>
+    <sys:String x:Key="LOC_APM_CommandCompleted">Commande terminee avec code de sortie {0}</sys:String>
+    <sys:String x:Key="LOC_APM_VolumeSet">Volume principal regle a {0}%</sys:String>
+    <sys:String x:Key="LOC_APM_VolumeSetFailed">Echec du reglage du volume principal</sys:String>
+    <sys:String x:Key="LOC_APM_VolumeRestored">Volume original restaure</sys:String>
+    <sys:String x:Key="LOC_APM_VolumeRestoreFailed">Echec de restauration du volume original</sys:String>
+    <sys:String x:Key="LOC_APM_VolumeInvalid">Valeur de volume invalide : {0}. Utilisez un nombre 0-100 ou 'RESTORE'.</sys:String>
+    <sys:String x:Key="LOC_APM_ProcessMuted">Processus mis en sourdine : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProcessMuteFailed">Echec de mise en sourdine : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProcessUnmuted">Processus reactive : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProcessUnmuteFailed">Echec de reactivation : {0}</sys:String>
+
+    <!-- ActionExecutor logs -->
+    <sys:String x:Key="LOC_APM_Log_ResolutionServiceInitFailed">Echec d'initialisation de ResolutionService, changements de resolution desactives</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ActionSkippedDueToCondition">Action '{0}' ignoree pour condition : {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ExecutingAction">{0}Execution action : {1} (Type : {2}, Phase : {3})</sys:String>
+    <sys:String x:Key="LOC_APM_Log_UnknownActionType">Type d'action inconnu : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_StartedApplication">Application demarree : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ProcessNotRunning">Processus non en cours : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ClosedProcess">Processus ferme : {0} (PID : {1})</sys:String>
+    <sys:String x:Key="LOC_APM_Log_CloseProcessFailed">Echec de fermeture du processus : {0} (PID : {1})</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ExecutedPowerShell">PowerShell {0} execute : {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ExecutedSystemCommand">Commande systeme executee : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_Waiting">Attente de {0} secondes...</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToExecuteAction">Echec d'execution de l'action : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToStartApp">Echec de demarrage de l'app : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToCloseApp">Echec de fermeture de l'app : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToExecutePowerShell">Echec d'execution du script PowerShell : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToExecuteSystemCommand">Echec d'execution de la commande systeme : {0}</sys:String>
+
+    <!-- AudioService logs -->
+    <sys:String x:Key="LOC_APM_Log_SavedOriginalVolume">Volume original sauvegarde : {0}%</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToSaveVolume">Echec de sauvegarde du volume actuel</sys:String>
+    <sys:String x:Key="LOC_APM_Log_SetMasterVolume">Volume principal a {0}%</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToSetMasterVolume">Echec du reglage du volume principal</sys:String>
+    <sys:String x:Key="LOC_APM_Log_MutedProcess">Processus mis en sourdine : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToMuteProcess">Echec de mise en sourdine du processus {0}, tentative de methode alternative</sys:String>
+    <sys:String x:Key="LOC_APM_Log_UnmutedProcess">Processus reactive : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToUnmuteProcess">Echec de reactivation du processus {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_AlternativeMuteFailed">La methode alternative de sourdine a egalement echoue pour {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToExecutePowerShellAudio">Echec d'execution PowerShell pour l'audio</sys:String>
+
+    <!-- ResolutionService logs -->
+    <sys:String x:Key="LOC_APM_Log_FailedToGetDisplaySettings">Echec de recuperation des parametres d'affichage</sys:String>
+    <sys:String x:Key="LOC_APM_Log_SavedOriginalResolution">Resolution originale sauvegardee : {0}x{1}@{2}Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToEnumerateDisplaySettings">Echec d'enumeration des parametres d'affichage</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ResolutionTestFailed">Test de changement de resolution echoue : {0}x{1}@{2}Hz (code : {3})</sys:String>
+    <sys:String x:Key="LOC_APM_Log_AttemptingFallback">Tentative de fallback : essai {0}x{1}@{2}Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Log_AttemptingFallbackCommon">Tentative de fallback : essai 1920x1080@60Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ChangedResolution">Resolution changee a : {0}x{1}@{2}Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToChangeResolution">Echec du changement de resolution (code : {0})</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ExceptionWhileChangingResolution">Exception lors du changement de resolution</sys:String>
+    <sys:String x:Key="LOC_APM_Log_NoOriginalSettingsSaved">Aucun parametre original sauvegarde a restaurer</sys:String>
+    <sys:String x:Key="LOC_APM_Log_AttemptingFallbackRestore">Tentative de restauration fallback a 1920x1080@60Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FallbackRestoreSuccessful">Restauration fallback reussie</sys:String>
+    <sys:String x:Key="LOC_APM_Log_RestoredOriginalResolution">Resolution originale restauree</sys:String>
+    <sys:String x:Key="LOC_APM_Log_RestoreFailedAttemptingFallback">Restauration echouee, tentative de fallback</sys:String>
+
+    <!-- ConditionService logs -->
+    <sys:String x:Key="LOC_APM_Log_FailedToEvaluateCondition">Echec d'evaluation de la condition : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ConditionCheckProcessRunning">Verification : Processus '{0}' en cours = {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ConditionCheckFileExists">Verification : Fichier/Dossier '{0}' existe = {1}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_ConditionCheckTimeRange">Verification : Heure {0} entre {1}-{2} = {3}</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToParseTimeRange">Echec d'analyse de la plage horaire : {0} - {1}</sys:String>
+
+    <!-- StatisticsService -->
+    <sys:String x:Key="LOC_APM_Log_FailedToRecordActionStats">Echec d'enregistrement des statistiques d'action</sys:String>
+    <sys:String x:Key="LOC_APM_Log_FailedToRecordProfileStats">Echec d'enregistrement des statistiques de profil</sys:String>
+    <sys:String x:Key="LOC_APM_Stats_Hours">{0:F1} heures</sys:String>
+    <sys:String x:Key="LOC_APM_Stats_Minutes">{0:F0} minutes</sys:String>
+    <sys:String x:Key="LOC_APM_Stats_Seconds">{0:F0} secondes</sys:String>
+
+    <!-- Profile Assignment -->
+    <sys:String x:Key="LOC_APM_AssignProfileTitle">Assigner Profil d'Automatisation</sys:String>
+    <sys:String x:Key="LOC_APM_SelectProfileFor">Selectionnez un profil pour :</sys:String>
+    <sys:String x:Key="LOC_APM_Assign">Assigner</sys:String>
+    <sys:String x:Key="LOC_APM_SelectProfileForGame">Selectionnez un profil pour :
+{0}</sys:String>
+
+    <!-- Setup Wizard -->
+    <sys:String x:Key="LOC_APM_WizardTitle">Automation Profile Manager - Assistant de Configuration</sys:String>
+    <sys:String x:Key="LOC_APM_WizardWelcome">Bienvenue !</sys:String>
+    <sys:String x:Key="LOC_APM_WizardWelcomeDesc">Cet assistant vous guidera dans la configuration initiale d'Automation Profile Manager.</sys:String>
+    <sys:String x:Key="LOC_APM_WizardYouCan">Vous pouvez :</sys:String>
+    <sys:String x:Key="LOC_APM_WizardYouCanItem_Close">- Fermer les apps en arriere-plan pour liberer des ressources</sys:String>
+    <sys:String x:Key="LOC_APM_WizardYouCanItem_Open">- Ouvrir les apps necessaires avant le jeu</sys:String>
+    <sys:String x:Key="LOC_APM_WizardYouCanItem_Resolution">- Changer la resolution ou le volume</sys:String>
+    <sys:String x:Key="LOC_APM_WizardYouCanItem_Scripts">- Executer des scripts personnalises</sys:String>
+    <sys:String x:Key="LOC_APM_WizardYouCanItem_Restore">- Tout restaurer automatiquement a la fermeture</sys:String>
+    <sys:String x:Key="LOC_APM_WizardImportDefault">Importer les actions par defaut (recommande)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardEnableNotifications">Activer les notifications</sys:String>
+    <sys:String x:Key="LOC_APM_WizardEnableBackup">Activer la sauvegarde automatique</sys:String>
+    <sys:String x:Key="LOC_APM_WizardSelectApps">Selectionner Apps</sys:String>
+    <sys:String x:Key="LOC_APM_WizardSelectAppsDesc">Selectionnez les applications pour lesquelles creer des actions fermer/ouvrir.</sys:String>
+    <sys:String x:Key="LOC_APM_WizardScanApps">Scanner Apps</sys:String>
+    <sys:String x:Key="LOC_APM_WizardAddApp">Ajouter App...</sys:String>
+    <sys:String x:Key="LOC_APM_WizardSelectAll">Tout Selectionner</sys:String>
+    <sys:String x:Key="LOC_APM_WizardDeselectAll">Tout Deselectionner</sys:String>
+    <sys:String x:Key="LOC_APM_WizardSearch">Rechercher...</sys:String>
+    <sys:String x:Key="LOC_APM_WizardNextHint">Cliquez sur "Suivant" pour demarrer la configuration.</sys:String>
+    <sys:String x:Key="LOC_APM_WizardActionTypes">Types d'Actions</sys:String>
+    <sys:String x:Key="LOC_APM_WizardActionTypesDesc">Selectionnez quels types d'actions generer pour les apps selectionnees.</sys:String>
+    <sys:String x:Key="LOC_APM_WizardGenerateClose">Generer actions FERMER</sys:String>
+    <sys:String x:Key="LOC_APM_WizardGenerateOpen">Generer actions OUVRIR</sys:String>
+    <sys:String x:Key="LOC_APM_WizardGenerateMirror">Actions Mirror (rouvrir automatiquement a la fermeture)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardAddConditions">Ajouter conditions (verifier si en cours)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardProfile">Profil</sys:String>
+    <sys:String x:Key="LOC_APM_WizardProfileDesc">Selectionnez un modele de profil a creer automatiquement.</sys:String>
+    <sys:String x:Key="LOC_APM_WizardProfileNone">Pas de profil (je le creerai manuellement)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardProfileGaming">Gaming Immersif (ferme navigateurs et apps)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardProfileStreaming">Streaming/Enregistrement (ouvre OBS)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardProfileEmulator">Emulateurs (changement de resolution)</sys:String>
+    <sys:String x:Key="LOC_APM_WizardSummary">Recapitulatif</sys:String>
+    <sys:String x:Key="LOC_APM_WizardComplete">Terminer</sys:String>
+    <sys:String x:Key="LOC_APM_WizardSkip">Passer</sys:String>
+    <sys:String x:Key="LOC_APM_WizardPrev">Retour</sys:String>
+    <sys:String x:Key="LOC_APM_WizardNext">Suivant</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="LOC_APM_ConfirmRemove">Confirmer la Suppression</sys:String>
+    <sys:String x:Key="LOC_APM_ConfirmRemoveAction">Supprimer l'action '{0}' ?
+
+Cette action sera egalement supprimee de tous les profils.</sys:String>
+    <sys:String x:Key="LOC_APM_ConfirmRemoveMultipleActions">Supprimer {0} actions selectionnees ?
+
+Ces actions seront egalement supprimees de tous les profils.</sys:String>
+    <sys:String x:Key="LOC_APM_ConfirmRemoveProfile">Supprimer le profil '{0}' ?
+
+Les jeux assignes perdront l'association.</sys:String>
+    <sys:String x:Key="LOC_APM_ConfirmClearLog">Voulez-vous vider tous les journaux ?</sys:String>
+    <sys:String x:Key="LOC_APM_Confirm">Confirmer</sys:String>
+    <sys:String x:Key="LOC_APM_Error">Erreur</sys:String>
+    <sys:String x:Key="LOC_APM_Success">Succes</sys:String>
+    <sys:String x:Key="LOC_APM_ResultSuccess">OK</sys:String>
+    <sys:String x:Key="LOC_APM_ResultFailed">Echoue</sys:String>
+    <sys:String x:Key="LOC_APM_ImportDefaultActionsPrompt">Voulez-vous importer les actions par defaut ?
+
+Les actions suivantes seront ajoutees :
+- Fermer/Ouvrir applications (Chrome, Discord, Spotify...)
+- Commandes systeme (profils d'alimentation)
+- Controle audio
+- Changement de resolution</sys:String>
+    <sys:String x:Key="LOC_APM_ImportCompleted">Importation Terminee</sys:String>
+    <sys:String x:Key="LOC_APM_ImportedActions">{0} actions par defaut importees !
+
+({1} actions etaient deja presentes)</sys:String>
+    <sys:String x:Key="LOC_APM_NewProfileTitle">Nouveau Profil</sys:String>
+    <sys:String x:Key="LOC_APM_EnterProfileName">Entrez le nom du profil :</sys:String>
+    <sys:String x:Key="LOC_APM_DryRunStarted">Dry-run Demarre</sys:String>
+    <sys:String x:Key="LOC_APM_DryRunStartedDesc">Execution dry-run du profil. Verifiez l'onglet 'Journal d'Actions' pour voir les resultats.</sys:String>
+    <sys:String x:Key="LOC_APM_FindReplaceTitle">Rechercher et Remplacer</sys:String>
+    <sys:String x:Key="LOC_APM_FindText">Texte a rechercher :</sys:String>
+    <sys:String x:Key="LOC_APM_ReplaceWith">Remplacer par :</sys:String>
+    <sys:String x:Key="LOC_APM_ReplaceCompleted">Remplacement Termine</sys:String>
+    <sys:String x:Key="LOC_APM_ReplacedOccurrences">{0} occurrences remplacees.</sys:String>
+    <sys:String x:Key="LOC_APM_ExportProfiles">Exporter Profils</sys:String>
+    <sys:String x:Key="LOC_APM_ImportProfiles">Importer Profils</sys:String>
+    <sys:String x:Key="LOC_APM_ExportCompleted">Exportation terminee avec succes !</sys:String>
+    <sys:String x:Key="LOC_APM_ImportCompletedDetails">Importation terminee !
+Profils : {0}
+Actions : {1}</sys:String>
+    <sys:String x:Key="LOC_APM_SelectTemplate">Selectionner Modele</sys:String>
+    <sys:String x:Key="LOC_APM_ProfileName">Nom du profil :</sys:String>
+    <sys:String x:Key="LOC_APM_Template">Modele :</sys:String>
+    <sys:String x:Key="LOC_APM_BackupCompleted">Sauvegarde creee avec succes !</sys:String>
+    <sys:String x:Key="LOC_APM_SelectBackupFile">Selectionner Fichier de Sauvegarde</sys:String>
+    <sys:String x:Key="LOC_APM_RestoreCompleted">Restauration terminee ! Redemarrez Playnite pour appliquer les changements.</sys:String>
+    <sys:String x:Key="LOC_APM_SettingsLoadError">Erreur de chargement des parametres : {0}
+
+Details : {1}</sys:String>
+    <sys:String x:Key="LOC_APM_SettingsError">Erreur de Parametres</sys:String>
+    <sys:String x:Key="LOC_APM_ScanCompleted">{0} applications installees trouvees !</sys:String>
+    <sys:String x:Key="LOC_APM_ScanComplete">Scan Termine</sys:String>
+    <sys:String x:Key="LOC_APM_AppDuplicate">App en Double</sys:String>
+    <sys:String x:Key="LOC_APM_AppAlreadyExists">L'app '{0}' est deja dans la liste.</sys:String>
+    <sys:String x:Key="LOC_APM_SelectedOfTotal">{0} selectionnees sur {1} apps trouvees</sys:String>
+    <sys:String x:Key="LOC_APM_ActionsToCreate">{0} actions seront creees :
+- {1} actions FERMER
+- {2} actions OUVRIR
+pour {3} apps selectionnees.</sys:String>
+
+    <!-- Additional UI strings (v0.5.0) -->
+    <sys:String x:Key="LOC_APM_InitError">Erreur d'initialisation de l'interface : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProfileLabel">Profil : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_SelectProfileFirst">Selectionnez d'abord un profil dans la liste de gauche.</sys:String>
+    <sys:String x:Key="LOC_APM_NoProfileSelected">Aucun Profil Selectionne</sys:String>
+    <sys:String x:Key="LOC_APM_DuplicateProfileTitle">Dupliquer Profil</sys:String>
+    <sys:String x:Key="LOC_APM_DuplicateProfilePrompt">Entrez le nom pour le profil duplique :</sys:String>
+    <sys:String x:Key="LOC_APM_CreateButton">Creer</sys:String>
+    <sys:String x:Key="LOC_APM_ReplaceButton">Remplacer</sys:String>
+    <sys:String x:Key="LOC_APM_EnterSearchText">Entrez le texte a rechercher.</sys:String>
+    <sys:String x:Key="LOC_APM_BackupCreatedAtPath">Sauvegarde creee avec succes :
+{0}</sys:String>
+    <sys:String x:Key="LOC_APM_BackupError">Erreur de sauvegarde : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_NoBackupsAvailable">Aucune sauvegarde disponible.</sys:String>
+    <sys:String x:Key="LOC_APM_RestoreLabel">Restauration</sys:String>
+    <sys:String x:Key="LOC_APM_RestoreError">Erreur de restauration : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_WizardRestartMessage">L'assistant sera affiche au prochain demarrage de Playnite.</sys:String>
+    <sys:String x:Key="LOC_APM_WizardConfigError">Erreur de configuration : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_DefaultProfileGaming">Gaming Immersif</sys:String>
+    <sys:String x:Key="LOC_APM_DefaultProfileStreaming">Streaming/Enregistrement</sys:String>
+    <sys:String x:Key="LOC_APM_DefaultProfileEmulators">Emulateurs</sys:String>
+
+    <!-- Action Prefixes -->
+    <sys:String x:Key="LOC_APM_Prefix_Close">[Fermer]</sys:String>
+    <sys:String x:Key="LOC_APM_Prefix_Open">[Ouvrir]</sys:String>
+    <sys:String x:Key="LOC_APM_Prefix_System">[Systeme]</sys:String>
+    <sys:String x:Key="LOC_APM_Prefix_Wait">[Attente]</sys:String>
+    <sys:String x:Key="LOC_APM_Prefix_Script">[Script]</sys:String>
+    <sys:String x:Key="LOC_APM_Prefix_Audio">[Audio]</sys:String>
+    <sys:String x:Key="LOC_APM_Prefix_Resolution">[Resolution]</sys:String>
+
+    <!-- Default Action Names -->
+    <sys:String x:Key="LOC_APM_Action_HighPerformanceON">Hautes Performances ON</sys:String>
+    <sys:String x:Key="LOC_APM_Action_BalancedMode">Mode Equilibre</sys:String>
+    <sys:String x:Key="LOC_APM_Action_PowerSaver">Economie d'Energie</sys:String>
+    <sys:String x:Key="LOC_APM_Action_CleanRAM">Nettoyer RAM</sys:String>
+    <sys:String x:Key="LOC_APM_Action_FlushDNS">Vider cache DNS</sys:String>
+    <sys:String x:Key="LOC_APM_Action_CleanTemp">Nettoyer dossier TEMP</sys:String>
+    <sys:String x:Key="LOC_APM_Action_EmptyRecycleBin">Vider la Corbeille</sys:String>
+    <sys:String x:Key="LOC_APM_Action_RestartExplorer">Redemarrer Explorateur</sys:String>
+    <sys:String x:Key="LOC_APM_Action_GameModeON">Mode Jeu ON</sys:String>
+    <sys:String x:Key="LOC_APM_Action_GameModeOFF">Mode Jeu OFF</sys:String>
+    <sys:String x:Key="LOC_APM_Action_FocusAssistON">Assistant de Concentration ON</sys:String>
+    <sys:String x:Key="LOC_APM_Action_FocusAssistOFF">Assistant de Concentration OFF</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Volume50">Volume 50%</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Volume75">Volume 75%</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Volume100">Volume 100%</sys:String>
+    <sys:String x:Key="LOC_APM_Action_RestoreVolume">Restaurer Volume</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Res1080">1920x1080@60Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Res1440">2560x1440@60Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Res4K">3840x2160@60Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Action_Res720">1280x720@60Hz</sys:String>
+    <sys:String x:Key="LOC_APM_Action_RestoreResolution">Restaurer Resolution</sys:String>
+    <sys:String x:Key="LOC_APM_Action_WaitSeconds">{0} secondes</sys:String>
+
+    <!-- Template descriptions -->
+    <sys:String x:Key="LOC_APM_TemplateDesc_RetroArch">Modele pour RetroArch avec resolution, plein ecran et pilote video</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateDesc_Dolphin">Modele pour Dolphin Emulator avec resolution et plein ecran</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateDesc_PCSX2">Modele pour PCSX2 avec resolution et plein ecran</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateDesc_PPSSPP">Modele pour PPSSPP avec resolution et plein ecran</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateDesc_Cemu">Modele pour Cemu Wii U Emulator</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateAction_ChangeRes">Changer Resolution {0}</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateAction_StartFullscreen">Demarrer {0} Plein Ecran</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateAction_Start">Demarrer {0}</sys:String>
+    <sys:String x:Key="LOC_APM_TemplateAction_RestoreRes">Restaurer Resolution Originale</sys:String>
+
+    <!-- Category Names -->
+    <sys:String x:Key="LOC_APM_Cat_Browser">Navigateur</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Communication">Communication</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Multimedia">Multimedia</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Gaming">Gaming</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_CloudSync">Cloud/Sync</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_HardwareOverlay">Hardware/Overlay</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_System">Systeme</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Script">Script</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Streaming">Streaming</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Audio">Audio</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Display">Affichage</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Utility">Utilitaires</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Emulators">Emulateurs</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_General">General</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Other">Autre</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Development">Developpement</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Creative">Creatif</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Resolution">Resolution</sys:String>
+    <sys:String x:Key="LOC_APM_Cat_Emulator">Emulateur</sys:String>
+
+    <!-- Main plugin notifications -->
+    <sys:String x:Key="LOC_APM_ProfileNotFound">Profil introuvable pour le jeu : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProfileAssigned">Profil assigne a {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ProfileRemovedFrom">Profil supprime de {0}</sys:String>
+    <sys:String x:Key="LOC_APM_ExecutionError">Erreur d'execution des actions du profil : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_SettingsLoadFailed">Echec de chargement des parametres : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_SettingsViewLoadFailed">Echec de chargement de la vue des parametres : {0}</sys:String>
+
+</ResourceDictionary>

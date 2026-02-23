@@ -12,7 +12,7 @@ namespace AutomationProfileManager.Services
         public string Name { get; set; } = string.Empty;
         public string ExecutablePath { get; set; } = string.Empty;
         public string ProcessName { get; set; } = string.Empty;
-        public string Category { get; set; } = "Generale";
+        public string Category { get; set; } = "General";
     }
 
     public class InstalledAppsService
@@ -274,7 +274,7 @@ namespace AutomationProfileManager.Services
                 return "Browser";
 
             if (new[] { "discord", "teams", "slack", "zoom", "skype", "telegram", "whatsapp", "signal" }.Any(c => lowerName.Contains(c)))
-                return "Comunicazione";
+                return "Communication";
 
             if (new[] { "spotify", "itunes", "music", "vlc", "media", "player", "youtube" }.Any(m => lowerName.Contains(m)))
                 return "Multimedia";
@@ -286,15 +286,15 @@ namespace AutomationProfileManager.Services
                 return "Hardware/Overlay";
 
             if (new[] { "code", "visual studio", "notepad", "sublime", "atom", "intellij", "pycharm" }.Any(d => lowerName.Contains(d)))
-                return "Sviluppo";
+                return "Development";
 
             if (new[] { "photoshop", "premiere", "blender", "gimp", "audacity", "davinci" }.Any(c => lowerName.Contains(c)))
-                return "Creativita";
+                return "Creative";
 
             if (new[] { "onedrive", "dropbox", "google drive", "backup", "sync" }.Any(s => lowerName.Contains(s)))
                 return "Cloud/Sync";
 
-            return "Altro";
+            return "Other";
         }
     }
 }

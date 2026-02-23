@@ -14,7 +14,7 @@ namespace AutomationProfileManager.Models
         public bool IsMirrorAction { get; set; }
         public int Priority { get; set; }
         public int WaitSeconds { get; set; }
-        public string Category { get; set; } = "Generale";
+        public string Category { get; set; } = "General";
         
         // Tag personalizzati per organizzazione
         public List<string> Tags { get; set; } = new List<string>();
