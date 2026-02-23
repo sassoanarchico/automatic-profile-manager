@@ -427,4 +427,27 @@ para {3} apps seleccionadas.</sys:String>
     <sys:String x:Key="LOC_APM_SettingsLoadFailed">Error al cargar configuracion: {0}</sys:String>
     <sys:String x:Key="LOC_APM_SettingsViewLoadFailed">Error al cargar la vista de configuracion: {0}</sys:String>
 
+    <!-- Sidebar -->
+    <sys:String x:Key="LOC_APM_Sidebar_Title">Gestor de Perfiles</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Gestiona perfiles de automatizacion y asignaciones de juegos</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Asignar Perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Refresh">Actualizar</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">No se han creado perfiles. Abre la Configuracion para crear perfiles.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Actions">acciones</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Asignar un juego a este perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">No hay juegos asignados</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Eliminar asignacion</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Selecciona un juego para asignar...</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Asignar juego a: {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">No hay perfiles disponibles. Crea perfiles en la Configuracion primero.</sys:String>
+
+    <!-- Menu Items -->
+    <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Gestionar Perfiles...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_CreateBackup">Crear Respaldo</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_AssignProfile">Asignar Perfil...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_RemoveProfile">Eliminar Asignacion de Perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ViewProfile">Ver Perfil Asignado</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ProfileInfo">Perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_NoProfileAssigned">No hay perfil asignado a este juego.</sys:String>
+
 </ResourceDictionary>

@@ -427,4 +427,28 @@ per {3} app selezionate.</sys:String>
     <sys:String x:Key="LOC_APM_SettingsLoadFailed">Caricamento impostazioni non riuscito: {0}</sys:String>
     <sys:String x:Key="LOC_APM_SettingsViewLoadFailed">Caricamento interfaccia impostazioni non riuscito: {0}</sys:String>
 
+    <!-- Sidebar -->
+    <sys:String x:Key="LOC_APM_Sidebar_Title">Gestione Profili</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Gestisci profili di automazione e assegnazioni giochi</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Assegna Profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Refresh">Aggiorna</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">Non hai ancora creato nessun profilo. Apri le Impostazioni per crearli.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Actions">azioni</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Assegna un gioco a questo profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">Nessun gioco assegnato</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Rimuovi assegnazione</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Seleziona un gioco da assegnare...</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Assegna gioco a: {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">Nessun profilo disponibile. Crea dei profili nelle Impostazioni.</sys:String>
+
+    <!-- Menu -->
+    <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Gestisci Profili...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_CreateBackup">Crea Backup</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_AssignProfile">Assegna Profilo...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_RemoveProfile">Rimuovi Assegnazione Profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ViewProfile">Vedi Profilo Assegnato</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ProfileInfo">Profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_NoProfileAssigned">Nessun profilo assegnato a questo gioco.</sys:String>
+    <sys:String x:Key="LOC_APM_BackupCreated">Backup creato in: {0}</sys:String>
+
 </ResourceDictionary>

@@ -427,4 +427,27 @@ pour {3} apps selectionnees.</sys:String>
     <sys:String x:Key="LOC_APM_SettingsLoadFailed">Echec de chargement des parametres : {0}</sys:String>
     <sys:String x:Key="LOC_APM_SettingsViewLoadFailed">Echec de chargement de la vue des parametres : {0}</sys:String>
 
+    <!-- Sidebar -->
+    <sys:String x:Key="LOC_APM_Sidebar_Title">Gestionnaire de Profils</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Gerer les profils d'automatisation et les affectations de jeux</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Assigner un Profil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Refresh">Actualiser</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">Aucun profil cree. Ouvrez les Parametres pour creer des profils.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Actions">actions</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Assigner un jeu a ce profil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">Aucun jeu assigne</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Supprimer l'affectation</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Selectionner un jeu a assigner...</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Assigner le jeu a : {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">Aucun profil disponible. Creez d'abord des profils dans les Parametres.</sys:String>
+
+    <!-- Menu Items -->
+    <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Gerer les Profils...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_CreateBackup">Creer une Sauvegarde</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_AssignProfile">Assigner un Profil...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_RemoveProfile">Supprimer l'Affectation du Profil</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ViewProfile">Voir le Profil Assigne</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ProfileInfo">Profil</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_NoProfileAssigned">Aucun profil assigne a ce jeu.</sys:String>
+
 </ResourceDictionary>

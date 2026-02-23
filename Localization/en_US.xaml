@@ -427,4 +427,28 @@ for {3} selected apps.</sys:String>
     <sys:String x:Key="LOC_APM_SettingsLoadFailed">Settings failed to load: {0}</sys:String>
     <sys:String x:Key="LOC_APM_SettingsViewLoadFailed">Settings view failed to load: {0}</sys:String>
 
+    <!-- Sidebar -->
+    <sys:String x:Key="LOC_APM_Sidebar_Title">Profile Manager</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Manage automation profiles and game assignments</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Assign Profile</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Refresh">Refresh</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">No profiles created yet. Open Settings to create profiles.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Actions">actions</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Assign a game to this profile</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">No games assigned</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Remove assignment</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Select a game to assign...</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Assign game to: {0}</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">No profiles available. Create profiles in the Settings first.</sys:String>
+
+    <!-- Menu -->
+    <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Manage Profiles...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_CreateBackup">Create Backup</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_AssignProfile">Assign Profile...</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_RemoveProfile">Remove Profile Assignment</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ViewProfile">View Assigned Profile</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_ProfileInfo">Profile</sys:String>
+    <sys:String x:Key="LOC_APM_Menu_NoProfileAssigned">No profile assigned to this game.</sys:String>
+    <sys:String x:Key="LOC_APM_BackupCreated">Backup created at: {0}</sys:String>
+
 </ResourceDictionary>

@@ -4,5 +4,6 @@ Author: sassoanarchico
 Version: 0.5.0
 Module: AutomationProfileManager.dll
 Type: GenericPlugin
+Icon: icon.png
 Description: Manage automation profiles for games with reusable actions
 Website: https://github.com/sassoanarchico/automation-profile-manager

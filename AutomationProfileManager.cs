@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using AutomationProfileManager.Models;
 using AutomationProfileManager.Services;
 using AutomationProfileManager.Views;
@@ -350,6 +352,160 @@ namespace AutomationProfileManager
             {
                 await actionExecutor.ExecuteActionAsync(action, dryRun: true);
             }
+        }
+
+        public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs menuArgs)
+        {
+            EnsureInitialized();
+            return new List<MainMenuItem>
+            {
+                new MainMenuItem
+                {
+                    Description = LocalizationService.GetString("LOC_APM_Menu_ManageProfiles"),
+                    MenuSection = "@Automation Profile Manager",
+                    Icon = "\uE77B",
+                    Action = args =>
+                    {
+                        try
+                        {
+                            var settingsView = new AutomationProfileManagerSettingsView(this);
+                            var window = new Window
+                            {
+                                Title = "Automation Profile Manager",
+                                Content = settingsView,
+                                Width = 900,
+                                Height = 600,
+                                WindowStartupLocation = WindowStartupLocation.CenterScreen
+                            };
+                            window.ShowDialog();
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex, "Error opening profile manager");
+                        }
+                    }
+                },
+                new MainMenuItem
+                {
+                    Description = LocalizationService.GetString("LOC_APM_Menu_CreateBackup"),
+                    MenuSection = "@Automation Profile Manager",
+                    Icon = "\uE78C",
+                    Action = args =>
+                    {
+                        EnsureInitialized();
+                        if (backupService != null && extensionData != null)
+                        {
+                            var path = backupService.CreateBackup(extensionData);
+                            if (path != null)
+                            {
+                                extensionData.Settings.LastBackupDate = DateTime.Now;
+                                SaveData();
+                                PlayniteApi.Dialogs.ShowMessage(
+                                    string.Format(LocalizationService.GetString("LOC_APM_BackupCreated"), path),
+                                    "Automation Profile Manager");
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs menuArgs)
+        {
+            EnsureInitialized();
+            return new List<GameMenuItem>
+            {
+                new GameMenuItem
+                {
+                    Description = LocalizationService.GetString("LOC_APM_Menu_AssignProfile"),
+                    MenuSection = "Automation Profile Manager",
+                    Icon = "\uE77B",
+                    Action = args =>
+                    {
+                        if (args.Games != null && args.Games.Count > 0)
+                        {
+                            ShowProfileAssignmentMenu(args.Games.ToList());
+                        }
+                    }
+                },
+                new GameMenuItem
+                {
+                    Description = LocalizationService.GetString("LOC_APM_Menu_RemoveProfile"),
+                    MenuSection = "Automation Profile Manager",
+                    Icon = "\uE74D",
+                    Action = args =>
+                    {
+                        if (args.Games != null)
+                        {
+                            foreach (var game in args.Games)
+                            {
+                                RemoveProfileAssignment(game);
+                            }
+                        }
+                    }
+                },
+                new GameMenuItem
+                {
+                    Description = LocalizationService.GetString("LOC_APM_Menu_ViewProfile"),
+                    MenuSection = "Automation Profile Manager",
+                    Icon = "\uE946",
+                    Action = args =>
+                    {
+                        if (args.Games != null && args.Games.Count > 0)
+                        {
+                            var game = args.Games[0];
+                            var data = GetExtensionData();
+                            if (data.Mappings?.GameToProfile != null && 
+                                data.Mappings.GameToProfile.TryGetValue(game.Id, out var profileId))
+                            {
+                                var profile = data.Profiles?.FirstOrDefault(p => p.Id == profileId);
+                                if (profile != null)
+                                {
+                                    var actionsText = string.Join("\n", profile.Actions.Select(a => $"  - {a.Name} ({a.ExecutionPhase})"));
+                                    PlayniteApi.Dialogs.ShowMessage(
+                                        $"{LocalizationService.GetString("LOC_APM_Menu_ProfileInfo")}: {profile.Name}\n{LocalizationService.GetString("LOC_APM_Sidebar_Actions")}: {profile.Actions.Count}\n\n{actionsText}",
+                                        "Automation Profile Manager");
+                                }
+                                else
+                                {
+                                    PlayniteApi.Dialogs.ShowMessage(
+                                        LocalizationService.GetString("LOC_APM_Menu_NoProfileAssigned"),
+                                        "Automation Profile Manager");
+                                }
+                            }
+                            else
+                            {
+                                PlayniteApi.Dialogs.ShowMessage(
+                                    LocalizationService.GetString("LOC_APM_Menu_NoProfileAssigned"),
+                                    "Automation Profile Manager");
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        public override IEnumerable<SidebarItem> GetSidebarItems()
+        {
+            return new List<SidebarItem>
+            {
+                new SidebarItem
+                {
+                    Title = "Profile Manager",
+                    Type = SiderbarItemType.View,
+                    Icon = new TextBlock
+                    {
+                        Text = "\uE77B",
+                        FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                        FontSize = 20
+                    },
+                    Opened = () =>
+                    {
+                        EnsureInitialized();
+                        return new ProfileManagerSidebarView(PlayniteApi, this);
+                    }
+                }
+            };
         }
 
         public ExtensionData GetExtensionData()
