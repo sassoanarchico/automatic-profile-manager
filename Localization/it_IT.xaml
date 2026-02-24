@@ -432,14 +432,33 @@ per {3} app selezionate.</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Gestisci profili di automazione e assegnazioni giochi</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Assegna Profilo</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_Refresh">Aggiorna</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">Non hai ancora creato nessun profilo. Apri le Impostazioni per crearli.</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_Actions">azioni</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">Non hai ancora creato nessun profilo.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_CreateFirstProfile">Clicca qui sotto per creare il tuo primo profilo.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_CreateProfile">Nuovo Profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ProfileName">Nome del profilo:</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NameRequired">Il nome del profilo non può essere vuoto.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RenameProfile">Rinomina profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_DeleteProfile">Elimina profilo</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ConfirmDelete">Sei sicuro di voler eliminare il profilo "{0}" e tutte le sue assegnazioni?</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AddAction">Aggiungi azione</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_EditAction">Modifica azione</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAction">Rimuovi azione</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ConfirmRemoveAction">Rimuovere l'azione "{0}" da questo profilo?</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoActions">Nessuna azione configurata</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Actions">Azioni</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignedGames">Giochi Assegnati</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Assegna un gioco a questo profilo</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">Nessun gioco assegnato</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Rimuovi assegnazione</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Seleziona un gioco da assegnare...</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Assegna gioco a: {0}</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">Nessun profilo disponibile. Crea dei profili nelle Impostazioni.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">Nessun profilo disponibile. Crea prima un profilo.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ErrorLoading">Impossibile caricare la sidebar Profile Manager. Controlla il log di Playnite per i dettagli.</sys:String>
+
+    <!-- Fasi di Esecuzione -->
+    <sys:String x:Key="LOC_APM_Phase_Before">Prima</sys:String>
+    <sys:String x:Key="LOC_APM_Phase_After">Dopo</sys:String>
+    <sys:String x:Key="LOC_APM_Phase_Close">Alla Chiusura</sys:String>
 
     <!-- Menu -->
     <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Gestisci Profili...</sys:String>

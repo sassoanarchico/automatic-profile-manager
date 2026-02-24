@@ -501,8 +501,23 @@ namespace AutomationProfileManager
                     },
                     Opened = () =>
                     {
-                        EnsureInitialized();
-                        return new ProfileManagerSidebarView(PlayniteApi, this);
+                        try
+                        {
+                            EnsureInitialized();
+                            return new ProfileManagerSidebarView(PlayniteApi, this);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex, "Error creating sidebar view");
+                            var errorControl = new UserControl();
+                            errorControl.Content = new TextBlock
+                            {
+                                Text = LocalizationService.GetString("LOC_APM_Sidebar_ErrorLoading"),
+                                Margin = new Thickness(20),
+                                TextWrapping = TextWrapping.Wrap
+                            };
+                            return errorControl;
+                        }
                     }
                 }
             };

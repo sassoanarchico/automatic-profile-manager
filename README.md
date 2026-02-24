@@ -4,7 +4,7 @@
 
 **Playnite extension that automates app management and system settings when you play games**
 
-[![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)]()
 [![Platform](https://img.shields.io/badge/platform-Playnite%2010+-purple.svg)]()
 [![Framework](https://img.shields.io/badge/.NET-Framework%204.8-green.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -92,6 +92,7 @@ Close distracting apps, launch utilities, change resolution, control volume, run
 | **Multi-Select** | Select multiple actions with Ctrl+Click or Shift+Click |
 | **Custom Tags** | Organize actions with comma-separated tags |
 | **Find & Replace Paths** | Bulk-update executable paths across profiles |
+| **Sidebar App** | Dedicated Playnite sidebar panel for quick profile management (create, rename, delete, assign) |
 | **Dark Theme** | Follows Playnite theme (dark/light) |
 | **Localization** | English, Italian, Spanish, French, German — extensible via XAML resource files |
 
@@ -190,7 +191,7 @@ Accessible from **Menu → Extensions → Extension settings → Automation Prof
 AutomationProfileManager/
 ├── AutomationProfileManager.cs           # Entry point: GenericPlugin, game events, profile execution
 ├── AutomationProfileManagerSettings.cs   # ISettings implementation
-├── extension.yaml                        # Playnite manifest (v0.5.0)
+├── extension.yaml                        # Playnite manifest (v0.6.0)
 │
 ├── Models/
 │   ├── GameAction.cs              # Action definition (type, path, args, conditions, phase)
@@ -227,6 +228,7 @@ AutomationProfileManager/
 │   ├── ApplicationSelectionDialog.xaml/.cs  # Installed app picker
 │   ├── ProfileAssignmentDialog.xaml/.cs    # Profile-to-game assignment
 │   ├── SetupWizardDialog.xaml/.cs          # First-run wizard (6 steps)
+│   ├── ProfileManagerSidebarView.xaml/.cs   # Sidebar panel: profile CRUD + game assignment
 │   ├── TextInputDialog.xaml/.cs            # Simple text prompt
 │   └── Styles/
 │       └── DarkTheme.xaml                  # Centralized dark theme styles
@@ -363,6 +365,7 @@ See [CHANGELOG.txt](CHANGELOG.txt) for the complete list of changes.
 
 ### Latest versions
 
+- **v0.6.0** — Sidebar app for profile management, improved icon display, error-safe sidebar loading
 - **v0.5.0** — Full internationalization (5 languages), 9 new actions, Focus Assist support, standardized categories
 - **v0.4.0** — Internal development version
 - **v0.3.2** — Multi-select actions, Delete key support, improved action categories

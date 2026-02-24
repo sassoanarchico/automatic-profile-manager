@@ -26,13 +26,25 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style x:Key="ActionChip" TargetType="Border">
+            <Setter Property="Background" Value="#12607080"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,2,6,2"/>
         </Style>
         <Style x:Key="GameChip" TargetType="Border">
             <Setter Property="Background" Value="#15808080"/>
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Margin" Value="0,2,6,2"/>
+        </Style>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Opacity" Value="0.55"/>
+            <Setter Property="Margin" Value="0,8,0,4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
     </UserControl.Resources>
 
@@ -66,14 +78,25 @@
                 Background="#06808080"
                 BorderBrush="#18808080" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal">
+                <!-- Create New Profile -->
+                <Button Style="{StaticResource ToolbarBtn}" Click="CreateProfileButton_Click"
+                        ToolTip="{DynamicResource LOC_APM_Sidebar_CreateProfile}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="{DynamicResource LOC_APM_Sidebar_CreateProfile}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <!-- Assign Profile to Game -->
                 <Button Style="{StaticResource ToolbarBtn}" Click="AssignProfileButton_Click"
                         ToolTip="{DynamicResource LOC_APM_Sidebar_AssignProfile}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                        <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                                    VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBlock Text="{DynamicResource LOC_APM_Sidebar_AssignProfile}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <!-- Refresh -->
                 <Button Style="{StaticResource ToolbarBtn}" Click="RefreshButton_Click"
                         ToolTip="{DynamicResource LOC_APM_Sidebar_Refresh}">
                     <StackPanel Orientation="Horizontal">
@@ -89,11 +112,23 @@
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="12,8">
             <StackPanel>
                 <!-- Empty State -->
-                <TextBlock x:Name="EmptyStateText" 
-                           Text="{DynamicResource LOC_APM_Sidebar_NoProfiles}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Opacity="0.4" FontSize="14" Margin="0,40,0,0"
-                           Visibility="Collapsed"/>
+                <StackPanel x:Name="EmptyStatePanel" Visibility="Collapsed"
+                            HorizontalAlignment="Center" Margin="0,60,0,0">
+                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="40" HorizontalAlignment="Center" Opacity="0.2" Margin="0,0,0,12"/>
+                    <TextBlock Text="{DynamicResource LOC_APM_Sidebar_NoProfiles}"
+                               HorizontalAlignment="Center" Opacity="0.4" FontSize="14"/>
+                    <TextBlock Text="{DynamicResource LOC_APM_Sidebar_CreateFirstProfile}"
+                               HorizontalAlignment="Center" Opacity="0.3" FontSize="12" Margin="0,4,0,12"/>
+                    <Button Click="CreateProfileButton_Click" HorizontalAlignment="Center"
+                            Padding="16,8" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource LOC_APM_Sidebar_CreateProfile}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
 
                 <!-- Profiles -->
                 <ItemsControl x:Name="ProfilesItemsControl">
@@ -102,7 +137,7 @@
                             <Border Style="{StaticResource ProfileCard}">
                                 <StackPanel>
                                     <!-- Profile Header -->
-                                    <DockPanel Margin="0,0,0,6">
+                                    <DockPanel Margin="0,0,0,4">
                                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                             <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
                                                        FontSize="16" VerticalAlignment="Center"
@@ -111,19 +146,85 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
-                                            <TextBlock Text="{Binding ActionCount}" FontSize="12" Opacity="0.5"
-                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                            <TextBlock Text="{DynamicResource LOC_APM_Sidebar_Actions}" FontSize="12" Opacity="0.5"
-                                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <!-- Rename -->
+                                            <Button Style="{StaticResource IconBtn}" Click="RenameProfile_Click"
+                                                    Tag="{Binding ProfileId}"
+                                                    ToolTip="{DynamicResource LOC_APM_Sidebar_RenameProfile}">
+                                                <TextBlock Text="&#xE8AC;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                            </Button>
+                                            <!-- Add Action -->
+                                            <Button Style="{StaticResource IconBtn}" Click="AddActionToProfile_Click"
+                                                    Tag="{Binding ProfileId}"
+                                                    ToolTip="{DynamicResource LOC_APM_Sidebar_AddAction}">
+                                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                            </Button>
+                                            <!-- Assign Game -->
                                             <Button Style="{StaticResource IconBtn}" Click="AssignToProfile_Click"
                                                     Tag="{Binding ProfileId}"
                                                     ToolTip="{DynamicResource LOC_APM_Sidebar_AssignGameToProfile}">
-                                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                                <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                            </Button>
+                                            <!-- Delete Profile -->
+                                            <Button Style="{StaticResource IconBtn}" Click="DeleteProfile_Click"
+                                                    Tag="{Binding ProfileId}"
+                                                    ToolTip="{DynamicResource LOC_APM_Sidebar_DeleteProfile}">
+                                                <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                           Foreground="#FF6B68"/>
                                             </Button>
                                         </StackPanel>
                                     </DockPanel>
 
-                                    <!-- Assigned Games -->
+                                    <!-- ACTIONS SECTION -->
+                                    <TextBlock Style="{StaticResource SectionHeader}" Margin="24,4,0,4">
+                                        <Run Text="{DynamicResource LOC_APM_Sidebar_Actions}"/>
+                                        <Run Text=" ("/>
+                                        <Run Text="{Binding ActionCount, Mode=OneWay}"/>
+                                        <Run Text=")"/>
+                                    </TextBlock>
+                                    <ItemsControl ItemsSource="{Binding Actions}" Margin="24,0,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource ActionChip}">
+                                                    <DockPanel>
+                                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                                            <TextBlock Text="{Binding PhaseIcon}" FontFamily="Segoe MDL2 Assets"
+                                                                       FontSize="11" VerticalAlignment="Center"
+                                                                       Margin="0,0,5,0" Opacity="0.6"/>
+                                                            <TextBlock Text="{Binding ActionName}" FontSize="12"
+                                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding PhaseLabel}" FontSize="10"
+                                                                       Opacity="0.4" VerticalAlignment="Center"
+                                                                       Margin="6,0,0,0"/>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                                            <Button Style="{StaticResource IconBtn}" Click="EditAction_Click"
+                                                                    Tag="{Binding}" Padding="2"
+                                                                    ToolTip="{DynamicResource LOC_APM_Sidebar_EditAction}">
+                                                                <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                                                            </Button>
+                                                            <Button Style="{StaticResource IconBtn}" Click="RemoveAction_Click"
+                                                                    Tag="{Binding}" Padding="2"
+                                                                    ToolTip="{DynamicResource LOC_APM_Sidebar_RemoveAction}">
+                                                                <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" 
+                                                                           FontSize="10" Foreground="#FF6B68"/>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </DockPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Text="{DynamicResource LOC_APM_Sidebar_NoActions}"
+                                               FontSize="11" Opacity="0.3" Margin="24,2,0,0"
+                                               Visibility="{Binding NoActionsVisibility}"/>
+
+                                    <!-- ASSIGNED GAMES SECTION -->
+                                    <TextBlock Style="{StaticResource SectionHeader}" Margin="24,6,0,4">
+                                        <Run Text="{DynamicResource LOC_APM_Sidebar_AssignedGames}"/>
+                                        <Run Text=" ("/>
+                                        <Run Text="{Binding GameCount, Mode=OneWay}"/>
+                                        <Run Text=")"/>
+                                    </TextBlock>
                                     <ItemsControl ItemsSource="{Binding AssignedGames}" Margin="24,0,0,0">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -152,10 +253,8 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-
-                                    <!-- No games assigned message -->
                                     <TextBlock Text="{DynamicResource LOC_APM_Sidebar_NoGamesAssigned}"
-                                               FontSize="11" Opacity="0.35" Margin="24,2,0,0"
+                                               FontSize="11" Opacity="0.3" Margin="24,2,0,0"
                                                Visibility="{Binding NoGamesVisibility}"/>
                                 </StackPanel>
                             </Border>

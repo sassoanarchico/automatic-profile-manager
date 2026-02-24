@@ -429,17 +429,36 @@ para {3} apps seleccionadas.</sys:String>
 
     <!-- Sidebar -->
     <sys:String x:Key="LOC_APM_Sidebar_Title">Gestor de Perfiles</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Gestiona perfiles de automatizacion y asignaciones de juegos</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Gestiona perfiles de automatización y asignaciones de juegos</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Asignar Perfil</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_Refresh">Actualizar</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">No se han creado perfiles. Abre la Configuracion para crear perfiles.</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_Actions">acciones</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">No se han creado perfiles todavía.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_CreateFirstProfile">Haz clic abajo para crear tu primer perfil.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_CreateProfile">Nuevo Perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ProfileName">Nombre del perfil:</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NameRequired">El nombre del perfil no puede estar vacío.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RenameProfile">Renombrar perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_DeleteProfile">Eliminar perfil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ConfirmDelete">¿Estás seguro de que quieres eliminar el perfil "{0}" y todas sus asignaciones?</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AddAction">Añadir acción</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_EditAction">Editar acción</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAction">Eliminar acción</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ConfirmRemoveAction">¿Eliminar la acción "{0}" de este perfil?</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoActions">Sin acciones configuradas</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_Actions">Acciones</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignedGames">Juegos Asignados</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Asignar un juego a este perfil</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">No hay juegos asignados</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Eliminar asignacion</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Eliminar asignación</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Selecciona un juego para asignar...</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Asignar juego a: {0}</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">No hay perfiles disponibles. Crea perfiles en la Configuracion primero.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">No hay perfiles disponibles. Crea primero un perfil.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ErrorLoading">No se pudo cargar la barra lateral del Gestor de Perfiles. Revisa el registro de Playnite.</sys:String>
+
+    <!-- Fases de Ejecución -->
+    <sys:String x:Key="LOC_APM_Phase_Before">Antes</sys:String>
+    <sys:String x:Key="LOC_APM_Phase_After">Después</sys:String>
+    <sys:String x:Key="LOC_APM_Phase_Close">Al Cerrar</sys:String>
 
     <!-- Menu Items -->
     <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Gestionar Perfiles...</sys:String>

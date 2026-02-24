@@ -432,14 +432,33 @@ fuer {3} ausgewaehlte Apps.</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_Subtitle">Automatisierungsprofile und Spielzuweisungen verwalten</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignProfile">Profil zuweisen</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_Refresh">Aktualisieren</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">Noch keine Profile erstellt. Oeffnen Sie die Einstellungen, um Profile zu erstellen.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfiles">Noch keine Profile erstellt.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_CreateFirstProfile">Klicken Sie unten, um Ihr erstes Profil zu erstellen.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_CreateProfile">Neues Profil</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ProfileName">Profilname:</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NameRequired">Der Profilname darf nicht leer sein.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RenameProfile">Profil umbenennen</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_DeleteProfile">Profil löschen</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ConfirmDelete">Sind Sie sicher, dass Sie das Profil „{0}" und alle Zuweisungen löschen möchten?</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AddAction">Aktion hinzufügen</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_EditAction">Aktion bearbeiten</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_RemoveAction">Aktion entfernen</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ConfirmRemoveAction">Aktion „{0}" aus diesem Profil entfernen?</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoActions">Keine Aktionen konfiguriert</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_Actions">Aktionen</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_AssignedGames">Zugewiesene Spiele</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignGameToProfile">Ein Spiel diesem Profil zuweisen</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_NoGamesAssigned">Keine Spiele zugewiesen</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_RemoveAssignment">Zuweisung entfernen</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Ein Spiel zum Zuweisen auswaehlen...</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_SelectGame">Ein Spiel zum Zuweisen auswählen...</sys:String>
     <sys:String x:Key="LOC_APM_Sidebar_AssignGameTo">Spiel zuweisen an: {0}</sys:String>
-    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">Keine Profile verfuegbar. Erstellen Sie zuerst Profile in den Einstellungen.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_NoProfilesToAssign">Keine Profile verfügbar. Erstellen Sie zuerst ein Profil.</sys:String>
+    <sys:String x:Key="LOC_APM_Sidebar_ErrorLoading">Die Seitenleiste des Profilmanagers konnte nicht geladen werden. Überprüfen Sie das Playnite-Protokoll.</sys:String>
+
+    <!-- Ausführungsphasen -->
+    <sys:String x:Key="LOC_APM_Phase_Before">Vorher</sys:String>
+    <sys:String x:Key="LOC_APM_Phase_After">Nachher</sys:String>
+    <sys:String x:Key="LOC_APM_Phase_Close">Beim Schließen</sys:String>
 
     <!-- Menu Items -->
     <sys:String x:Key="LOC_APM_Menu_ManageProfiles">Profile verwalten...</sys:String>

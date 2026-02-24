@@ -11,6 +11,15 @@ namespace AutomationProfileManager.Views
             PromptLabel.Content = prompt;
         }
 
+        public TextInputDialog(string title, string prompt, string defaultText) : this(title, prompt)
+        {
+            if (!string.IsNullOrEmpty(defaultText))
+            {
+                InputTextBox.Text = defaultText;
+                InputTextBox.SelectAll();
+            }
+        }
+
         private void OK_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
@@ -24,6 +33,11 @@ namespace AutomationProfileManager.Views
         }
 
         public string GetText()
+        {
+            return InputTextBox.Text;
+        }
+
+        public string GetInput()
         {
             return InputTextBox.Text;
         }
