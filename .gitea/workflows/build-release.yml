@@ -1,0 +1,117 @@
+name: Build and Release .pext
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Ensure Playnite SDK
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $sdkPath = Join-Path $PWD "lib/Playnite.SDK.dll"
+          if (Test-Path $sdkPath) {
+            Write-Host "Playnite.SDK.dll already in lib/. Skipping download."
+            return
+          }
+
+          $repo = "JosefNemec/Playnite"
+          $tmp = $env:RUNNER_TEMP
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest"
+          $assets = $release.assets
+
+          $asset = $assets | Where-Object { $_.name -like "PlayniteSDK*" -and ($_.name -like "*.zip" -or $_.name -like "*.7z") } | Select-Object -First 1
+          if (-not $asset) {
+            $asset = $assets | Where-Object { $_.name -match '^\d+\.\d+\.(zip|7z)$' } | Select-Object -First 1
+          }
+          if (-not $asset) { throw "No suitable Playnite asset found." }
+
+          $archivePath = Join-Path $tmp $asset.name
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $archivePath
+
+          $extractDir = Join-Path $tmp "playnite"
+          if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+          if ($archivePath -like "*.zip") {
+            Expand-Archive -Path $archivePath -DestinationPath $extractDir -Force
+          } elseif ($archivePath -like "*.7z") {
+            & 7z x $archivePath "-o$extractDir" -y | Out-Null
+          }
+
+          $sdk = Get-ChildItem -Path $extractDir -Recurse -Filter "Playnite.SDK.dll" | Select-Object -First 1
+          if (-not $sdk) { throw "Playnite.SDK.dll not found." }
+
+          $destDir = Join-Path $PWD "lib"
+          New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+          Copy-Item -Force -Path $sdk.FullName -Destination (Join-Path $destDir "Playnite.SDK.dll")
+
+      - name: Read version from extension.yaml
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $line = Select-String -Path "extension.yaml" -Pattern "^\s*Version\s*:" | Select-Object -First 1
+          $version = ($line.Line -split ":", 2)[1].Trim()
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TAG=v$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Restore packages
+        run: dotnet restore "AutomationProfileManager.csproj"
+
+      - name: Build (Release)
+        run: msbuild "AutomationProfileManager.csproj" /t:Rebuild /p:Configuration=Release /v:minimal
+
+      - name: Create .pext package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $releaseDir = Join-Path $PWD "bin\Release"
+          $zipFile = "AutomationProfileManager_v$($env:VERSION).zip"
+          $pextFile = "AutomationProfileManager_v$($env:VERSION).pext"
+          Compress-Archive -Path (Join-Path $releaseDir "*") -DestinationPath $zipFile -Force
+          Rename-Item -Path $zipFile -NewName $pextFile
+          if (-not (Test-Path $pextFile)) { throw ".pext not created" }
+
+      - name: Create Gitea Release and upload .pext
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $tag = $env:TAG
+          $file = "AutomationProfileManager_v$($env:VERSION).pext"
+          $baseUrl = "${{ github.server_url }}/api/v1"
+          $repo = "${{ github.repository }}"
+          $headers = @{ "Authorization" = "token ${{ github.token }}"; "Content-Type" = "application/json" }
+
+          try {
+            $rel = Invoke-RestMethod -Uri "$baseUrl/repos/$repo/releases/tags/$tag" -Headers $headers
+            $releaseId = $rel.id
+          } catch {
+            $body = @{ tag_name = $tag; name = "AutomationProfileManager $tag"; body = "Automated release"; draft = $false; prerelease = $false } | ConvertTo-Json
+            $rel = Invoke-RestMethod -Uri "$baseUrl/repos/$repo/releases" -Method POST -Headers $headers -Body $body
+            $releaseId = $rel.id
+          }
+
+          $assets = Invoke-RestMethod -Uri "$baseUrl/repos/$repo/releases/$releaseId/assets" -Headers @{ "Authorization" = "token ${{ github.token }}" }
+          $existing = $assets | Where-Object { $_.name -eq $file }
+          if ($existing) {
+            Invoke-RestMethod -Uri "$baseUrl/repos/$repo/releases/$releaseId/assets/$($existing.id)" -Method DELETE -Headers @{ "Authorization" = "token ${{ github.token }}" }
+          }
+
+          $uploadUrl = "$baseUrl/repos/$repo/releases/$releaseId/assets?name=$file"
+          $bytes = [System.IO.File]::ReadAllBytes((Resolve-Path $file))
+          Invoke-RestMethod -Uri $uploadUrl -Method POST -Headers @{ "Authorization" = "token ${{ github.token }}" } -ContentType "application/octet-stream" -Body $bytes
+          Write-Host "Uploaded $file to release $tag"
