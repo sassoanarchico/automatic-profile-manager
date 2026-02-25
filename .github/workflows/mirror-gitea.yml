@@ -1,0 +1,28 @@
+name: Mirror to Gitea
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEA_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 2222 git.fp-erpaffo-ser.uk >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Push to Gitea
+        run: |
+          git remote add gitea ssh://git@git.fp-erpaffo-ser.uk:2222/erpaffo/automatic-profile-manager-playnite.git
+          git push gitea --all --force
+          git push gitea --tags --force
